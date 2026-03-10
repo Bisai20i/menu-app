@@ -4,8 +4,8 @@
 
 @section('content')
 <div>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold py-3 mb-0"><span class="text-muted fw-light">Menu /</span> Gallery</h4>
+    <div class="d-flex justify-content-between align-items-center">
+        <h4 class="fw-bold pb-3 mb-0"><span class="text-muted fw-light">Menu /</span> Gallery</h4>
     </div>
 
     @if (session('success'))

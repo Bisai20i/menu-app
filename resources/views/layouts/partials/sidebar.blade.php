@@ -74,7 +74,7 @@
         <li class="menu-item {{ request()->routeIs('master.subscription-plans*') ? 'active' : '' }}">
             <a href="{{ route('master.subscription-plans.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-money"></i>
-                <div data-i18n="QR Codes">Subscription Plans</div>
+                <div data-i18n="Subscription Plans">Subscription Plans</div>
             </a>
         </li>
 
@@ -85,11 +85,27 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->routeIs('master.admin-subscriptions*') ? 'active' : '' }}">
+            <a href="{{ route('master.admin-subscriptions.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user-check"></i>
+                <div data-i18n="Admin Subscriptions">Assign Subscriptions</div>
+            </a>
+        </li>
+
+        <!-- Billing -->
+        <li class="menu-item {{ request()->routeIs('master.billing') ? 'active' : '' }}">
+            <a href="{{ route('master.billing') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                <div data-i18n="Billing">Billing</div>
+            </a>
+        </li>
+
         <!-- Profile -->
+
         <li class="menu-item {{ request()->routeIs('master.profile') ? 'active' : '' }}">
             <a href="{{ route('master.profile') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>
-                <div data-i18n="Profile">Profile</div>
+                <div data-i18n="Profile">Manage Profile</div>
             </a>
         </li>
 

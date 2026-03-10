@@ -10,7 +10,8 @@ class MenuItemController extends BaseCrudController
     protected $model = MenuItem::class;
     protected $routePrefix = 'master.menu-items';
     protected $viewPath = 'base-crud';
-    protected $formPath = 'base-crud';
+    protected $formPath    = 'base-crud';
+    protected $arrayFields = ['dietary_info'];
 
     protected function rules($id = null): array
     {
@@ -74,6 +75,13 @@ class MenuItemController extends BaseCrudController
                 'default' => false,
             ],
             
+            'dietary_info' => [
+                'type' => 'array',
+                'label' => 'Dietary Information',
+                'placeholder' => 'e.g. Vegetarian, Gluten Free',
+                'column' => 'col-12',
+                'help' => 'Add tags like Vegan, Spicy, etc.',
+            ],
             'image' => [
                 'type' => 'image',
                 'label' => 'Item Image',

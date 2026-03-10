@@ -56,4 +56,51 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+## Base CRUD System
+
+The project includes a dynamic Base CRUD system to quickly generate management interfaces.
+
+### Supported Field Types
+
+| Type | Component | Description |
+|---|---|---|
+| `text` | `x-form.input` | Standard text input |
+| `number` | `x-form.input` | Number input with step support |
+| `textarea` | `x-form.text-area` | Multi-line text input |
+| `select` | `x-form.select` | Dropdown with dynamic options |
+| `image` | Custom | Image upload with preview and auto-deletion |
+| `json` | `x-form.json-field` | Dynamic key-value pair editor |
+| `array` | `x-form.array-field` | Dynamic list of single values (e.g. tags) |
+
+### Usage Example
+
+In your Controller (extending `BaseCrudController`):
+
+```php
+protected $jsonFields = ['settings'];
+protected $arrayFields = ['dietary_info'];
+
+protected function fields($item = null): array {
+    return [
+        'name' => ['type' => 'text', 'label' => 'Name', 'required' => true],
+        'dietary_info' => [
+            'type' => 'array',
+            'label' => 'Dietary Info',
+            'placeholder' => 'e.g. Vegan'
+        ],
+        'settings' => [
+            'type' => 'json',
+            'label' => 'Config',
+            'key_placeholder' => 'Setting Name'
+        ],
+    ];
+}
+```
+
+The system automatically handles:
+- Validation via `rules()` method.
+- File uploads and storage cleanup.
+- JSON/Array filtering (removes empty keys/values).
+- Cascading deletes for associated files.

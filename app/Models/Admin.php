@@ -54,6 +54,27 @@ class Admin extends Authenticable
         return $this->belongsTo(Restaurant::class);
     }
 
+    /**
+     * Get all subscriptions for this admin.
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(AdminSubscription::class);
+    }
+
+    /**
+     * Get the current active subscription.
+     */
+    public function activeSubscription()
+    {
+        return $this->hasOne(AdminSubscription::class)
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', now());
+            })
+            ->latest('starts_at');
+    }
 
     /**
      * Summary of getTableColumns

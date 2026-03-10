@@ -19,6 +19,17 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Admin Role</label>
+                        <select wire:model="role" value="{{ $role ?? 'admin' }}" class="form-select @error('role') is-invalid @enderror">
+                            <option value="">---Select Role ---</option>
+                            <option value="superadmin">Super Admin</option>
+                            <option value="admin">Admin</option>
+
+                        </select>
+                        @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Password {{ $adminId ? '(Leave blank to keep current)' : '' }}</label>
                         <input type="password" wire:model="password" class="form-control @error('password') is-invalid @enderror" placeholder="********">
                         @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror

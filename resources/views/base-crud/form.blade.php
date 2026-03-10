@@ -90,6 +90,9 @@
                                 @elseif($meta['type'] === 'json')
                                     <x-form.json-field :name="$name" :required="$meta['required'] ?? false" :value="old($name, $item->$name ?? [])"
                                         :key-placeholder="$meta['key_placeholder'] ?? 'Key'" :value-placeholder="$meta['value_placeholder'] ?? 'Value'" :value-type="$meta['value_type'] ?? 'text'" :help="$meta['help'] ?? null" />
+                                @elseif($meta['type'] === 'array')
+                                    <x-form.array-field :name="$name" :required="$meta['required'] ?? false" :value="old($name, $item->$name ?? [])"
+                                        :placeholder="$meta['placeholder'] ?? 'Item...'" :type="$meta['array_type'] ?? 'text'" :help="$meta['help'] ?? null" />
                                 @else
                                     <!-- Default Input (text, email, number, password, etc.) -->
                                     <x-form.input :type="$meta['type']" :required="$meta['required'] ?? false" :name="$name"

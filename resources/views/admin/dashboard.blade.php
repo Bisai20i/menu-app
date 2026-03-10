@@ -21,7 +21,7 @@
                             </div>
                             <div class="col-md-4 d-none d-md-block text-center text-white">
                                 <i class="bx bx-rocket" style="font-size: 120px; opacity: 0.2; position: absolute; right: -20px; bottom: -20px;"></i>
-                                <img src="{{ asset('logo.png') }}" alt="logo" class="img-fluid" style="max-height: 120px; filter: brightness(0) invert(1);">
+                                {{-- <img src="{{ asset('logo.png') }}" alt="logo" class="img-fluid" style="max-height: 120px; filter: brightness(0.5);"> --}}
                             </div>
                         </div>
                     </div>

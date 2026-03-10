@@ -10,7 +10,7 @@ class SubscriptionPlanController extends BaseCrudController
     protected $model       = SubscriptionPlan::class;
     protected $routePrefix = 'master.subscription-plans';
 
-    protected array $jsonFields = ['features'];
+    protected $jsonFields = ['features'];
 
     protected function rules($id = null): array
     {

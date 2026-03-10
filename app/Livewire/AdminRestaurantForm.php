@@ -28,6 +28,7 @@ class AdminRestaurantForm extends Component
         return [
             'name'            => 'required|string|max:255',
             'email'           => 'required|email|unique:admins,email,' . $this->adminId,
+            'role' => 'required|in:superadmin,admin,user',
             'password'        => $this->adminId ? 'nullable|min:8' : 'required|min:8',
             'restaurant_name' => 'required|string|max:255',
             'currency'        => 'required|string|max:10',
@@ -72,6 +73,7 @@ class AdminRestaurantForm extends Component
             $admin->update([
                 'name'  => $this->name,
                 'email' => $this->email,
+                'role'  => $this->role,
             ]);
 
             if ($this->password) {

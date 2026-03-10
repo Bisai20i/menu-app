@@ -13,6 +13,8 @@ abstract class BaseCrudController extends Controller
 
     protected $formPath       = 'base-crud'; // used for dynamic form ( create and edit )
     protected $imageDirectory = 'uploads';
+    protected $jsonFields     = [];
+    protected $arrayFields    = [];
 
     // Child must define these
     abstract protected function rules($id = null): array;
@@ -55,6 +57,7 @@ abstract class BaseCrudController extends Controller
 
         $data = $this->handleFileUploads($request, $validated);
         $data = $this->handleJsonFields($request, $data);
+        $data = $this->handleArrayFields($request, $data);
         $this->model::create($data);
   
         return redirect()->route($this->routePrefix . '.index')
@@ -83,6 +86,7 @@ abstract class BaseCrudController extends Controller
 
         $data = $this->handleFileUploads($request, $validated, $item);
         $data = $this->handleJsonFields($request, $data);
+        $data = $this->handleArrayFields($request, $data);
         $item->update($data);
 
         return redirect()->route($this->routePrefix . '.index')
@@ -145,6 +149,28 @@ abstract class BaseCrudController extends Controller
                 ->mapWithKeys(fn($row) => [
                     $row['key'] => $row['value'],
                 ])
+                ->toArray();
+        }
+
+        return $data;
+    }
+
+    /**
+     * Automatically handle simple array fields (list of values)
+     * @param Request $request
+     * @param array $data
+     * @return array
+     */
+    protected function handleArrayFields(Request $request, array $data): array
+    {
+        foreach ($this->arrayFields ?? [] as $field) {
+            if (! $request->has($field)) {
+                continue;
+            }
+
+            $data[$field] = collect($request->input($field))
+                ->filter(fn($val) => ! is_null($val) && (string)$val !== '')
+                ->values()
                 ->toArray();
         }
 

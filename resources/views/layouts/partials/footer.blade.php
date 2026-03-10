@@ -10,7 +10,7 @@
             <a href="https://tukisoft.com.np" target="_blank" class="footer-link fw-bolder">Tuki Soft Pvt. Ltd</a>
         </div>
         <div>
-            <a href="#" class="footer-link me-4" target="_blank">Go to Home Page</a>
+            <a href="/" class="footer-link me-4" target="_blank">Go to Home Page</a>
             {{-- <a href="https://themeselection.com/" target="_blank" class="footer-link me-4">More Themes</a>
 
             <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank"
