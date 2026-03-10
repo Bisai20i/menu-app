@@ -2,6 +2,7 @@
 namespace App\Livewire;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,7 +20,6 @@ class DynamicDataTable extends Component
     public string $sortField     = 'created_at';
     public string $sortDirection = 'desc';
     public int $perPage          = 10;
-
     protected $queryString = ['search', 'sortField', 'sortDirection'];
 
     public function placeholder()
@@ -35,7 +35,7 @@ class DynamicDataTable extends Component
 
         if (!class_exists($fullModelPath)) {
             // Log the error for easier debugging
-            \Illuminate\Support\Facades\Log::error("DynamicDataTable: Model [{$fullModelPath}] not found. Provided model string: [{$model}]");
+            Log::error("DynamicDataTable: Model [{$fullModelPath}] not found. Provided model string: [{$model}]");
             throw new \Exception("Model [{$fullModelPath}] not found. Check your model property in the Blade component.");
         }
 

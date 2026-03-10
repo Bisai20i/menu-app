@@ -22,7 +22,6 @@ trait BelongsToRestaurant
                     $builder->where('restaurant_id', $user->restaurant_id);
                 }
                 
-                // Note: Superadmins see everything because we don't apply the scope for them
             }
         });
 

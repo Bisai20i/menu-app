@@ -1,3 +1,6 @@
+@php
+    $is_super_admin = auth()->user()->is_super_admin;
+@endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo mb-2">
 
@@ -26,23 +29,23 @@
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Menu Management</span>
         </li>
+        @can('accessCreateMenu')
+            <!-- Menu Categories -->
+            <li class="menu-item {{ request()->is('*master/menu-categories*') ? 'active' : '' }}">
+                <a href="{{ route('master.menu-categories.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-category"></i>
+                    <div data-i18n="Menu Categories">Categories</div>
+                </a>
+            </li>
 
-        <!-- Menu Categories -->
-        <li class="menu-item {{ request()->is('*master/menu-categories*') ? 'active' : '' }}">
-            <a href="{{ route('master.menu-categories.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-category"></i>
-                <div data-i18n="Menu Categories">Categories</div>
-            </a>
-        </li>
-
-        <!-- Menu Items -->
-        <li class="menu-item {{ request()->is('*master/menu-items*') ? 'active' : '' }}">
-            <a href="{{ route('master.menu-items.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-food-menu"></i>
-                <div data-i18n="Menu Items">Menu Items</div>
-            </a>
-        </li>
-
+            <!-- Menu Items -->
+            <li class="menu-item {{ request()->is('*master/menu-items*') ? 'active' : '' }}">
+                <a href="{{ route('master.menu-items.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-food-menu"></i>
+                    <div data-i18n="Menu Items">Menu Items</div>
+                </a>
+            </li>
+        @endcan
         <!-- Menu Gallery -->
         <li class="menu-item {{ request()->routeIs('master.menu-gallery.*') ? 'active' : '' }}">
             <a href="{{ route('master.menu-gallery.index') }}" class="menu-link">
@@ -51,46 +54,47 @@
             </a>
         </li>
 
-        <!-- Restaurant Tables -->
-        <li class="menu-item {{ request()->routeIs('master.restaurant-tables.*') ? 'active' : '' }}">
-            <a href="{{ route('master.restaurant-tables.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-table"></i>
-                <div data-i18n="Tables">Restaurant Tables</div>
-            </a>
-        </li>
+        @can('accessCreateRestaurantTable')
+            <!-- Restaurant Tables -->
+            <li class="menu-item {{ request()->routeIs('master.restaurant-tables.*') ? 'active' : '' }}">
+                <a href="{{ route('master.restaurant-tables.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-table"></i>
+                    <div data-i18n="Tables">Restaurant Tables</div>
+                </a>
+            </li>
 
-        <!-- Table QR Codes -->
-        <li class="menu-item {{ request()->routeIs('master.table-qr') ? 'active' : '' }}">
-            <a href="{{ route('master.table-qr') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-qr"></i>
-                <div data-i18n="QR Codes">Table QR Codes</div>
-            </a>
-        </li>
-
+            <!-- Table QR Codes -->
+            <li class="menu-item {{ request()->routeIs('master.table-qr') ? 'active' : '' }}">
+                <a href="{{ route('master.table-qr') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-qr"></i>
+                    <div data-i18n="QR Codes">Table QR Codes</div>
+                </a>
+            </li>
+        @endcan
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Settings</span>
         </li>
+        @if ($is_super_admin)
+            <li class="menu-item {{ request()->routeIs('master.subscription-plans*') ? 'active' : '' }}">
+                <a href="{{ route('master.subscription-plans.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-money"></i>
+                    <div data-i18n="Subscription Plans">Subscription Plans</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->routeIs('master.admin-management.*') ? 'active' : '' }}">
+                <a href="{{ route('master.admin-management.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-group"></i>
+                    <div data-i18n="Admin Management">Admin Management</div>
+                </a>
+            </li>
 
-        <li class="menu-item {{ request()->routeIs('master.subscription-plans*') ? 'active' : '' }}">
-            <a href="{{ route('master.subscription-plans.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-money"></i>
-                <div data-i18n="Subscription Plans">Subscription Plans</div>
-            </a>
-        </li>
-
-        <li class="menu-item {{ request()->routeIs('master.admin-management.*') ? 'active' : '' }}">
-            <a href="{{ route('master.admin-management.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-group"></i>
-                <div data-i18n="Admin Management">Admin Management</div>
-            </a>
-        </li>
-
-        <li class="menu-item {{ request()->routeIs('master.admin-subscriptions*') ? 'active' : '' }}">
-            <a href="{{ route('master.admin-subscriptions.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-user-check"></i>
-                <div data-i18n="Admin Subscriptions">Assign Subscriptions</div>
-            </a>
-        </li>
+            <li class="menu-item {{ request()->routeIs('master.admin-subscriptions*') ? 'active' : '' }}">
+                <a href="{{ route('master.admin-subscriptions.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-user-check"></i>
+                    <div data-i18n="Admin Subscriptions">Assign Subscriptions</div>
+                </a>
+            </li>
+        @endif
 
         <!-- Billing -->
         <li class="menu-item {{ request()->routeIs('master.billing') ? 'active' : '' }}">
@@ -111,7 +115,7 @@
 
         <!-- Logout -->
         <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link border-0 bg-transparent w-100 text-start" 
+            <a href="javascript:void(0);" class="menu-link border-0 bg-transparent w-100 text-start"
                 data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="menu-icon tf-icons bx bx-power-off"></i>
                 <div data-i18n="Logout">Logout</div>

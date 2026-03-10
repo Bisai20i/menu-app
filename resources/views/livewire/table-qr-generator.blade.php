@@ -34,7 +34,7 @@
                             <button wire:click="downloadQR('{{ $table->uuid }}', '{{ $table->table_number }}')" class="btn btn-primary d-flex align-items-center justify-content-center">
                                 <i class="bx bx-download me-2"></i> Download SVG
                             </button>
-                            <a href="{{ url('/table/' . $table->uuid) }}" target="_blank" class="btn btn-link btn-sm text-muted text-decoration-none">
+                            <a href="{{ url('/'. auth('admin')->user()->restaurant->slug . '/' . $table->uuid) }}" target="_blank" class="btn btn-link btn-sm text-muted text-decoration-none">
                                 <i class="bx bx-link-external me-1"></i> Preview Link
                             </a>
                         </div>

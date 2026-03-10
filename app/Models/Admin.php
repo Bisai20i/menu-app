@@ -49,7 +49,7 @@ class Admin extends Authenticable
     /**
      * get the restaurant associated with the admin
      */
-    public function restaurant():BelongsTo
+    public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
     }
@@ -71,9 +71,17 @@ class Admin extends Authenticable
             ->where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
+                    ->orWhere('expires_at', '>', now());
             })
             ->latest('starts_at');
+    }
+
+    /**
+     * active subscription check convinience accessor
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription()->exists();
     }
 
     /**
