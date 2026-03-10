@@ -11,6 +11,7 @@ class SubscriptionPlan extends Model
 
     protected static function booted()
     {
+        parent::boot();
         static::creating(function ($model) {
             $model->admin_id = auth('admin')->id();
         });

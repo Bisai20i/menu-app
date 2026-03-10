@@ -119,19 +119,19 @@
                         </div>
                         <div class="card-body py-4">
                             <div class="row g-3">
-                                <div class="col-md-7 mb-3">
+                                <div class="col-12 mb-3">
                                     <label class="form-label fw-semibold">Restaurant Public Name</label>
                                     <input type="text" name="restaurant_name" class="form-control @error('restaurant_name') is-invalid @enderror" value="{{ old('restaurant_name', $admin->restaurant->name ?? '') }}" required>
                                     @error('restaurant_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="col-md-5 mb-3">
+                                {{-- <div class="col-md-5 mb-3">
                                     <label class="form-label fw-semibold">Unique Browser Slug</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text bg-light border text-muted fw-normal" style="font-size: 0.8rem;">/menu/</span>
                                         <input type="text" name="restaurant_slug" class="form-control @error('restaurant_slug') is-invalid @enderror" value="{{ old('restaurant_slug', $admin->restaurant->slug ?? '') }}" required>
                                     </div>
                                     @error('restaurant_slug') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                </div>
+                                </div> --}}
                                 <div class="col-12 mb-3">
                                     <label class="form-label fw-semibold">Business Description / Catchphrase</label>
                                     <textarea name="restaurant_description" class="form-control @error('restaurant_description') is-invalid @enderror" rows="4" placeholder="Briefly describe your restaurant, atmosphere or mission statement...">{{ old('restaurant_description', $admin->restaurant->description ?? '') }}</textarea>

@@ -30,6 +30,7 @@ class RestaurantTable extends Model
 
     protected static function booted()
     {
+        parent::boot();
         static::creating(function ($table) {
             $uuid = (string) Str::uuid();
             while (self::where('uuid', $uuid)->exists()) {

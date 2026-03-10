@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Restaurant extends Model
 {
@@ -40,12 +41,25 @@ class Restaurant extends Model
 
         static::creating(function ($restaurant) {
             if (empty($restaurant->slug)) {
-                $restaurant->slug = \Illuminate\Support\Str::slug($restaurant->name);
+                $restaurant->slug = Str::slug($restaurant->name);
                 
                 // Ensure slug is unique
                 $originalSlug = $restaurant->slug;
                 $count = 2;
                 while (static::where('slug', $restaurant->slug)->exists()) {
+                    $restaurant->slug = $originalSlug . '-' . $count++;
+                }
+            }
+        });
+
+        static::updating(function ($restaurant) {
+            if ($restaurant->isDirty('name') && !$restaurant->isDirty('slug')) {
+                $restaurant->slug = Str::slug($restaurant->name);
+                
+                // Ensure slug is unique
+                $originalSlug = $restaurant->slug;
+                $count = 2;
+                while (static::where('slug', $restaurant->slug)->where('id', '!=', $restaurant->id)->exists()) {
                     $restaurant->slug = $originalSlug . '-' . $count++;
                 }
             }

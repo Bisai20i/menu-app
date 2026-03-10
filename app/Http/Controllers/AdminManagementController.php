@@ -61,7 +61,6 @@ class AdminManagementController extends Controller
             'image'           => 'nullable|image|max:2048',
             
             'restaurant_name' => 'required|string|max:255',
-            'restaurant_slug' => 'required|string|max:255|unique:restaurants,slug,' . ($restaurant->id ?? 0),
             'restaurant_email'=> 'nullable|email|max:255',
             'restaurant_phone'=> 'nullable|string|max:20',
             'restaurant_address'=> 'nullable|string|max:500',

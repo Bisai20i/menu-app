@@ -14,6 +14,7 @@ class MenuCategory extends Model
     use BelongsToRestaurant;
 
     protected static function booted(){
+        parent::boot();
         static::creating(function ($category) {
             $slug = Str::slug($category->name);
             $count = self::where('slug', 'LIKE', "$slug%")->count();
