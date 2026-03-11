@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Traits\BelongsToRestaurant;
-use Illuminate\Database\Eloquent\Model;
-
 use App\Traits\HasDynamicTable;
-use Illuminate\Support\Str;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class RestaurantTable extends Model
 {
@@ -61,5 +63,56 @@ class RestaurantTable extends Model
                 'reserved'  => 'bg-warning',
             ],
         ];
+    }
+
+    /**
+     * All sessions ever created for this table.
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(TableSession::class);
+    }
+
+    /**
+     * The single currently active session for this table, if any.
+     */
+    public function activeSession(): HasOne
+    {
+        return $this->hasOne(TableSession::class)->where('status', 'active')->latest();
+    }
+
+    /**
+     * All orders ever placed at this table across all sessions.
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function hasActiveSession(): bool
+    {
+        return $this->activeSession()->exists();
+    }
+
+    /**
+     * Open a new session for this table.
+     * Ensures no duplicate active session is created.
+     */
+    public function openSession(int $restaurantId, ?int $openedByAdminId = null, ?int $guestCount = null): TableSession
+    {
+        if ($this->hasActiveSession()) {
+            return $this->activeSession;
+        }
+
+        $session = $this->sessions()->create([
+            'restaurant_id' => $restaurantId,
+            'opened_by'     => $openedByAdminId,
+            'guest_count'   => $guestCount,
+            'status'        => 'active',
+        ]);
+
+        $this->update(['status' => 'occupied']);
+
+        return $session;
     }
 }

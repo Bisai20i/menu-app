@@ -9,3 +9,187 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+:root {
+    /* Color Palette */
+    --brand: #C0392B;
+    --brand-dark: #96281B;
+    --brand-light: #FDECEA;
+    --gold: #E2A84B;
+    
+    /* Surfaces & Backgrounds */
+    --surface: #F7F6F3;
+    --surface-2: #EFEFEA;
+    --surface-3: #E8E7E2;
+    --surface-alt: #F5F3EE;
+    
+    /* Text Colors */
+    --ink: #1A1208;
+    --ink-muted: #7A7470;
+    --ink-faint: #B5AEA5;
+    
+    /* Borders */
+    --border: #E0DCD4;
+    --border-light: #EEE8DE;
+    
+    /* Spacing */
+    --radius-full: 50px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    
+    /* Shadows */
+    --shadow-card: 0 2px 8px rgba(26, 18, 8, 0.08);
+    --shadow-md: 0 4px 12px rgba(26, 18, 8, 0.12);
+    --shadow-hero: 0 4px 24px rgba(26, 18, 8, 0.15);
+    
+    /* Typography */
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    
+    /* Layout */
+    --nav-height: 68px;
+    --sidebar-width: 260px;
+}
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-family: var(--font-body);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--surface);
+    color: var(--ink);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    margin: 0;
+}
+
+h1 {
+    font-size: 2.5rem;
+    line-height: 1.1;
+}
+
+h2 {
+    font-size: 1.875rem;
+    line-height: 1.15;
+}
+
+h3 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Links */
+a {
+    color: var(--brand);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+a:hover {
+    color: var(--brand-dark);
+}
+
+/* Buttons */
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+/* Form Elements */
+input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-muted);
+}
+
+/* Utility Classes */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-muted {
+    color: var(--ink-muted);
+}
+
+.text-brand {
+    color: var(--brand);
+}
+
+.bg-brand {
+    background-color: var(--brand);
+}
+
+/* Focus Styles for Accessibility */
+:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
+button:focus-visible {
+    outline-offset: 0px;
+}
+
+/* Transitions */
+* {
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile-first responsive */
+@media (max-width: 992px) {
+    :root {
+        --nav-height: 56px;
+    }
+}

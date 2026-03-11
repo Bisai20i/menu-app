@@ -1,644 +1,294 @@
 <template>
-    <div class="orders-view">
-        <!-- Header -->
-        <div class="page-header">
-            <h1 class="page-title">My Orders</h1>
-            <div v-if="tableNumber" class="table-chip">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                </svg>
-                Table {{ tableNumber }}
-            </div>
+  <div class="min-h-screen bg-gray-50">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-100">
+      <div class="max-w-screen-xl mx-auto px-4 lg:px-8 h-16 flex items-center gap-3">
+        <button
+          class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors shrink-0"
+          @click="goBack">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <div class="flex-1 min-w-0">
+          <h1 class="font-bold text-gray-900 text-base leading-tight">My Orders</h1>
+          <p v-if="cartStore.tableNumber" class="text-xs text-gray-400">Table {{ cartStore.tableNumber }}</p>
         </div>
+        <!-- Refresh -->
+        <button
+          class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
+          :class="{ 'animate-spin': isRefreshing }" @click="loadOrders(true)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 4v6h6M23 20v-6h-6" />
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+          </svg>
+        </button>
+      </div>
+    </header>
 
-        <!-- Empty State -->
-        <div v-if="!ordersStore.orders.length" class="empty-state">
-            <div class="emoji">📋</div>
-            <h3>No orders yet</h3>
-            <p>Once you place an order it will appear here</p>
-            <router-link to="/" class="btn btn-primary" style="margin-top:8px">
-                Browse Menu
-            </router-link>
-        </div>
-
-        <template v-else>
-            <!-- Total Summary Banner -->
-            <div class="total-banner">
-                <div class="total-banner__left">
-                    <div class="total-banner__label">Total Spent</div>
-                    <div class="total-banner__amount">${{ ordersStore.totalSpent.toFixed(2) }}</div>
-                </div>
-                <div class="total-banner__stats">
-                    <div class="total-stat">
-                        <span class="total-stat__num">{{ ordersStore.orders.length }}</span>
-                        <span class="total-stat__label">Orders</span>
-                    </div>
-                    <div class="total-stat">
-                        <span class="total-stat__num">{{ totalItems }}</span>
-                        <span class="total-stat__label">Items</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Orders List -->
-            <div class="orders-list">
-                <TransitionGroup name="list">
-                    <div v-for="order in ordersStore.orders" :key="order.id" class="order-card"
-                        :class="`order-card--${order.status}`">
-                        <!-- Order Header -->
-                        <div class="order-card__header">
-                            <div class="order-card__meta">
-                                <span class="order-id">{{ order.id }}</span>
-                                <span class="order-time">{{ formatTime(order.placedAt) }}</span>
-                            </div>
-                            <span class="status-badge" :class="`status-${order.status}`">
-                                {{ statusLabel(order.status) }}
-                            </span>
-                        </div>
-
-                        <!-- Status Progress Bar -->
-                        <div v-if="order.status !== 'cancelled'" class="status-progress">
-                            <div v-for="(step, i) in statusSteps" :key="step.key" class="status-step" :class="{
-                                'done': stepIndex(order.status) > i,
-                                'active': stepIndex(order.status) === i
-                            }">
-                                <div class="step-dot">
-                                    <svg v-if="stepIndex(order.status) > i" width="10" height="10" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="3">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                </div>
-                                <div class="step-label">{{ step.label }}</div>
-                                <div v-if="i < statusSteps.length - 1" class="step-line"></div>
-                            </div>
-                        </div>
-
-                        <!-- Items -->
-                        <div class="order-items">
-                            <div v-for="item in order.items" :key="item.id" class="order-item">
-                                <div class="order-item__img-wrap">
-                                    <img v-if="item.image" :src="item.image" :alt="item.name" class="order-item__img" />
-                                    <div v-else class="order-item__img-ph">🍽️</div>
-                                </div>
-                                <div class="order-item__info">
-                                    <span class="order-item__name">{{ item.name }}</span>
-                                    <span class="order-item__qty">x{{ item.quantity }}</span>
-                                </div>
-                                <span class="order-item__price">${{ (item.price * item.quantity).toFixed(2) }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Order Footer -->
-                        <div class="order-card__footer">
-                            <div class="order-total">
-                                <span class="order-total__label">Order Total</span>
-                                <span class="order-total__amount">${{ order.total.toFixed(2) }}</span>
-                            </div>
-                            <button v-if="order.status === 'pending'" class="cancel-btn"
-                                @click="handleCancel(order.id)">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="15" y1="9" x2="9" y2="15" />
-                                    <line x1="9" y1="9" x2="15" y2="15" />
-                                </svg>
-                                Cancel Order
-                            </button>
-                            <span v-else-if="order.status === 'cancelled'" class="cancelled-note">Order cancelled</span>
-                        </div>
-                    </div>
-                </TransitionGroup>
-            </div>
-        </template>
-
-        <!-- Cancel Confirm Modal -->
-        <Transition name="fade">
-            <div v-if="cancelTarget" class="modal-overlay" @click.self="cancelTarget = null">
-                <div class="modal">
-                    <div class="modal__icon">⚠️</div>
-                    <h3 class="modal__title">Cancel Order?</h3>
-                    <p class="modal__body">Are you sure you want to cancel <strong>{{ cancelTarget }}</strong>? This
-                        cannot be
-                        undone.</p>
-                    <div class="modal__actions">
-                        <button class="btn btn-secondary" @click="cancelTarget = null">Keep Order</button>
-                        <button class="btn btn-danger" @click="confirmCancel">Cancel Order</button>
-                    </div>
-                </div>
-            </div>
-        </Transition>
+    <!-- No session yet -->
+    <div v-if="!cartStore.sessionUuid && !isLoading"
+      class="flex flex-col items-center justify-center gap-4 py-24 px-8 text-center">
+      <div class="text-6xl">🍽️</div>
+      <h2 class="font-bold text-gray-800 text-xl">No orders yet</h2>
+      <p class="text-sm text-gray-400 max-w-[220px] leading-relaxed">
+        Browse the menu and place your first order to get started.
+      </p>
+      <button
+        class="mt-2 bg-orange-500 text-white font-semibold px-6 py-3 rounded-2xl hover:bg-orange-600 transition-colors text-sm"
+        @click="goBack">Browse Menu</button>
     </div>
+
+    <!-- Loading -->
+    <div v-else-if="isLoading" class="flex flex-col items-center justify-center gap-3 py-24">
+      <div class="w-10 h-10 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+      <p class="text-sm text-gray-400 font-medium">Loading orders...</p>
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="flex flex-col items-center justify-center gap-4 py-24 px-8 text-center">
+      <span class="text-5xl">😕</span>
+      <p class="font-semibold text-gray-700">Couldn't load orders</p>
+      <p class="text-sm text-gray-400">{{ error }}</p>
+      <button
+        class="bg-orange-500 text-white font-semibold px-6 py-2.5 rounded-2xl hover:bg-orange-600 transition-colors text-sm"
+        @click="loadOrders">Try Again</button>
+    </div>
+
+    <!-- Orders list -->
+    <template v-else>
+      <div class="max-w-screen-xl mx-auto px-4 lg:px-8 py-5 flex flex-col gap-4 pb-24">
+
+        <!-- Session summary banner -->
+        <div class="bg-gradient-to-r from-orange-500 to-amber-400 rounded-2xl p-4 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold opacity-80 uppercase tracking-wider">Session Total</p>
+              <p class="text-2xl font-black mt-0.5">Rs. {{ fmt(sessionTotal) }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs font-semibold opacity-80 uppercase tracking-wider">Orders</p>
+              <p class="text-2xl font-black mt-0.5">{{ orders.length }}</p>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-white/20 flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-300 animate-pulse" />
+            <p class="text-xs font-medium opacity-90">Session active · Table {{ cartStore.tableNumber }}</p>
+          </div>
+        </div>
+
+        <!-- Empty orders (session exists but no orders somehow) -->
+        <div v-if="!orders.length" class="flex flex-col items-center gap-3 py-12 text-center">
+          <span class="text-5xl">📋</span>
+          <p class="font-semibold text-gray-700">No orders in this session</p>
+          <p class="text-sm text-gray-400">Your placed orders will appear here.</p>
+        </div>
+
+        <!-- Order cards -->
+        <div v-for="(order, index) in orders" :key="order.uuid"
+          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <!-- Order card header -->
+          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                <span class="text-sm font-black text-orange-500">#{{ orders.length - index }}</span>
+              </div>
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Order {{ orders.length - index }}</p>
+                <p class="text-xs text-gray-400">{{ formatTime(order.created_at) }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Payment badge -->
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full" :class="order.is_paid
+                ? 'bg-green-100 text-green-700'
+                : 'bg-gray-100 text-gray-500'">
+                {{ order.is_paid ? '✓ Paid' : 'Unpaid' }}
+              </span>
+              <!-- Status badge -->
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full" :class="statusClass(order.status)">
+                {{ statusLabel(order.status) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Status progress bar -->
+          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <div class="flex items-center gap-1">
+              <template v-for="(s, i) in statusSteps" :key="s.key">
+                <div class="flex-1 flex flex-col items-center gap-1">
+                  <div class="w-full h-1.5 rounded-full transition-all duration-500"
+                    :class="isStepDone(order.status, s.key) ? 'bg-orange-400' : 'bg-gray-200'" />
+                  <p class="text-[10px] font-semibold transition-colors"
+                    :class="isStepDone(order.status, s.key) ? 'text-orange-500' : 'text-gray-300'">{{ s.label }}</p>
+                </div>
+                <div v-if="i < statusSteps.length - 1" class="w-2 shrink-0" />
+              </template>
+            </div>
+          </div>
+
+          <!-- Order items -->
+          <div class="divide-y divide-gray-50">
+            <div v-for="item in order.items" :key="item.id" class="flex items-center justify-between px-4 py-3 gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 text-lg">
+                  {{ getEmoji(item.menu_item) }}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-gray-800 line-clamp-1">
+                    {{ item.menu_item?.name ?? '—' }}
+                  </p>
+                  <p class="text-xs text-gray-400">Rs. {{ fmt(item.unit_price) }} × {{ item.quantity }}</p>
+                </div>
+              </div>
+              <p class="text-sm font-bold text-gray-800 shrink-0">Rs. {{ fmt(item.subtotal) }}</p>
+            </div>
+          </div>
+
+          <!-- Order card footer -->
+          <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-t border-gray-100">
+            <p v-if="order.note" class="text-xs text-gray-400 italic flex-1 truncate mr-3">
+              "{{ order.note }}"
+            </p>
+            <p v-else class="flex-1" />
+            <p class="font-black text-gray-800 text-sm shrink-0">
+              Rs. {{ fmt(order.total_amount) }}
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </template>
+
+    <!-- Bottom nav -->
+    <BottomNav />
+
+    <!-- Toast -->
+    <ToastNotification />
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue'
-import { useOrdersStore } from '@/stores/ordersStore'
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useCartStore } from '../stores/cart.js';
+import { menuApi } from '../services/api.js';
+import BottomNav from '../components/ui/BottomNav.vue';
+import ToastNotification from '../components/ui/ToastNotification.vue';
 
-const ordersStore = useOrdersStore()
-const tableNumber = inject('tableNumber')
-const cancelTarget = ref(null)
+const route = useRoute();
+const router = useRouter();
+const cartStore = useCartStore();
+
+const orders = ref([]);
+const isLoading = ref(false);
+const isRefreshing = ref(false);
+const error = ref(null);
 
 const statusSteps = [
-    { key: 'pending', label: 'Pending' },
-    { key: 'confirmed', label: 'Confirmed' },
-    { key: 'preparing', label: 'Preparing' },
-    { key: 'ready', label: 'Ready' },
-]
+  { key: 'pending', label: 'Placed' },
+  { key: 'confirmed', label: 'Confirmed' },
+  { key: 'served', label: 'Served' },
+];
 
-const statusOrder = ['pending', 'confirmed', 'preparing', 'ready', 'cancelled']
+const statusOrder = { pending: 0, confirmed: 1, served: 2 };
 
-function stepIndex(status) {
-    return statusSteps.findIndex(s => s.key === status)
+function isStepDone(currentStatus, stepKey) {
+  return statusOrder[currentStatus] >= statusOrder[stepKey];
+}
+
+const sessionTotal = computed(() =>
+  orders.value.reduce((sum, o) => sum + Number(o.total_amount), 0)
+);
+
+async function loadOrders(refresh = false) {
+  if (!cartStore.sessionUuid) return;
+
+  if (refresh) {
+    isRefreshing.value = true;
+  } else {
+    isLoading.value = true;
+  }
+  error.value = null;
+
+  try {
+    const data = await menuApi.getSessionOrders(cartStore.sessionUuid);
+    // Most recent orders first
+    orders.value = (data.orders ?? []).sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    isLoading.value = false;
+    isRefreshing.value = false;
+  }
+}
+
+function goBack() {
+  router.push({
+    name: 'menu',
+    params: {
+      restaurant_slug: route.params.restaurant_slug,
+      table_uuid: route.params.table_uuid,
+    },
+  });
+}
+
+function fmt(val) { return Number(val ?? 0).toFixed(2); }
+
+function formatTime(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function getEmoji(item) {
+  const name = item?.name?.toLowerCase() || '';
+  if (name.includes('pizza')) return '🍕';
+  if (name.includes('burger')) return '🍔';
+  if (name.includes('pasta')) return '🍝';
+  if (name.includes('salad')) return '🥗';
+  if (name.includes('soup')) return '🍜';
+  if (name.includes('chicken')) return '🍗';
+  if (name.includes('dessert') || name.includes('cake')) return '🍰';
+  if (name.includes('drink') || name.includes('coffee')) return '☕';
+  return '🍽️';
 }
 
 function statusLabel(status) {
-    const labels = {
-        pending: '⏳ Pending',
-        confirmed: '✅ Confirmed',
-        preparing: '👨‍🍳 Preparing',
-        ready: '🔔 Ready!',
-        cancelled: '✕ Cancelled',
+  return { pending: '⏳ Pending', confirmed: '👨‍🍳 Preparing', served: '✓ Served' }[status] ?? status;
+}
+
+function statusClass(status) {
+  return {
+    pending: 'bg-amber-100 text-amber-700',
+    confirmed: 'bg-blue-100 text-blue-700',
+    served: 'bg-green-100 text-green-700',
+  }[status] ?? 'bg-gray-100 text-gray-500';
+}
+
+onMounted(() => {
+  // If the user lands here directly after a page refresh, the store is empty.
+  // Rehydrate the sessionUuid from localStorage (keyed by the table UUID in
+  // the URL) before trying to fetch orders.
+  if (!cartStore.sessionUuid) {
+    const tableUuid = route.params.table_uuid;
+    if (tableUuid) {
+      // Temporarily set tableUuid so rehydrateSession can look up the right key
+      if (!cartStore.tableUuid) cartStore.setTableInfo(null, tableUuid, null);
+      cartStore.rehydrateSession();
     }
-    return labels[status] || status
-}
-
-function formatTime(date) {
-    if (!date) return ''
-    const d = new Date(date)
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
-
-const totalItems = computed(() =>
-    ordersStore.orders
-        .filter(o => o.status !== 'cancelled')
-        .reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0), 0)
-)
-
-function handleCancel(orderId) {
-    cancelTarget.value = orderId
-}
-
-function confirmCancel() {
-    if (cancelTarget.value) {
-        ordersStore.cancelOrder(cancelTarget.value)
-        cancelTarget.value = null
-    }
-}
+  }
+  loadOrders();
+});
 </script>
 
 <style scoped>
-.orders-view {
-    background: var(--surface-2);
-    min-height: 100dvh;
-    padding-bottom: 24px;
-}
-
-.page-header {
-    background: var(--surface);
-    padding: 20px 16px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.page-title {
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--ink);
-}
-
-.table-chip {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--brand);
-    background: var(--brand-bg);
-    border: 1px solid rgba(200, 82, 42, 0.2);
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-}
-
-/* ─── Empty ─────────────────────────────────────────────────────────── */
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 80px 24px;
-    text-align: center;
-    gap: 10px;
-}
-
-.emoji {
-    font-size: 3.5rem;
-    margin-bottom: 4px;
-}
-
-.empty-state h3 {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: var(--ink-soft);
-}
-
-.empty-state p {
-    font-size: 0.88rem;
-    color: var(--ink-muted);
-}
-
-/* ─── Total Banner ──────────────────────────────────────────────────── */
-.total-banner {
-    background: linear-gradient(135deg, #9A3A18, #C8522A);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.total-banner__label {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.75);
-    font-weight: 500;
-}
-
-.total-banner__amount {
-    font-family: var(--font-display);
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-}
-
-.total-banner__stats {
-    display: flex;
-    gap: 20px;
-}
-
-.total-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
-.total-stat__num {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #fff;
-}
-
-.total-stat__label {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-/* ─── Orders List ───────────────────────────────────────────────────── */
-.orders-list {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.order-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-}
-
-.order-card--cancelled {
-    opacity: 0.65;
-}
-
-.order-card:hover {
-    box-shadow: var(--shadow-sm);
-}
-
-/* Card Header */
-.order-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--border);
-}
-
-.order-card__meta {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.order-id {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.02em;
-}
-
-.order-time {
-    font-size: 0.72rem;
-    color: var(--ink-muted);
-}
-
-/* Status badge */
-.status-badge {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-}
-
-.status-pending {
-    background: var(--warning-bg);
-    color: var(--warning);
-}
-
-.status-confirmed {
-    background: var(--info-bg);
-    color: var(--info);
-}
-
-.status-preparing {
-    background: #FEF0E5;
-    color: #C45E1A;
-}
-
-.status-ready {
-    background: var(--success-bg);
-    color: var(--success);
-}
-
-.status-cancelled {
-    background: var(--surface-3);
-    color: var(--ink-muted);
-}
-
-/* Progress */
-.status-progress {
-    display: flex;
-    align-items: flex-start;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-2);
-    gap: 0;
-}
-
-.status-step {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    position: relative;
-}
-
-.step-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: var(--surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6rem;
-    color: var(--success);
-    transition: all 0.25s;
-    z-index: 1;
-}
-
-.status-step.done .step-dot {
-    background: var(--success);
-    border-color: var(--success);
-    color: #fff;
-}
-
-.status-step.active .step-dot {
-    background: var(--brand);
-    border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(200, 82, 42, 0.2);
-}
-
-.step-label {
-    font-size: 0.62rem;
-    font-weight: 600;
-    color: var(--ink-muted);
-    text-align: center;
-    white-space: nowrap;
-}
-
-.status-step.active .step-label {
-    color: var(--brand);
-}
-
-.status-step.done .step-label {
-    color: var(--success);
-}
-
-.step-line {
-    position: absolute;
-    top: 9px;
-    left: 50%;
-    right: -50%;
-    height: 2px;
-    background: var(--border);
-    z-index: 0;
-}
-
-.status-step.done .step-line {
-    background: var(--success);
-}
-
-/* Items */
-.order-items {
-    padding: 10px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.order-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.order-item__img-wrap {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    background: var(--surface-3);
-    flex-shrink: 0;
-}
-
-.order-item__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.order-item__img-ph {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.order-item__info {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-}
-
-.order-item__name {
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: var(--ink);
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.order-item__qty {
-    font-size: 0.75rem;
-    color: var(--ink-muted);
-    font-weight: 500;
-    background: var(--surface-3);
-    padding: 2px 6px;
-    border-radius: var(--radius-full);
-    flex-shrink: 0;
-}
-
-.order-item__price {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--ink-soft);
-    flex-shrink: 0;
-}
-
-/* Footer */
-.order-card__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px 14px;
-    border-top: 1px solid var(--border);
-    background: var(--surface-2);
-}
-
-.order-total {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.order-total__label {
-    font-size: 0.72rem;
-    color: var(--ink-muted);
-}
-
-.order-total__amount {
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--brand);
-}
-
-.cancel-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--error);
-    background: var(--error-bg);
-    padding: 7px 14px;
-    border-radius: var(--radius-full);
-    transition: all 0.15s;
-}
-
-.cancel-btn:hover {
-    background: #FACBBE;
-}
-
-.cancelled-note {
-    font-size: 0.78rem;
-    color: var(--ink-muted);
-    font-style: italic;
-}
-
-/* ─── Modal ────────────────────────────────────────────────────────── */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 18, 8, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 200;
-}
-
-.modal {
-    background: var(--surface);
-    border-radius: var(--radius-xl);
-    padding: 24px;
-    width: 100%;
-    max-width: 320px;
-    box-shadow: var(--shadow-lg);
-    text-align: center;
-    animation: modal-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes modal-in {
-    from {
-        opacity: 0;
-        transform: scale(0.92);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.modal__icon {
-    font-size: 2rem;
-    margin-bottom: 8px;
-}
-
-.modal__title {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 8px;
-}
-
-.modal__body {
-    font-size: 0.88rem;
-    color: var(--ink-muted);
-    margin-bottom: 20px;
-}
-
-.modal__actions {
-    display: flex;
-    gap: 10px;
-}
-
-.modal__actions .btn {
-    flex: 1;
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

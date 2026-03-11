@@ -62,6 +62,9 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::post('admin-subscriptions/assign', [AdminSubscriptionController::class, 'assign'])->name('admin-subscriptions.assign');
         Route::delete('admin-subscriptions/{adminId}/remove', [AdminSubscriptionController::class, 'remove'])->name('admin-subscriptions.remove');
 
+        // Order Management
+        Route::get('orders', \App\Livewire\Admin\OrderManagement::class)->name('orders.index');
+
         // Billing (for current logged-in admin)
         Route::get('billing', [AdminSubscriptionController::class, 'billing'])->name('billing');
 
