@@ -17,10 +17,6 @@ class MenuController extends Controller
 
         $palette = ColorHelper::generatePalette($restaurant->settings['primary_color'] ?? '#b8912a');
 
-        $galleryImages = MenuImage::where('restaurant_id', $restaurant->id)
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
         $viewSimpleMenu = false;
         $admin = Admin::where('restaurant_id', $restaurant->id)
             ->whereNot('role', 'superadmin')
@@ -29,12 +25,15 @@ class MenuController extends Controller
         if($admin)
             $viewSimpleMenu = $admin && $admin->hasActiveSubscription() ? false : true; 
 
-        if ($viewSimpleMenu) {
+        $galleryImages = MenuImage::where('restaurant_id', $restaurant->id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
+        if ($viewSimpleMenu) {
             return view('menus.simple-menu', compact('restaurant', 'galleryImages', 'palette'));
 
         }
-
         $categories = MenuCategory::where('restaurant_id', $restaurant->id)
             ->where('is_active', true)
             ->with(['menuItems' => function ($query) {

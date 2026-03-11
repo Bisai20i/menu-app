@@ -96,7 +96,6 @@ class AdminManagementController extends Controller
             // Restaurant Data
             $restaurantData = [
                 'name'        => $request->restaurant_name,
-                'slug'        => $request->restaurant_slug,
                 'email'       => $request->restaurant_email,
                 'phone'       => $request->restaurant_phone,
                 'address'     => $request->restaurant_address,

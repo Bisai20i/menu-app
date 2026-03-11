@@ -14,7 +14,7 @@ trait BelongsToRestaurant
     {
         // 1. Automatically filter results for the logged-in Admin
         static::addGlobalScope('restaurant', function (Builder $builder) {
-            if (Auth::guard('admin')->check()) {
+            if (Auth::guard('admin')->check() && request()->is('master/*')) {
                 $user = Auth::guard('admin')->user();
 
                 // If user is a regular admin, only show data for their restaurant
