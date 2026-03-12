@@ -157,8 +157,13 @@ class MenuController extends Controller
             return response()->json(['message' => 'Table not found.'], 404);
         }
 
-        // TODO: Fire a WaiterCallEvent or send a broadcast notification here
-        // event(new \App\Events\WaiterCalled($table));
+        // Create WaiterCall record, which triggers WaiterCallObserver
+        \App\Models\WaiterCall::create([
+            'restaurant_id'       => $validated['restaurant_id'],
+            'restaurant_table_id' => $table->id,
+            'table_session_id'    => $table->activeSession->id ?? null,
+            'status'              => 'pending',
+        ]);
 
         return response()->json([
             'message'      => 'Waiter has been notified.',
@@ -192,7 +197,7 @@ class MenuController extends Controller
             'items.*.special_request' => ['nullable', 'string', 'max:255'],
         ]);
 
-        // 1. Verify the table belongs to this restaurant and is active
+        // Verify the table belongs to this restaurant and is active
         $table = RestaurantTable::where('uuid', $validated['table_uuid'])
             ->where('restaurant_id', $validated['restaurant_id'])
             ->where('is_active', true)
@@ -202,7 +207,7 @@ class MenuController extends Controller
             return response()->json(['message' => 'Table not found or is inactive.'], 404);
         }
 
-        // 2. Verify all menu items exist, are available, and belong to this restaurant
+        // Verify all menu items exist, are available, and belong to this restaurant
         $incomingIds = collect($validated['items'])->pluck('menu_item_id');
 
         $validItems = MenuItem::whereIn('id', $incomingIds)
@@ -219,7 +224,7 @@ class MenuController extends Controller
             ], 422);
         }
 
-        // 3. Resolve or create the active session for this table
+        // Resolve or create the active session for this table
         //    - If table already has an active session, attach the new order to it
         //    - If not, open a new session automatically (customer self-seated via QR)
         DB::beginTransaction();
@@ -227,12 +232,12 @@ class MenuController extends Controller
         try {
             $session = $table->activeSession ?? $table->openSession($validated['restaurant_id']);
 
-            // 4. Build order total from server-side prices (never trust client price)
+            // Build order total from server-side prices (never trust client price)
             $totalAmount = collect($validated['items'])->sum(function ($item) use ($validItems) {
                 return $validItems[$item['menu_item_id']]->price * $item['quantity'];
             });
 
-            // 5. Create the order
+            // Create the order
             $order = Order::create([
                 'table_session_id'    => $session->id,
                 'restaurant_table_id' => $table->id,
@@ -243,7 +248,7 @@ class MenuController extends Controller
                 'is_paid'             => false,
             ]);
 
-            // 6. Create order items using server-side price snapshots
+            // Create order items using server-side price snapshots
             foreach ($validated['items'] as $item) {
                 $menuItem = $validItems[$item['menu_item_id']];
 

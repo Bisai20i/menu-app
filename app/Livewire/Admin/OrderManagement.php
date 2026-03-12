@@ -141,7 +141,7 @@ class OrderManagement extends Component
             'served'     => $served,
             'paidOrders' => $paidOrders,
             'tables'     => $tables,
-        ])->extends('layouts.admin-layout')
+        ])->extends('layouts.order-management-layout')
           ->section('content')
           ->title('Order Management');
     }

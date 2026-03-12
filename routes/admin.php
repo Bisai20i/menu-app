@@ -1,13 +1,17 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminManagementController;
+use App\Http\Controllers\AdminSubscriptionController;
 use App\Http\Controllers\MenuCategoryController;
 use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
-use App\Http\Controllers\AdminSubscriptionController;
+use App\Livewire\Admin\OrderManagement;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 
@@ -55,7 +59,7 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::resource('subscription-plans', SubscriptionPlanController::class);
 
         // Admin Management
-        Route::resource('admin-management', \App\Http\Controllers\AdminManagementController::class);
+        Route::resource('admin-management', AdminManagementController::class);
 
         // Admin Subscriptions (Super Admin only)
         Route::get('admin-subscriptions', [AdminSubscriptionController::class, 'index'])->name('admin-subscriptions.index');
@@ -63,13 +67,16 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::delete('admin-subscriptions/{adminId}/remove', [AdminSubscriptionController::class, 'remove'])->name('admin-subscriptions.remove');
 
         // Order Management
-        Route::get('orders', \App\Livewire\Admin\OrderManagement::class)->name('orders.index');
+        Route::get('orders', OrderManagement::class)->name('orders.index');
 
         // Billing (for current logged-in admin)
         Route::get('billing', [AdminSubscriptionController::class, 'billing'])->name('billing');
 
         // Profile Management
-        Route::get('profile', [\App\Http\Controllers\AdminManagementController::class, 'profile'])->name('profile');
-        Route::post('profile', [\App\Http\Controllers\AdminManagementController::class, 'updateProfile'])->name('profile.update');
+        Route::get('profile', [AdminManagementController::class, 'profile'])->name('profile');
+        Route::post('profile', [AdminManagementController::class, 'updateProfile'])->name('profile.update');
+
+        //get all notifications
+        Route::get('/notifications', [AdminManagementController::class, 'notifications'])->name('notifications.index');
     });
 });

@@ -9,6 +9,7 @@ export const useMenuStore = defineStore('menu', () => {
     const allItems = ref([]);
     const isLoading = ref(false);
     const error = ref(null);
+    const tableData = ref(null)
 
     const activeCategory = ref('all');
     const searchQuery = ref('');
@@ -48,7 +49,10 @@ export const useMenuStore = defineStore('menu', () => {
         error.value = null;
         try {
             const data = await menuApi.getMenu(restaurantSlug, tableUuid);
+            
             restaurant.value = data.restaurant;
+            tableData.value = data.table
+            // console.log('Table Data:', data.table)
             categories.value = data.categories || [];
             allItems.value = data.items || [];
             featuredItems.value = (data.items || []).filter(i => i.is_featured && i.is_available);
@@ -72,7 +76,7 @@ export const useMenuStore = defineStore('menu', () => {
     return {
         restaurant, categories, featuredItems, allItems,
         isLoading, error, activeCategory, searchQuery,
-        filteredItems, groupedByCategory,
+        filteredItems, groupedByCategory,tableData,
         loadMenu, setCategory, setSearch,
     };
 });

@@ -77,7 +77,7 @@
 
             {{-- Primary Action --}}
             <button type="button"
-                    class="btn btn-sm {{ $btnClass }} flex-grow-1 fw-semibold"
+                    class="btn {{ $btnClass }} flex-grow-1 fw-semibold"
                     wire:click="{{ $wireAction }}"
                     wire:loading.attr="disabled"
                     wire:target="{{ $wireAction }}">

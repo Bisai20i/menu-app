@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Admin;
+use App\Models\Order;
+use App\Models\WaiterCall;
+use App\Observers\OrderObserver;
+use App\Observers\WaiterCallObserver;
 use App\Policies\AdminPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Order::observe(OrderObserver::class);
+        WaiterCall::observe(WaiterCallObserver::class);
+
         $policy = new AdminPolicy();
 
         // Super admins bypass all gate checks

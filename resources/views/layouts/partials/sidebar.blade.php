@@ -30,12 +30,12 @@
             <span class="menu-header-text">Menu Management</span>
         </li>
         <!-- Order Management -->
-        <li class="menu-item {{ request()->routeIs('master.orders.*') ? 'active' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('master.orders.*') ? 'active' : '' }}">
             <a href="{{ route('master.orders.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-receipt"></i>
                 <div data-i18n="Orders">Orders</div>
             </a>
-        </li>
+        </li> --}}
         @can('accessCreateMenu')
             <!-- Menu Categories -->
             <li class="menu-item {{ request()->is('*master/menu-categories*') ? 'active' : '' }}">

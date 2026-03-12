@@ -33,7 +33,7 @@
                             <span class="text-base">🍽️</span>
                         </div>
                         <div class="min-w-0">
-                            <h1 class="font-bold text-gray-900 text-sm leading-tight truncate">{{
+                            <h1 class="font-bold text-md text-gray-900 leading-tight truncate text-lg md:text-xl">{{
                                 menuStore.restaurant.name }}</h1>
                             <p v-if="tableNumber" class="text-xs text-gray-400 leading-tight">Table {{ tableNumber }}
                             </p>
@@ -313,11 +313,12 @@ const tableNumber = ref(null);
 async function fetchMenu() {
     const { restaurant_slug, table_uuid } = route.params;
     await menuStore.loadMenu(restaurant_slug, table_uuid);
-
     if (menuStore.restaurant) {
-        const tableInfo = menuStore.restaurant?.table;
+        // console.log('menu store data:',menuStore.tableData)
+        const tableInfo = menuStore.tableData;
+        
         tableNumber.value = tableInfo?.table_number || null;
-
+        console.log("table number",tableNumber.value)
         cartStore.setTableInfo(
             menuStore.restaurant.id,
             table_uuid,

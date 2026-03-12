@@ -128,4 +128,9 @@ class AdminManagementController extends Controller
             return back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
+
+    public function notifications()
+    {
+        return view('admin.all-notifications');
+    }
 }

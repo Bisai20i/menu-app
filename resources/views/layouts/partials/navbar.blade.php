@@ -20,12 +20,18 @@
         <!-- /Search -->
 
         <ul class="navbar-nav flex-row align-items-center ms-auto">
-            {{-- <!-- Place this tag where you want the button to render. -->
+            <!-- Place this tag where you want the button to render. -->
             <li class="nav-item lh-1 me-3">
-                <a class="github-button" href="https://github.com/themeselection/sneat-html-admin-template-free"
-                    data-icon="octicon-star" data-size="large" data-show-count="true"
-                    aria-label="Star themeselection/sneat-html-admin-template-free on GitHub">Star</a>
-            </li> --}}
+                <a class="btn btn-outline-primary" href="{{ route('master.orders.index') }}">Order Management</a>
+            </li>
+
+            @if (!request()->routeIs('master.notifications.index'))
+                <!-- Notification Bell -->
+                <li class="nav-item lh-1 me-3">
+                    <livewire:admin.notification-bell lazy />
+                </li>
+            @endif
+
 
             <!-- User -->
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
