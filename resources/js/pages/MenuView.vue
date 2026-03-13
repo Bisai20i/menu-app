@@ -312,31 +312,34 @@ const tableNumber = ref(null);
 
 async function fetchMenu() {
     const { restaurant_slug, table_uuid } = route.params;
-    await menuStore.loadMenu(restaurant_slug, table_uuid);
+    await menuStore.loadMenu(restaurant_slug, table_uuid, cartStore.deviceId);
     if (menuStore.restaurant) {
-        // console.log('menu store data:',menuStore.tableData)
         const tableInfo = menuStore.tableData;
         
         tableNumber.value = tableInfo?.table_number || null;
-        console.log("table number",tableNumber.value)
         cartStore.setTableInfo(
             menuStore.restaurant.id,
             table_uuid,
             tableNumber.value
         );
 
-        // Rehydrate sessionUuid from localStorage if it exists for this table.
-        // Then silently validate it against the backend — if the session was
-        // closed by staff (paid/cancelled), wipe the stale reference so the
-        // next order starts a fresh session.
-        const storedSession = cartStore.rehydrateSession();
-        if (storedSession) {
-            try {
-                await menuApi.getSessionOrders(storedSession);
-                // Session still active — nothing more to do, sessionUuid is already set
-            } catch {
-                // 404 means session closed or not found — clear stale localStorage entry
-                cartStore.clearSession();
+        // If the backend found an active session for this device, use it directly
+        if (tableInfo?.active_session_uuid) {
+            cartStore.setSessionUuid(tableInfo.active_session_uuid);
+        } else {
+            // Rehydrate sessionUuid from localStorage if it exists for this table.
+            // Then silently validate it against the backend — if the session was
+            // closed by staff (paid/cancelled), wipe the stale reference so the
+            // next order starts a fresh session.
+            const storedSession = cartStore.rehydrateSession();
+            if (storedSession) {
+                try {
+                    await menuApi.getSessionOrders(storedSession);
+                    // Session still active — nothing more to do, sessionUuid is already set
+                } catch {
+                    // 404 means session closed or not found — clear stale localStorage entry
+                    cartStore.clearSession();
+                }
             }
         }
     }

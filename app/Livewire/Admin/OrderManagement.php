@@ -4,8 +4,12 @@ namespace App\Livewire\Admin;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Layout('layouts::order-management-layout')]
+#[Title("Order Manageemnt")]
 class OrderManagement extends Component
 {
     // Currently active status tab: pending | confirmed | served | paid
@@ -141,8 +145,6 @@ class OrderManagement extends Component
             'served'     => $served,
             'paidOrders' => $paidOrders,
             'tables'     => $tables,
-        ])->extends('layouts.order-management-layout')
-          ->section('content')
-          ->title('Order Management');
+        ]);
     }
 }

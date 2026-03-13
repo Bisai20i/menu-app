@@ -12,6 +12,7 @@ class TableSession extends Model
 {
     protected $fillable = [
         'uuid',
+        'device_id',
         'restaurant_table_id',
         'restaurant_id',
         'opened_by',
@@ -97,6 +98,18 @@ class TableSession extends Model
     public function grandTotal(): float
     {
         return (float) $this->orders()->sum('total_amount');
+    }
+
+    /**
+     * Merge orders from another session into this one.
+     */
+    public function mergeFrom(TableSession $otherSession): void
+    {
+        // Move all orders from other session to this one
+        $otherSession->orders()->update(['table_session_id' => $this->id]);
+
+        // Delete the other session
+        $otherSession->delete();
     }
 
     /**

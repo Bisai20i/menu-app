@@ -1,5 +1,5 @@
-<div class="dropdown">
-    <a class="nav-link position-relative border border-primary rounded-circle px-2 py-2" href="javascript:void(0)" data-bs-toggle="dropdown" aria-expanded="false">
+<div class="dropdown d-flex align-items-center justify-content-center" style="height: 40px; width: 40px;">
+    <a class="nav-link position-relative border border-primary rounded-circle p-2" href="javascript:void(0)" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bx {{ $unreadCount > 0 ?'bxs-bell' : 'bx-bell' }} fs-5 text-primary"></i>
         @if($unreadCount > 0)
             <span class="position-absolute top-0 mt-1 start-100 translate-middle badge rounded-pill bg-danger"

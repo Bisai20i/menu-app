@@ -5,6 +5,29 @@ import { ref, computed } from 'vue';
 // same device (e.g. shared family phone) never bleed into each other.
 const storageKey = (tUuid) => `dine_session_${tUuid}`;
 
+// Global device identifier key — survives across tables and sessions
+const DEVICE_ID_KEY = 'dine_device_id';
+
+/**
+ * Get or create a unique device identifier.
+ * Persisted in localStorage so it survives page refreshes and new QR scans.
+ */
+function getOrCreateDeviceId() {
+    try {
+        let id = localStorage.getItem(DEVICE_ID_KEY);
+        if (!id) {
+            id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : 'dev-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+            localStorage.setItem(DEVICE_ID_KEY, id);
+        }
+        return id;
+    } catch {
+        // Private browsing or storage error — generate a transient id
+        return 'tmp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    }
+}
+
 function readStorage(tUuid) {
     try {
         const raw = localStorage.getItem(storageKey(tUuid));
@@ -36,6 +59,7 @@ export const useCartStore = defineStore('cart', () => {
     const tableNumber  = ref(null);
     const sessionUuid  = ref(null);
     const orderNote    = ref('');
+    const deviceId     = ref(getOrCreateDeviceId());
 
     const totalItems = computed(() =>
         items.value.reduce((sum, item) => sum + item.quantity, 0)
@@ -76,7 +100,7 @@ export const useCartStore = defineStore('cart', () => {
     function setSessionUuid(uuid) {
         sessionUuid.value = uuid;
         if (tableUuid.value) {
-            writeStorage(tableUuid.value, { sessionUuid: uuid });
+            writeStorage(tableUuid.value, { sessionUuid: uuid, deviceId: deviceId.value });
         }
     }
 
@@ -130,7 +154,7 @@ export const useCartStore = defineStore('cart', () => {
 
     return {
         items, isCartOpen, restaurantId, tableUuid, tableNumber,
-        sessionUuid, orderNote,
+        sessionUuid, orderNote, deviceId,
         totalItems, totalPrice,
         setTableInfo, rehydrateSession, setSessionUuid, clearSession,
         addItem, removeItem, deleteItem, clearCart,

@@ -21,9 +21,10 @@ async function request(endpoint, options = {}) {
 }
 
 export const menuApi = {
-    // GET /api/menu/{restaurant_slug}/{table_uuid}
-    getMenu(restaurantSlug, tableUuid) {
-        return request(`/menu/${restaurantSlug}/${tableUuid}`);
+    // GET /api/menu/{restaurant_slug}/{table_uuid}?device_id=...
+    getMenu(restaurantSlug, tableUuid, deviceId) {
+        const params = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : '';
+        return request(`/menu/${restaurantSlug}/${tableUuid}${params}`);
     },
 
     // GET /api/menu/{restaurant_slug}/categories

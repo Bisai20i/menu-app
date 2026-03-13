@@ -44,11 +44,11 @@ export const useMenuStore = defineStore('menu', () => {
         })).filter(c => c.items.length > 0);
     });
 
-    async function loadMenu(restaurantSlug, tableUuid) {
+    async function loadMenu(restaurantSlug, tableUuid, deviceId) {
         isLoading.value = true;
         error.value = null;
         try {
-            const data = await menuApi.getMenu(restaurantSlug, tableUuid);
+            const data = await menuApi.getMenu(restaurantSlug, tableUuid, deviceId);
             
             restaurant.value = data.restaurant;
             tableData.value = data.table

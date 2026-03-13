@@ -8,6 +8,7 @@ use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\TableSessionController;
 use App\Livewire\Admin\OrderManagement;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +69,7 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
 
         // Order Management
         Route::get('orders', OrderManagement::class)->name('orders.index');
+        Route::livewire('table/sessions', 'pages::admin.table-sessions')->name('table-sessions');
 
         // Billing (for current logged-in admin)
         Route::get('billing', [AdminSubscriptionController::class, 'billing'])->name('billing');

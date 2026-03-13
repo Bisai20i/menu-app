@@ -8,7 +8,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>@stack('title')</title>
+    <title>{{ $title ?? config('app.name') }}</title>
 
     <meta name="description" content="" />
 
@@ -41,40 +41,26 @@
     <script src="{{ asset('backend/assets/vendor/js/helpers.js') }}"></script>
 
     <script src="{{ asset('backend/assets/js/config.js') }}"></script>
+
+    <style>
+        .btn-link.active {
+            font-weight: 700;
+            background-color: rgba(var(--bs-primary-rgb), 0.1);
+            /* 10% opacity */
+        }
+
+        .btn-link:hover {
+            font-weight: 700;
+            background-color: rgba(var(--bs-primary-rgb), 0.1);
+        }
+    </style>
     @livewireStyles
 
     @stack('styles')
+
 </head>
 
 <body>
-    @if (session()->has('success') || session()->has('error') || session()->has('info'))
-        <div class="position-absolute toast-container top-3 end-0 p-3" style="z-index: 5000">
-            @foreach (['success', 'error', 'info'] as $type)
-                @if (session()->has($type))
-                    <div class="bs-toast toast fade show bg-{{ $type == 'error' ? 'danger' : $type }}" role="alert"
-                        aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <i
-                                class="bx 
-                                                          @if ($type == 'success') bx-check-circle 
-                                                          @elseif($type == 'error') bx-error 
-                                                          @else bx-info-circle @endif 
-                                                          me-2"></i>
-                            <div class="me-auto fw-semibold text-capitalize">
-                                {{ $type == 'error' ? 'Error' : ucfirst($type) }}
-                            </div>
-                            {{-- <small class="text-muted">{{ now()->diffForHumans() }}</small> --}}
-                            <button type="button" class="btn-close" data-bs-dismiss="toast"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body">
-                            {{ session($type) }}
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    @endif
     <!-- Layout wrapper -->
     <div class="layout-wrapper">
         <div class="layout-container">
@@ -87,7 +73,7 @@
                         class="container-fluid bg-white flex-wrap-reverse gap-2 py-2 py-md-3 d-flex justify-content-between align-items-center">
 
                         <div class="d-flex align-items-center">
-                            <a href="{{ route('master.dashboard') }}" class="text-secondary d-block d-sm-none">
+                            <a href="{{ route('master.dashboard') }}" class="text-secondary ">
                                 <i class="bx bx-chevron-left fs-1 me-1"></i>
                             </a>
                             <div>
@@ -97,24 +83,38 @@
 
                         </div>
                         <div class="d-flex gap-2 align-items-center">
-                            <a href="{{ route('master.dashboard') }}"
-                                class="btn btn-outline-primary d-none d-sm-block">
-                                <i class="bx bx-arrow-back me-2"></i>Return to Dashboard
-                            </a>
-                            <div>
-                                <livewire:admin.notification-bell lazy />
-                            </div>
+                            <ul class="navbar-nav flex-row align-items-center ms-auto">
+                                <!-- Place this tag where you want the button to render. -->
+                                <li class="nav-item lh-1 me-1">
+                                    <a class="btn btn-link {{ request()->routeIs('master.orders.index') ? 'active' : '' }}" 
+                                        href="{{ route('master.orders.index') }}">
+                                        Order Management
+                                    </a>
+                                </li>
+
+                                <li class="nav-item lh-1 me-1">
+                                    <a class="btn btn-link {{ request()->routeIs('master.table-sessions') ? 'active' : '' }}" 
+                                        href="{{ route('master.table-sessions') }}">
+                                        Table Sessions
+                                    </a>
+                                </li>
+
+                                @if (!request()->routeIs('master.notifications.index'))
+                                    <!-- Notification Bell -->
+                                    <li class="nav-item lh-1 me-1">
+                                        <livewire:admin.notification-bell lazy />
+                                    </li>
+                                @endif
+
+                            </ul>
 
                         </div>
 
                     </div>
 
                     <!-- Content -->
-                    <div class="container-fluid flex-grow-1 py-3 py-md-4" style="min-height: 85vh;">
-
-                        @yield('content')
-
-
+                    <div id="page-content" class="container-fluid flex-grow-1 py-3 py-md-4" style="min-height: 85vh;">
+                        {{ $slot }}
                     </div>
                     <!-- / Content -->
 
@@ -127,90 +127,24 @@
             <!-- / Layout page -->
         </div>
 
-        <!-- Logout Confirmation Modal -->
-        <x-modal id="logoutModal" title="Confirm Logout">
-            <div class="text-center py-3">
-                <div class="mb-4">
-                    <i class="bx bx-log-out-circle text-warning opacity-75" style="font-size: 5rem;"></i>
-                </div>
-                <h5 class="fw-bold mb-2">Ready to Leave?</h5>
-                <p class="text-muted small px-4">Are you sure you want to end your current session? You will need to log
-                    back in to access the admin panel.</p>
-            </div>
-            <x-slot name="footer">
-                <div class="d-flex w-100 gap-2">
-                    <button type="button" class="btn btn-label-secondary flex-grow-1" data-bs-dismiss="modal">Stay
-                        Logged In</button>
-                    <form action="{{ route('master.logout') }}" method="POST" class="flex-grow-1">
-                        @csrf
-                        <button type="submit" class="btn btn-primary w-100">Yes, Logout</button>
-                    </form>
-                </div>
-            </x-slot>
-        </x-modal>
+
     </div>
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
-    <script src="{{ asset('backend/assets/vendor/libs/jquery/jquery.js') }}"></script>
-    <script src="{{ asset('backend/assets/vendor/libs/popper/popper.js') }}"></script>
+    {{-- <script src="{{ asset('backend/assets/vendor/libs/jquery/jquery.js') }}"></script> --}}
     <script src="{{ asset('backend/assets/vendor/js/bootstrap.js') }}"></script>
-    <script src="{{ asset('backend/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
-
-    <script src="{{ asset('backend/assets/vendor/js/menu.js') }}"></script>
-    <!-- endbuild -->
+    {{-- <script src="{{ asset('backend/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script> --}}
 
 
     <!-- Main JS -->
-    <script src="{{ asset('backend/assets/js/main.js') }}"></script>
+    {{-- <script data-navigate-once src="{{ asset('backend/assets/js/main.js') }}"></script> --}}
 
     <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script async defer data-navigate-once src="https://buttons.github.io/buttons.js"></script>
 
     @stack('scripts')
     @livewireScripts
-
-    <script>
-        $(document).ready(function() {
-            // Auto-dismiss toasts after 6 seconds
-            $('.bs-toast').each(function() {
-                var toast = new bootstrap.Toast(this);
-                toast.show(); // Ensure the toast is shown before hiding
-                setTimeout(function() {
-                    toast.hide();
-                }, 6000); // 6000 milliseconds = 6 seconds
-            });
-        });
-        document.addEventListener("DOMContentLoaded", function() {
-            function setLoading(el) {
-                el.setAttribute("disabled", "true");
-                el.innerHTML = `
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Processing...
-        `;
-            }
-
-            // Handle redirect links
-            document.querySelectorAll(".redirect-link").forEach(link => {
-                link.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    setLoading(this);
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        window.location.href = this.href;
-                    }, 400);
-                });
-            });
-
-            // Handle form submit buttons
-            document.querySelectorAll("form").forEach(form => {
-                form.addEventListener("submit", function() {
-                    const btn = form.querySelector("button[type=submit]");
-                    if (btn) setLoading(btn);
-                });
-            });
-        });
-    </script>
 
 </body>
 

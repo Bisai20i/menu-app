@@ -74,9 +74,26 @@ class RestaurantTable extends Model
     }
 
     /**
-     * The single currently active session for this table, if any.
+     * The first active session for this table, if any.
+     * (Replicated for backward compatibility or direct access)
      */
     public function activeSession(): HasOne
+    {
+        return $this->hasOne(TableSession::class)->where('status', 'active')->latestOfMany();
+    }
+
+    /**
+     * All currently active sessions for this table.
+     */
+    public function activeSessions(): HasMany
+    {
+        return $this->hasMany(TableSession::class)->where('status', 'active');
+    }
+
+    /**
+     * The latest active session for this table, if any.
+     */
+    public function latestActiveSession(): HasOne
     {
         return $this->hasOne(TableSession::class)->where('status', 'active')->latest();
     }
@@ -91,28 +108,41 @@ class RestaurantTable extends Model
 
     public function hasActiveSession(): bool
     {
-        return $this->activeSession()->exists();
+        return $this->activeSessions()->exists();
     }
 
     /**
      * Open a new session for this table.
-     * Ensures no duplicate active session is created.
+     * Allows multiple concurrent sessions.
      */
-    public function openSession(int $restaurantId, ?int $openedByAdminId = null, ?int $guestCount = null): TableSession
+    public function openSession(int $restaurantId, ?int $openedByAdminId = null, ?int $guestCount = null, ?string $deviceId = null): TableSession
     {
-        if ($this->hasActiveSession()) {
-            return $this->activeSession;
-        }
-
         $session = $this->sessions()->create([
             'restaurant_id' => $restaurantId,
             'opened_by'     => $openedByAdminId,
             'guest_count'   => $guestCount,
+            'device_id'     => $deviceId,
             'status'        => 'active',
         ]);
 
         $this->update(['status' => 'occupied']);
 
         return $session;
+    }
+
+    /**
+     * Close a session and update table status if no active sessions remain.
+     */
+    public function closeSession(TableSession $session, ?int $closedByAdminId = null): void
+    {
+        $session->update([
+            'status' => 'paid',
+            'closed_by' => $closedByAdminId,
+            'closed_at' => now(),
+        ]);
+
+        if (!$this->hasActiveSession()) {
+            $this->update(['status' => 'available']);
+        }
     }
 }

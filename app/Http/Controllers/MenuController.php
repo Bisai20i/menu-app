@@ -113,6 +113,20 @@ class MenuController extends Controller
                 'dietary_info',
             ]);
 
+        // 5. Check if there is an active session for this device on this table
+        $deviceId = request()->query('device_id');
+        $activeSessionUuid = null;
+
+        if ($deviceId) {
+            $existingSession = $table->activeSessions()
+                ->where('device_id', $deviceId)
+                ->first();
+
+            if ($existingSession) {
+                $activeSessionUuid = $existingSession->uuid;
+            }
+        }
+
         return response()->json([
             'restaurant' => [
                 'id'          => $restaurant->id,
@@ -121,12 +135,13 @@ class MenuController extends Controller
                 'logo'        => $restaurant->logo_path,
             ],
             'table'      => [
-                'id'           => $table->id,
-                'uuid'         => $table->uuid,
-                'table_number' => $table->table_number,
-                'section'      => $table->section,
-                'capacity'     => $table->capacity,
-                'status'       => $table->status,
+                'id'                  => $table->id,
+                'uuid'                => $table->uuid,
+                'table_number'        => $table->table_number,
+                'section'             => $table->section,
+                'capacity'            => $table->capacity,
+                'status'              => $table->status,
+                'active_session_uuid' => $activeSessionUuid,
             ],
             'categories' => $categories,
             'items'      => $items,
@@ -189,6 +204,7 @@ class MenuController extends Controller
         $validated = $request->validate([
             'restaurant_id'           => ['required', 'integer', 'exists:restaurants,id'],
             'table_uuid'              => ['required', 'string'],
+            'device_id'               => ['required', 'string', 'max:64'],
             'note'                    => ['nullable', 'string', 'max:500'],
             'items'                   => ['required', 'array', 'min:1'],
             'items.*.menu_item_id'    => ['required', 'integer'],
@@ -224,13 +240,28 @@ class MenuController extends Controller
             ], 422);
         }
 
-        // Resolve or create the active session for this table
-        //    - If table already has an active session, attach the new order to it
-        //    - If not, open a new session automatically (customer self-seated via QR)
+        // Resolve or create the active session for this table + device
+        //    - Look for an active session matching this device_id on this table
+        //    - If none, open a new session automatically (customer self-seated via QR)
         DB::beginTransaction();
 
         try {
-            $session = $table->activeSession ?? $table->openSession($validated['restaurant_id']);
+            $deviceId = $validated['device_id'];
+
+            // Find an active session for this specific device on this table
+            $session = $table->activeSessions()
+                ->where('device_id', $deviceId)
+                ->first();
+
+            // If no session for this device, create a new one
+            if (! $session) {
+                $session = $table->openSession(
+                    $validated['restaurant_id'],
+                    null,   // openedByAdminId
+                    null,   // guestCount
+                    $deviceId
+                );
+            }
 
             // Build order total from server-side prices (never trust client price)
             $totalAmount = collect($validated['items'])->sum(function ($item) use ($validItems) {

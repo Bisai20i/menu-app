@@ -266,6 +266,7 @@ async function confirmOrder() {
         const response = await menuApi.placeOrder({
             restaurant_id: cartStore.restaurantId,
             table_uuid: cartStore.tableUuid,
+            device_id: cartStore.deviceId,
             note: cartStore.orderNote,
             items: cartStore.items.map(i => ({
                 menu_item_id: i.id,
