@@ -56,7 +56,7 @@
         <div class="card-footer border-0 bg-transparent px-3 pt-0 pb-3 d-flex gap-2">
             {{-- Details (Alpine — no Livewire roundtrip) --}}
             <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0"
-                @click="openOrder({{ json_encode([
+                @click="openOrder({{ \Illuminate\Support\Js::from([
                     'id'         => $order->id,
                     'uuid'       => $order->uuid,
                     'table'      => $order->table?->table_number,

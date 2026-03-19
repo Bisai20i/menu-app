@@ -87,9 +87,9 @@
                         </th>
                         @foreach ($columns as $key => $col)
                             <th class="border-0"
-                                @if ($col['sortable'] && count($items)) style="cursor:pointer" wire:click="sortBy('{{ $key }}')" @endif>
+                                @if ( isset($col['sortable']) && count($items)) style="cursor:pointer" wire:click="sortBy('{{ $key }}')" @endif>
                                 {{ $col['label'] }}
-                                @if ($col['sortable'])
+                                @if ($col['sortable'] ?? false)
                                     <i
                                         class="bx {{ $sortField === $key ? ($sortDirection === 'asc' ? 'bx-up-arrow-alt' : 'bx-down-arrow-alt') : 'bx-sort' }} ms-1"></i>
                                 @endif

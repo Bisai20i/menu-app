@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->enum('role', ['superadmin', 'admin','user'])->default('user');
             $table->foreignId('restaurant_id')->nullable()->constrained()->onDelete('cascade');
+            $table->rememberToken();
             $table->timestamps();
         });
     }

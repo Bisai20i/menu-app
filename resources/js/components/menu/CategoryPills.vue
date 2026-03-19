@@ -4,7 +4,7 @@
             <button
                 class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap"
                 :class="active === 'all'
-                    ? 'bg-orange-500 text-white shadow-md shadow-orange-200'
+                    ? 'bg-primary text-white shadow-md shadow-primary-dark/20'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" @click="$emit('select', 'all')">
                 🍽️ All
             </button>
@@ -12,7 +12,7 @@
             <button v-for="cat in categories" :key="cat.id"
                 class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap"
                 :class="active === cat.id
-                    ? 'bg-orange-500 text-white shadow-md shadow-orange-200'
+                    ? 'bg-primary text-white shadow-md shadow-primary-dark/20'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" @click="$emit('select', cat.id)">
                 {{ getCategoryEmoji(cat.name) }} {{ cat.name }}
             </button>

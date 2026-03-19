@@ -3,7 +3,7 @@
         @click="$emit('view', item)">
         <!-- Image -->
         <div
-            class="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center">
+            class="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light flex items-center justify-center">
             <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover" />
             <span v-else class="text-3xl">{{ getEmoji(item) }}</span>
         </div>
@@ -35,16 +35,16 @@
                 <!-- Quantity controls or Add button -->
                 <div v-if="quantity > 0" class="flex items-center gap-2">
                     <button
-                        class="w-7 h-7 rounded-full bg-orange-100 text-orange-600 font-bold text-base flex items-center justify-center active:scale-90 transition-transform"
+                        class="w-7 h-7 rounded-full bg-primary-light text-primary-dark font-bold text-base flex items-center justify-center active:scale-90 transition-transform"
                         @click.stop="$emit('remove', item)">−</button>
                     <span class="font-bold text-gray-800 text-sm w-4 text-center">{{ quantity }}</span>
                     <button
-                        class="w-7 h-7 rounded-full bg-orange-500 text-white font-bold text-base flex items-center justify-center active:scale-90 transition-transform"
+                        class="w-7 h-7 rounded-full bg-primary text-white font-bold text-base flex items-center justify-center active:scale-90 transition-transform"
                         @click.stop="$emit('add', item)">+</button>
                 </div>
 
                 <button v-else :disabled="!item.is_available"
-                    class="flex items-center gap-1 bg-orange-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-600"
+                    class="flex items-center gap-1 bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-dark"
                     @click.stop="$emit('add', item)">
                     <span class="text-sm leading-none">+</span> Add
                 </button>

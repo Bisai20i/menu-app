@@ -118,3 +118,12 @@
         background-color: #e6efff;
     }
 </style>
+
+@script
+<script>
+    $wire.on('play-notification-sound', () => {
+        const audio = new Audio('/notification.mp3');
+        audio.play().catch(e => console.error("Error playing sound:", e));
+    });
+</script>
+@endscript

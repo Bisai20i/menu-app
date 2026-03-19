@@ -4,7 +4,7 @@
             <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <span class="text-xl">⭐</span> Chef's Picks
             </h2>
-            <span class="text-xs font-semibold text-orange-500 bg-orange-50 px-2.5 py-1 rounded-full">Featured</span>
+            <span class="text-xs font-semibold text-primary bg-primary-light/50 px-2.5 py-1 rounded-full">Featured</span>
         </div>
 
         <div class="relative overflow-hidden">
@@ -13,13 +13,13 @@
                 <div v-for="item in items" :key="item.id"
                     class="snap-start shrink-0 grow-1 min-w-52 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer active:scale-95 transition-transform"
                     @click="$emit('view-item', item)">
-                    <div class="relative h-32 bg-gradient-to-br from-orange-100 to-yellow-50">
+                    <div class="relative h-32 bg-gradient-to-br from-primary-light/50 to-primary-light/30">
                         <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center text-4xl">
                             {{ getEmoji(item) }}
                         </div>
                         <div
-                            class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-orange-600 text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
+                            class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
                             Featured
                         </div>
                     </div>
@@ -28,9 +28,9 @@
                         <p class="font-semibold text-gray-800 text-sm leading-tight line-clamp-1">{{ item.name }}</p>
                         <p class="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ item.description }}</p>
                         <div class="flex items-center justify-between mt-2">
-                            <span class="font-bold text-orange-500 text-sm">Rs. {{ formatPrice(item.price) }}</span>
+                            <span class="font-bold text-primary text-sm">Rs. {{ formatPrice(item.price) }}</span>
                             <button
-                                class="bg-orange-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform hover:bg-orange-600"
+                                class="bg-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform hover:bg-primary-dark"
                                 @click.stop="$emit('add-to-cart', item)">
                                 + Add
                             </button>
@@ -42,7 +42,7 @@
             <!-- Scroll indicator dots -->
             <div v-if="items.length > 2" class="flex justify-center gap-1.5 mt-2">
                 <div v-for="(item, i) in items" :key="i" class="h-1.5 rounded-full transition-all duration-300"
-                    :class="i === activeIndex ? 'w-4 bg-orange-400' : 'w-1.5 bg-gray-200'" />
+                    :class="i === activeIndex ? 'w-4 bg-primary' : 'w-1.5 bg-gray-200'" />
             </div>
         </div>
     </section>

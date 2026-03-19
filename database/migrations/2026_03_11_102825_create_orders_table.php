@@ -33,6 +33,7 @@ return new class extends Migration
                 'pending',      // Placed by customer, awaiting staff acknowledgement
                 'confirmed',    // Confirmed by staff, kitchen is preparing
                 'served',       // All items delivered to the table
+                'cancelled',    // Cancelled by customer or staff
             ])->default('pending');
 
             // Payment is tracked independently from fulfilment

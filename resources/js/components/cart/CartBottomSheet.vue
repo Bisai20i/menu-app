@@ -39,7 +39,7 @@
                             <p class="text-sm text-gray-400 text-center max-w-[200px]">Add some delicious items from the
                                 menu!</p>
                             <button
-                                class="mt-2 bg-orange-500 text-white font-semibold px-6 py-2.5 rounded-full text-sm hover:bg-orange-600 transition-colors"
+                                class="mt-2 bg-primary text-white font-semibold px-6 py-2.5 rounded-full text-sm hover:bg-primary-dark transition-colors"
                                 @click="cartStore.closeCart()">Browse Menu</button>
                         </div>
 
@@ -65,7 +65,7 @@
                                     <span class="font-bold text-gray-800 text-sm w-5 text-center">{{ item.quantity
                                         }}</span>
                                     <button
-                                        class="w-7 h-7 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center shadow-sm active:scale-90 transition-transform"
+                                        class="w-7 h-7 rounded-full bg-primary text-white font-bold flex items-center justify-center shadow-sm active:scale-90 transition-transform"
                                         @click="cartStore.addItem(item)">+</button>
                                     <button
                                         class="ml-1 w-7 h-7 rounded-full bg-red-50 text-red-400 flex items-center justify-center active:scale-90 transition-transform"
@@ -87,7 +87,7 @@
                                 <span class="font-bold text-gray-800">Rs. {{ fmt(cartStore.totalPrice) }}</span>
                             </div>
                             <button
-                                class="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 active:scale-[0.98] transition-all shadow-lg shadow-orange-200 text-base"
+                                class="w-full bg-primary text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dark active:scale-[0.98] transition-all shadow-lg shadow-primary-dark/20 text-base"
                                 @click="step = 'summary'">
                                 Review Order
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -130,7 +130,7 @@
                                         class="flex items-center justify-between px-4 py-3 gap-3">
                                         <div class="flex items-center gap-3 min-w-0">
                                             <span
-                                                class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-xs font-bold flex items-center justify-center shrink-0">
+                                                class="w-6 h-6 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center shrink-0">
                                                 {{ item.quantity }}
                                             </span>
                                             <div class="min-w-0">
@@ -154,7 +154,7 @@
                                 </label>
                                 <textarea v-model="cartStore.orderNote"
                                     placeholder="e.g. No onions, extra sauce on the side..." rows="3"
-                                    class="w-full text-sm border border-gray-200 rounded-2xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent placeholder:text-gray-300 transition-all" />
+                                    class="w-full text-sm border border-gray-200 rounded-2xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent placeholder:text-gray-300 transition-all" />
                             </div>
 
                             <div class="bg-gray-50 rounded-2xl px-4 py-3 flex flex-col gap-2">
@@ -165,7 +165,7 @@
                                 <div class="h-px bg-gray-200 my-0.5" />
                                 <div class="flex items-center justify-between font-bold text-gray-900">
                                     <span>Total</span>
-                                    <span class="text-orange-500 text-base">Rs. {{ fmt(cartStore.totalPrice) }}</span>
+                                    <span class="text-primary text-base">Rs. {{ fmt(cartStore.totalPrice) }}</span>
                                 </div>
                             </div>
 
@@ -177,7 +177,7 @@
 
                         <div class="px-4 pt-3 pb-4 border-t border-gray-100 shrink-0">
                             <button :disabled="isPlacingOrder"
-                                class="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-orange-200 text-base"
+                                class="w-full bg-primary text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dark active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-primary-dark/20 text-base"
                                 @click="confirmOrder">
                                 <span v-if="isPlacingOrder"
                                     class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -203,7 +203,7 @@
                             </div>
                             <div class="flex flex-col gap-2.5 w-full mt-2">
                                 <button
-                                    class="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl hover:bg-orange-600 transition-colors"
+                                    class="w-full bg-primary text-white font-bold py-4 rounded-2xl hover:bg-primary-dark transition-colors"
                                     @click="goToOrders">
                                     Track My Orders
                                 </button>

@@ -2,14 +2,17 @@
 
 namespace App\Notifications;
 
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-use App\Models\Order;
-
-class NewOrderNotification extends Notification
+class NewOrderNotification extends Notification implements ShouldBroadcastNow
 {
     use Queueable;
 
@@ -30,7 +33,7 @@ class NewOrderNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     /**
@@ -46,4 +49,9 @@ class NewOrderNotification extends Notification
             'total_amount' => $this->order->total_amount,
         ];
     }
+
+    // public function toBroadcast(object $notifiable): BroadcastMessage{
+    //     return new BroadcastMessage($this->toArray($notifiable));
+    // }
+
 }

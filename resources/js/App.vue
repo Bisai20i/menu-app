@@ -6,4 +6,8 @@
 
 <script setup>
     import { RouterView } from 'vue-router';
-</script>
+    import { useOrderUpdates } from './composables/useOrderUpdates.js';
+
+    // Global real-time listener — fires on any page (MenuView, OrdersView, etc.)
+    useOrderUpdates();
+</script>

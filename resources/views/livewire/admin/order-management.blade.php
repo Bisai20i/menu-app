@@ -186,7 +186,7 @@
                                     <td>
                                         <div class="d-flex gap-2">
                                             <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                @click="openOrder({{ json_encode([
+                                                @click="openOrder({{ \Illuminate\Support\Js::from([
                                                     'id' => $order->id,
                                                     'uuid' => $order->uuid,
                                                     'table' => $order->table?->table_number,

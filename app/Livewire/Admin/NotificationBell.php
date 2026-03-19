@@ -1,6 +1,7 @@
 <?php
 namespace App\Livewire\Admin;
 
+use App\Models\Admin;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -14,6 +15,26 @@ class NotificationBell extends Component
         $this->loadNotifications();
     }
 
+    public function getListeners()
+    {
+
+        // info("regestring event:" . "echo-notification:App.Models.Admin." . auth('admin')->id());
+        return [
+            // The key is the listener, the value is the method to call
+
+            "echo-notification:App.Models.Admin." . auth('admin')->id() => 'handleBroadcastedNotification',
+
+        ];
+    }
+
+    // #[On('echo-notification:App.Models.Admin.{admin.id},notification')]
+    public function handleBroadcastedNotification($event)
+    {
+        $this->unreadCount++;
+        $this->loadNotifications();
+        $this->dispatch('play-notification-sound');
+    }
+
     public function placeholder()
     {
         return view('livewire.placeholders.notification-bell-placeholder');
@@ -21,9 +42,7 @@ class NotificationBell extends Component
 
     public function loadNotifications()
     {
-        // Get the currently authenticated admin
-        $admin = Auth::guard('admin')->user();
-
+        $admin = auth('admin')->user();
         if ($admin) {
             $this->notifications = $admin->notifications()->take(5)->get();
             $this->unreadCount   = $admin->unreadNotifications()->count();
@@ -52,14 +71,6 @@ class NotificationBell extends Component
             $admin->unreadNotifications->markAsRead();
             $this->loadNotifications();
         }
-    }
-
-    public function getListeners()
-    {
-        return [
-            // If reverb/websockets are added later, listen here
-            // 'echo-private:App.Models.Admin.'.$adminId.',.Illuminate\Notifications\Events\BroadcastNotificationCreated' => 'loadNotifications'
-        ];
     }
 
     public function render()

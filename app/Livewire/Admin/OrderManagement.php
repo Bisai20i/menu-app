@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Order;
+use App\Events\OrderStatusUpdated;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -26,6 +27,19 @@ class OrderManagement extends Component
         $this->activeTab = 'pending';
     }
 
+    public function getListeners()
+    {
+        $admin = Auth::guard('admin')->user();
+        if (!$admin) return [];
+
+        return [
+            // Listen for new orders (broadcasted via notification)
+            "echo-private:App.Models.Admin.{$admin->id},Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => '$refresh',
+            // Listen for status updates across the restaurant
+            "echo-private:restaurant.{$admin->restaurant_id},OrderStatusUpdated" => '$refresh',
+        ];
+    }
+
     // ── Actions ──────────────────────────────────────────────────────
 
     /**
@@ -40,6 +54,8 @@ class OrderManagement extends Component
             'status'       => 'confirmed',
             'confirmed_by' => Auth::guard('admin')->id(),
         ]);
+
+        OrderStatusUpdated::dispatch($order);
 
         $this->dispatch('order-updated', id: $orderId);
     }
@@ -57,6 +73,8 @@ class OrderManagement extends Component
             'served_by' => Auth::guard('admin')->id(),
         ]);
 
+        OrderStatusUpdated::dispatch($order);
+
         $this->dispatch('order-updated', id: $orderId);
     }
 
@@ -69,6 +87,8 @@ class OrderManagement extends Component
         if (! $order || $order->is_paid) return;
 
         $order->markAsPaid();
+
+        OrderStatusUpdated::dispatch($order);
 
         $this->dispatch('order-updated', id: $orderId);
     }

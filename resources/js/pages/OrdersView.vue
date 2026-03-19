@@ -36,13 +36,13 @@
         Browse the menu and place your first order to get started.
       </p>
       <button
-        class="mt-2 bg-orange-500 text-white font-semibold px-6 py-3 rounded-2xl hover:bg-orange-600 transition-colors text-sm"
+        class="mt-2 bg-primary text-white font-semibold px-6 py-3 rounded-2xl hover:bg-primary-dark transition-colors text-sm"
         @click="goBack">Browse Menu</button>
     </div>
 
     <!-- Loading -->
     <div v-else-if="isLoading" class="flex flex-col items-center justify-center gap-3 py-24">
-      <div class="w-10 h-10 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+      <div class="w-10 h-10 border-2 border-primary-light border-t-primary rounded-full animate-spin" />
       <p class="text-sm text-gray-400 font-medium">Loading orders...</p>
     </div>
 
@@ -52,7 +52,7 @@
       <p class="font-semibold text-gray-700">Couldn't load orders</p>
       <p class="text-sm text-gray-400">{{ error }}</p>
       <button
-        class="bg-orange-500 text-white font-semibold px-6 py-2.5 rounded-2xl hover:bg-orange-600 transition-colors text-sm"
+        class="bg-primary text-white font-semibold px-6 py-2.5 rounded-2xl hover:bg-primary-dark transition-colors text-sm"
         @click="loadOrders">Try Again</button>
     </div>
 
@@ -61,7 +61,7 @@
       <div class="max-w-screen-xl mx-auto px-4 lg:px-8 py-5 flex flex-col gap-4 pb-24">
 
         <!-- Session summary banner -->
-        <div class="bg-gradient-to-r from-orange-500 to-amber-400 rounded-2xl p-4 text-white">
+        <div class="bg-gradient-to-r from-primary to-primary rounded-2xl p-4 text-white">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-semibold opacity-80 uppercase tracking-wider">Session Total</p>
@@ -92,7 +92,7 @@
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-                <span class="text-sm font-black text-orange-500">#{{ orders.length - index }}</span>
+                <span class="text-sm font-black text-primary">#{{ orders.length - index }}</span>
               </div>
               <div>
                 <p class="font-bold text-gray-800 text-sm">Order {{ orders.length - index }}</p>
@@ -111,6 +111,13 @@
                 {{ statusLabel(order.status) }}
               </span>
             </div>
+            <!-- Cancel Button -->
+            <button
+              v-if="canCancel(order)"
+              class="text-[10px] font-bold text-red-500 hover:text-red-600 bg-red-50 px-2 py-1 rounded-lg transition-colors border border-red-100"
+              @click="confirmCancelOrder(order.uuid)">
+              Cancel Order
+            </button>
           </div>
 
           <!-- Status progress bar -->
@@ -119,9 +126,9 @@
               <template v-for="(s, i) in statusSteps" :key="s.key">
                 <div class="flex-1 flex flex-col items-center gap-1">
                   <div class="w-full h-1.5 rounded-full transition-all duration-500"
-                    :class="isStepDone(order.status, s.key) ? 'bg-orange-400' : 'bg-gray-200'" />
+                    :class="isStepDone(order.status, s.key) ? 'bg-primary' : 'bg-gray-200'" />
                   <p class="text-[10px] font-semibold transition-colors"
-                    :class="isStepDone(order.status, s.key) ? 'text-orange-500' : 'text-gray-300'">{{ s.label }}</p>
+                    :class="isStepDone(order.status, s.key) ? 'text-primary' : 'text-gray-300'">{{ s.label }}</p>
                 </div>
                 <div v-if="i < statusSteps.length - 1" class="w-2 shrink-0" />
               </template>
@@ -161,6 +168,33 @@
       </div>
     </template>
 
+    <!-- Cancel Confirmation Modal -->
+    <Transition name="fade">
+      <div v-if="showCancelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+          <div class="p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Cancel Order?</h3>
+            <p class="text-sm text-gray-500 mb-6">Are you sure you want to cancel this order? This action cannot be undone.</p>
+            <div class="flex gap-3">
+              <button class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors" @click="closeCancelModal">Keep Order</button>
+              <button class="flex-1 px-4 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors shadow-sm shadow-red-200" @click="executeCancelOrder">Yes, Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Floating Cart FAB -->
+    <CartFab />
+
+    <!-- Cart Bottom Sheet -->
+    <CartBottomSheet />
+
     <!-- Bottom nav -->
     <BottomNav />
 
@@ -173,18 +207,26 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart.js';
+import { useToast } from '../composables/useToast.js';
 import { menuApi } from '../services/api.js';
+import { useOrderUpdates } from '../composables/useOrderUpdates.js';
 import BottomNav from '../components/ui/BottomNav.vue';
 import ToastNotification from '../components/ui/ToastNotification.vue';
+import CartFab from '../components/cart/CartFab.vue';
+import CartBottomSheet from '../components/cart/CartBottomSheet.vue';
 
 const route = useRoute();
 const router = useRouter();
 const cartStore = useCartStore();
+const toast = useToast();
 
 const orders = ref([]);
 const isLoading = ref(false);
 const isRefreshing = ref(false);
 const error = ref(null);
+
+const showCancelModal = ref(false);
+const orderToCancel = ref(null);
 
 const statusSteps = [
   { key: 'pending', label: 'Placed' },
@@ -226,6 +268,52 @@ async function loadOrders(refresh = false) {
   }
 }
 
+// Page-level handler: only merge the updated order into the local list.
+// Toast + sound are handled globally by useOrderUpdates in App.vue.
+function handleOrderUpdate(updatedOrder) {
+  const index = orders.value.findIndex(o => o.uuid === updatedOrder.uuid);
+  if (index !== -1) {
+    orders.value[index] = { ...orders.value[index], ...updatedOrder };
+  }
+}
+
+// Wire into the global composable to keep local state in sync
+useOrderUpdates(handleOrderUpdate);
+
+function confirmCancelOrder(uuid) {
+  orderToCancel.value = uuid;
+  showCancelModal.value = true;
+}
+
+function closeCancelModal() {
+  showCancelModal.value = false;
+  orderToCancel.value = null;
+}
+
+async function executeCancelOrder() {
+  if (!orderToCancel.value) return;
+  const uuid = orderToCancel.value;
+  closeCancelModal();
+  
+  try {
+    await menuApi.cancelOrder(uuid);
+    toast.success('Order cancelled successfully');
+    loadOrders(true);
+  } catch (err) {
+    toast.error(err.message || 'Failed to cancel order');
+  }
+}
+
+function canCancel(order) {
+  if (order.status !== 'pending') return false;
+  
+  const createdAt = new Date(order.created_at);
+  const now = new Date();
+  const diffInMinutes = (now - createdAt) / 1000 / 60;
+  
+  return diffInMinutes < 2;
+}
+
 function goBack() {
   router.push({
     name: 'menu',
@@ -257,25 +345,27 @@ function getEmoji(item) {
 }
 
 function statusLabel(status) {
-  return { pending: '⏳ Pending', confirmed: '👨‍🍳 Preparing', served: '✓ Served' }[status] ?? status;
+  return { 
+    pending: '⏳ Pending', 
+    confirmed: '👨‍🍳 Preparing', 
+    served: '✓ Served',
+    cancelled: '✕ Cancelled'
+  }[status] ?? status;
 }
 
 function statusClass(status) {
   return {
-    pending: 'bg-amber-100 text-amber-700',
+    pending: 'bg-primary-dark/80 text-amber-700',
     confirmed: 'bg-blue-100 text-blue-700',
     served: 'bg-green-100 text-green-700',
+    cancelled: 'bg-red-100 text-red-700',
   }[status] ?? 'bg-gray-100 text-gray-500';
 }
 
 onMounted(() => {
-  // If the user lands here directly after a page refresh, the store is empty.
-  // Rehydrate the sessionUuid from localStorage (keyed by the table UUID in
-  // the URL) before trying to fetch orders.
   if (!cartStore.sessionUuid) {
     const tableUuid = route.params.table_uuid;
     if (tableUuid) {
-      // Temporarily set tableUuid so rehydrateSession can look up the right key
       if (!cartStore.tableUuid) cartStore.setTableInfo(null, tableUuid, null);
       cartStore.rehydrateSession();
     }
@@ -289,6 +379,17 @@ onMounted(() => {
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+  line-clamp: 1;
   overflow: hidden;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

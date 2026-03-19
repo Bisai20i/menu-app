@@ -11,6 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantTable;
 use App\Models\TableSession;
+use App\Events\OrderStatusUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -355,5 +356,35 @@ class MenuController extends Controller
             ],
             'orders'  => $orders,
         ]);
+    }
+
+    /**
+     * PUBLIC API — Cancel a pending order (within 2 minutes of creation).
+     *
+     * POST /api/orders/{orderUuid}/cancel
+     */
+    public function cancelOrder(string $orderUuid): JsonResponse
+    {
+        $order = Order::where('uuid', $orderUuid)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found or cannot be cancelled.'], 404);
+        }
+
+        // Check if order was created within the last 2 minutes
+        if ($order->created_at->diffInMinutes(now()) >= 2) {
+            return response()->json([
+                'message' => 'Orders can only be cancelled within 2 minutes of being placed.'
+            ], 422);
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        // Notify client and staff
+        OrderStatusUpdated::dispatch($order);
+
+        return response()->json(['message' => 'Order cancelled successfully.']);
     }
 }

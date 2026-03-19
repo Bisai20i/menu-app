@@ -9,6 +9,8 @@ use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\TableSessionController;
+use App\Http\Controllers\TestimonialController;
+use App\Http\Controllers\FaqController;
 use App\Livewire\Admin\OrderManagement;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +60,12 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
 
         //Subscription Plans
         Route::resource('subscription-plans', SubscriptionPlanController::class);
+
+        // Testimonials
+        Route::resource('testimonials', TestimonialController::class);
+
+        // FAQs
+        Route::resource('faqs', FaqController::class);
 
         // Admin Management
         Route::resource('admin-management', AdminManagementController::class);

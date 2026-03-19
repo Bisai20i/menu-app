@@ -3,10 +3,10 @@ namespace App\Models;
 
 use App\Traits\HasDynamicTable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Auth\User as Authenticable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Admin extends Authenticable
+class Admin extends Authenticatable 
 {
     use Notifiable;
     use HasDynamicTable;

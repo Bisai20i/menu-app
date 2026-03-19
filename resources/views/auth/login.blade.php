@@ -166,7 +166,7 @@
                                     Keep me logged in
                                 </label>
                             </div>
-                            <a href="{{ route('master.password.request') }}" class="text-brand-red text-decoration-none small fw-bold">Forget
+                            <a href="{{ route('master.password.request') }}" class="text-brand-red text-decoration-none small fw-bold">Forgot
                                 password?</a>
                         </div>
         
@@ -200,7 +200,7 @@
                             <i class="bi bi-fire text-danger fs-4"></i>
                         </div>
                         <h4 class="fw-bold mb-0">MENU</h4>
-                        <p class="mb-0 small" style="font-size: 10px; letter-spacing: 1px;">HANOVER AND TYKE</p>
+                        <p class="mb-0 small" style="font-size: 10px; letter-spacing: 1px;">HANOVER AND TAKE</p>
                     </div>
                 </div>
             </div>

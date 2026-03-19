@@ -4,7 +4,7 @@
         <!-- ── Loading ─────────────────────────────────────────────── -->
         <div v-if="menuStore.isLoading" class="min-h-screen flex flex-col items-center justify-center gap-4 bg-white">
             <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shadow-lg animate-pulse">
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shadow-lg animate-pulse">
                 <span class="text-2xl">🍽️</span>
             </div>
             <p class="text-gray-500 font-medium text-sm animate-pulse">Loading menu...</p>
@@ -17,7 +17,7 @@
             <h2 class="font-bold text-gray-800 text-xl">Something went wrong</h2>
             <p class="text-gray-400 text-sm text-center">{{ menuStore.error }}</p>
             <button
-                class="bg-orange-500 text-white font-semibold px-6 py-3 rounded-2xl hover:bg-orange-600 transition-colors"
+                class="bg-primary text-white font-semibold px-6 py-3 rounded-2xl hover:bg-primary-dark transition-colors"
                 @click="fetchMenu">Try Again</button>
         </div>
 
@@ -29,7 +29,7 @@
                     <!-- Restaurant info -->
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div
-                            class="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center shrink-0 shadow-sm">
+                            class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shrink-0 shadow-sm">
                             <span class="text-base">🍽️</span>
                         </div>
                         <div class="min-w-0">
@@ -44,7 +44,7 @@
                     <div class="flex items-center gap-2 shrink-0">
                         <!-- Search toggle -->
                         <button class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-                            :class="showSearch ? 'bg-orange-100 text-orange-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                            :class="showSearch ? 'bg-primary-light text-primary' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
                             @click="toggleSearch">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
 
                         <!-- Call waiter -->
                         <button :disabled="isCallingWaiter"
-                            class="flex items-center gap-1.5 bg-orange-500 text-white text-xs font-bold px-3 py-2 rounded-xl hover:bg-orange-600 active:scale-95 transition-all disabled:opacity-60 shadow-sm shadow-orange-200"
+                            class="flex items-center gap-1.5 bg-primary text-white text-xs font-bold px-3 py-2 rounded-xl hover:bg-primary-dark active:scale-95 transition-all disabled:opacity-60 shadow-sm shadow-orange-200"
                             @click="callWaiter">
                             <span v-if="isCallingWaiter"
                                 class="w-3 h-3 border border-white/50 border-t-white rounded-full animate-spin shrink-0" />
@@ -76,7 +76,7 @@
                             </svg>
                             <input ref="searchInputRef" v-model="searchQuery" type="text"
                                 placeholder="Search dishes, drinks..."
-                                class="w-full bg-gray-100 rounded-xl pl-9 pr-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:bg-white transition-all"
+                                class="w-full bg-gray-100 rounded-xl pl-9 pr-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-light/50 focus:bg-white transition-all"
                                 @input="menuStore.setSearch(searchQuery)" />
                             <button v-if="searchQuery"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -106,7 +106,7 @@
                                 <button
                                     class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 text-left"
                                     :class="menuStore.activeCategory === 'all'
-                                        ? 'bg-orange-500 text-white shadow-sm'
+                                        ? 'bg-primary text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-50'" @click="menuStore.setCategory('all')">
                                     <span class="text-base leading-none">🍽️</span>
                                     <span class="flex-1">All Items</span>
@@ -118,7 +118,7 @@
                                 <button v-for="cat in menuStore.categories" :key="cat.id"
                                     class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 text-left"
                                     :class="menuStore.activeCategory === cat.id
-                                        ? 'bg-orange-500 text-white shadow-sm'
+                                        ? 'bg-primary text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-50'" @click="menuStore.setCategory(cat.id)">
                                     <span class="text-base leading-none">{{ getCategoryEmoji(cat.name) }}</span>
                                     <span class="flex-1 truncate">{{ cat.name }}</span>
@@ -146,7 +146,7 @@
                                     <span class="font-semibold text-gray-800">{{ menuStore.filteredItems.length
                                     }}</span>
                                     result{{ menuStore.filteredItems.length !== 1 ? 's' : '' }} for
-                                    "<span class="text-orange-500 font-medium">{{ searchQuery }}</span>"
+                                    "<span class="text-primary font-medium">{{ searchQuery }}</span>"
                                 </p>
                             </div>
 
@@ -199,7 +199,7 @@
                 class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
                 @click.self="selectedItem = null">
                 <div class="bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl overflow-hidden shadow-2xl">
-                    <div class="relative h-56 bg-gradient-to-br from-orange-100 to-yellow-50">
+                    <div class="relative h-56 bg-gradient-to-br from-primary-light to-yellow-50">
                         <img v-if="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name"
                             class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center text-7xl">
@@ -209,7 +209,7 @@
                             class="absolute top-4 right-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center text-gray-600 shadow-sm hover:bg-white"
                             @click="selectedItem = null">✕</button>
                         <div v-if="selectedItem.is_featured"
-                            class="absolute top-4 left-4 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                            class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                             ⭐ Chef's Pick
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                     <div class="p-5">
                         <div class="flex items-start justify-between gap-3 mb-2">
                             <h2 class="font-bold text-gray-900 text-xl leading-tight">{{ selectedItem.name }}</h2>
-                            <span class="font-black text-orange-500 text-xl shrink-0">Rs. {{
+                            <span class="font-black text-primary text-xl shrink-0">Rs. {{
                                 formatPrice(selectedItem.price)
                             }}</span>
                         </div>
@@ -243,9 +243,9 @@
                         <!-- Add to cart controls -->
                         <template v-else>
                             <div v-if="cartStore.getItemQuantity(selectedItem.id) > 0"
-                                class="flex items-center justify-between bg-orange-50 rounded-2xl p-3 mb-3">
+                                class="flex items-center justify-between bg-primary-light rounded-2xl p-3 mb-3">
                                 <button
-                                    class="w-10 h-10 rounded-xl bg-white border border-orange-200 text-orange-500 text-xl font-bold flex items-center justify-center shadow-sm active:scale-90 transition-transform"
+                                    class="w-10 h-10 rounded-xl bg-white border border-primary-light text-primary text-xl font-bold flex items-center justify-center shadow-sm active:scale-90 transition-transform"
                                     @click="cartStore.removeItem(selectedItem.id)">−</button>
                                 <div class="text-center">
                                     <p class="font-bold text-gray-800 text-lg">{{
@@ -253,12 +253,12 @@
                                     <p class="text-xs text-gray-400">in cart</p>
                                 </div>
                                 <button
-                                    class="w-10 h-10 rounded-xl bg-orange-500 text-white text-xl font-bold flex items-center justify-center shadow-sm active:scale-90 transition-transform"
+                                    class="w-10 h-10 rounded-xl bg-primary text-white text-xl font-bold flex items-center justify-center shadow-sm active:scale-90 transition-transform"
                                     @click="addToCart(selectedItem)">+</button>
                             </div>
 
                             <button v-else
-                                class="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl text-base hover:bg-orange-600 active:scale-[0.98] transition-all shadow-lg shadow-orange-200"
+                                class="w-full bg-primary text-white font-bold py-4 rounded-2xl text-base hover:bg-primary-dark active:scale-[0.98] transition-all shadow-lg shadow-orange-200"
                                 @click="addToCart(selectedItem)">
                                 Add to Cart - Rs. {{ formatPrice(selectedItem.price) }}
                             </button>
@@ -312,7 +312,13 @@ const tableNumber = ref(null);
 
 async function fetchMenu() {
     const { restaurant_slug, table_uuid } = route.params;
-    await menuStore.loadMenu(restaurant_slug, table_uuid, cartStore.deviceId);
+
+    if (menuStore.tableData?.uuid === table_uuid && menuStore.allItems.length > 0) {
+        // Skip fetch as menu is already loaded
+    } else {
+        await menuStore.loadMenu(restaurant_slug, table_uuid, cartStore.deviceId);
+    }
+
     if (menuStore.restaurant) {
         const tableInfo = menuStore.tableData;
         

@@ -1,5 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:8000/api';
-// const BASE_URL = 'http://192.168.1.120:8000/api';
+const BASE_URL = `${window.location.origin}/api`;
 
 
 async function request(endpoint, options = {}) {
@@ -17,7 +16,15 @@ async function request(endpoint, options = {}) {
         throw new Error(error.message || `HTTP ${response.status}`);
     }
 
-    return response.json();
+    try {
+        return await response.json();
+    } catch (e) {
+        console.error('API response was not valid JSON:', e);
+        // If it's HTML, logging may reveal why (e.g. redirect to login)
+        const text = await response.text().catch(() => '');
+        console.log('Response body preview:', text.substring(0, 500));
+        throw new Error('Server returned invalid data format.');
+    }
 }
 
 export const menuApi = {
@@ -51,6 +58,13 @@ export const menuApi = {
     // GET /api/sessions/{session_uuid}/orders
     getSessionOrders(sessionUuid) {
         return request(`/sessions/${sessionUuid}/orders`);
+    },
+
+    // POST /api/orders/{order_uuid}/cancel
+    cancelOrder(orderUuid) {
+        return request(`/orders/${orderUuid}/cancel`, {
+            method: 'POST',
+        });
     },
 };
 

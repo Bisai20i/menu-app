@@ -17,6 +17,9 @@ Route::post('/orders', [MenuController::class, 'placeOrder'])
 
 Route::get('/sessions/{session_uuid}/orders', [MenuController::class, 'getSessionOrders'])
     ->name('api.sessions.orders');
+
+Route::post('/orders/{order_uuid}/cancel', [MenuController::class, 'cancelOrder'])
+    ->name('api.orders.cancel');
 // Authenticated user route
 // Route::get('/user', function (Request $request) {
 //     return $request->user();

@@ -78,10 +78,23 @@
                 </a>
             </li>
         @endcan
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Settings</span>
-        </li>
+
         @if ($is_super_admin)
+            <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">System Management</span>
+            </li>
+            <li class="menu-item {{ request()->routeIs('master.testimonials*') ? 'active' : '' }}">
+                <a href="{{ route('master.testimonials.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-message-dots"></i>
+                    <div data-i18n="Testimonials">Testimonials</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->routeIs('master.faqs*') ? 'active' : '' }}">
+                <a href="{{ route('master.faqs.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-question-mark"></i>
+                    <div data-i18n="Faqs">Faqs</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->routeIs('master.subscription-plans*') ? 'active' : '' }}">
                 <a href="{{ route('master.subscription-plans.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-money"></i>

@@ -13,7 +13,9 @@ class SubscriptionPlan extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->admin_id = auth('admin')->id();
+            if (!$model->admin_id) {
+                $model->admin_id = auth('admin')->id();
+            }
         });
     }
     protected $fillable = [

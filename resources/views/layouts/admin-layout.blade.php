@@ -42,7 +42,7 @@
 
     <script src="{{ asset('backend/assets/js/config.js') }}"></script>
     @livewireStyles
-
+    @vite(['resources/js/admin.js'])
     @stack('styles')
 </head>
 
