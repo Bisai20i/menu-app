@@ -227,9 +227,7 @@ a {
   color: #C62828;
   text-decoration: none;
 }
-a:hover {
-  color: #0447b2;
-}
+
 
 a:not([href]):not([class]), a:not([href]):not([class]):hover {
   color: inherit;
@@ -2796,7 +2794,7 @@ textarea.form-control-lg {
   text-decoration: none;
 }
 .btn-link:hover {
-  color: #0e52c1;
+  color: #c10e0e;
 }
 .btn-link:disabled, .btn-link.disabled {
   color: rgba(67, 89, 113, 0.6);

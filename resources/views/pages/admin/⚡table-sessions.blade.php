@@ -241,13 +241,9 @@ new class extends Component {
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-sm me-2">
-                                            <span class="avatar-initial rounded bg-label-primary">
-                                                {{ $session->table->table_number }}
-                                            </span>
-                                        </div>
+                                        
                                         <div>
-                                            <span class="fw-bold">Table {{ $session->table->table_number }}</span>
+                                            <span class="fw-bold">{{ $session->table->table_number }}</span>
                                             @if ($session->table->section)
                                                 <div class="text-muted small">{{ $session->table->section }}</div>
                                             @endif
