@@ -24,11 +24,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'bg-primary': '#0B0C10',
-                        'bg-secondary': '#14161B',
+                        'bg-primary': '#ffff',
+                        'bg-secondary': '#FFFDFC',
                         'accent': '#C62828',
-                        'text-primary': '#F4F6FA',
-                        'text-secondary': '#A7ACB8',
+                        'text-primary': '#1F2937',
+                        'text-secondary': '#6B7280',
                     },
                     fontFamily: {
                         'display': ['Space Grotesk', 'sans-serif'],
@@ -56,8 +56,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0B0C10;
-            color: #F4F6FA;
+            /* background-color: #F8F5EF; */
+            color: #1F2937;
             overflow-x: hidden;
         }
 
@@ -70,8 +70,8 @@
             height: 100%;
             pointer-events: none;
             z-index: 9999;
-            opacity: 0.04;
-            mix-blend-mode: overlay;
+            opacity: 0.025;
+            mix-blend-mode: multiply;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
 
@@ -112,33 +112,36 @@
 
         /* Card Styles */
         .card-dark {
-            background: #14161B;
+            background: #FFFFFF;
             border-radius: 28px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
         }
 
         .card-border {
-            border: 1px solid rgba(244, 246, 250, 0.08);
+            border: 1px solid rgba(15, 23, 42, 0.08);
         }
 
         /* Glassmorphism */
         .glass {
-            background: rgba(20, 22, 27, 0.7);
+            background: rgb(255, 255, 255);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(244, 246, 250, 0.1);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
         }
 
         .glass-pro {
-            background: rgba(20, 22, 27, 0.6);
+            background: rgb(255, 248, 246);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid #C62828;
+            border: 1px solid rgba(198, 40, 40, 0.28);
+            box-shadow: 0 28px 70px rgba(198, 40, 40, 0.12);
         }
 
         /* Button Styles */
         .btn-primary {
             background: #C62828;
-            color: #F4F6FA;
+            color: #FFFFFF;
             border-radius: 14px;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -150,8 +153,9 @@
         }
 
         .btn-outline {
-            border: 1px solid rgba(244, 246, 250, 0.2);
-            color: #F4F6FA;
+            border: 1px solid rgba(31, 41, 55, 0.14);
+            color: #1F2937;
+            background: rgba(255, 255, 255, 0.72);
             border-radius: 14px;
             transition: all 0.3s ease;
         }
@@ -159,14 +163,15 @@
         .btn-outline:hover {
             border-color: #C62828;
             color: #C62828;
+            background: rgba(198, 40, 40, 0.06);
         }
 
         /* Form Styles */
         .form-input {
-            background: rgba(244, 246, 250, 0.05);
-            border: 1px solid rgba(244, 246, 250, 0.1);
+            background: rgba(248, 245, 239, 0.88);
+            border: 1px solid rgba(15, 23, 42, 0.1);
             border-radius: 12px;
-            color: #F4F6FA;
+            color: #1F2937;
             transition: all 0.3s ease;
         }
 
@@ -186,7 +191,7 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: #A7ACB8;
+            color: #6B7280;
             transition: all 0.2s ease;
             pointer-events: none;
         }
@@ -197,7 +202,7 @@
         .floating-label-group textarea:not(:placeholder-shown)~.floating-label {
             top: 0;
             font-size: 12px;
-            background: #0B0C10;
+            background: #FFFFFF;
             padding: 0 4px;
             color: #C62828;
         }
@@ -225,7 +230,7 @@
         .toggle-switch {
             width: 56px;
             height: 28px;
-            background: rgba(244, 246, 250, 0.1);
+            background: rgba(15, 23, 42, 0.12);
             border-radius: 14px;
             position: relative;
             cursor: pointer;
@@ -241,7 +246,7 @@
             position: absolute;
             width: 22px;
             height: 22px;
-            background: #F4F6FA;
+            background: #FFFFFF;
             border-radius: 50%;
             top: 3px;
             left: 3px;
@@ -250,7 +255,7 @@
 
         .toggle-switch.active::after {
             transform: translateX(28px);
-            background: #0B0C10;
+            background: #F8F5EF;
         }
 
         /* Scroll Reveal Animation Classes */
@@ -343,16 +348,17 @@
         }
 
         .nav-fixed.scrolled {
-            background: rgba(11, 12, 16, 0.9);
+            background: rgba(248, 245, 239, 0.92);
             backdrop-filter: blur(10px);
             padding: 16px 4vw;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
         }
 
         /* Hamburger Menu */
         .hamburger-line {
             width: 24px;
             height: 2px;
-            background: #F4F6FA;
+            background: #1F2937;
             transition: all 0.3s ease;
         }
 
@@ -378,11 +384,11 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #0B0C10;
+            background: #F3EEE6;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #14161B;
+            background: #D4D4D8;
             border-radius: 4px;
         }
 
@@ -414,7 +420,7 @@
             right: -100%;
             width: 100%;
             height: 100vh;
-            background: #0B0C10;
+            background: rgba(248, 245, 239, 0.98);
             z-index: 200;
             transition: right 0.4s ease;
             display: flex;
@@ -422,6 +428,7 @@
             justify-content: center;
             align-items: center;
             gap: 32px;
+            color: #1F2937;
         }
 
         .mobile-menu.open {
@@ -945,7 +952,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="relative bg-bg-primary py-12 border-t border-white/5">
+    <footer class="relative bg-bg-primary py-12 border-t border-slate-900/8">
         <div class="w-full px-4 lg:px-[4vw]">
             <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
                 <div class="flex items-center gap-8">
@@ -960,21 +967,21 @@
 
                 <div class="flex items-center gap-4">
                     <a href="#"
-                        class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-accent/20 transition-colors">
+                        class="w-10 h-10 rounded-full bg-slate-900/5 flex items-center justify-center hover:bg-accent/20 transition-colors">
                         <svg class="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                         </svg>
                     </a>
                     <a href="#"
-                        class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-accent/20 transition-colors">
+                        class="w-10 h-10 rounded-full bg-slate-900/5 flex items-center justify-center hover:bg-accent/20 transition-colors">
                         <svg class="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                         </svg>
                     </a>
                     <a href="#"
-                        class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-accent/20 transition-colors">
+                        class="w-10 h-10 rounded-full bg-slate-900/5 flex items-center justify-center hover:bg-accent/20 transition-colors">
                         <svg class="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 24 24">
                             <path
                                 d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
@@ -983,7 +990,7 @@
                 </div>
             </div>
 
-            <div class="mt-8 pt-8 border-t border-white/5 text-center">
+            <div class="mt-8 pt-8 border-t border-slate-900/8 text-center">
                 <p class="text-sm text-text-secondary">
                     Designed and Developed by <span class="text-accent">Tuki Soft Pvt. Ltd.</span>
                 </p>

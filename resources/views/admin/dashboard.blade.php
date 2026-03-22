@@ -9,6 +9,8 @@
         <div class="row g-4">
             <!-- Welcome Column -->
             <div class="col-lg-8">
+
+                {{-- Welcome Banner --}}
                 <div class="card border-0 shadow-sm bg-primary text-white mb-4 overflow-hidden">
                     <div class="card-body p-4 p-xl-5 position-relative">
                         <div class="row align-items-center">
@@ -19,17 +21,18 @@
                                     <i class="bx bx-cog me-2"></i> Update Settings
                                 </a>
                             </div>
-                            <div class="col-md-4 d-none d-md-block text-center text-white">
+                            <div class="col-md-4 d-none d-md-block">
                                 <i class="bx bx-rocket" style="font-size: 120px; opacity: 0.2; position: absolute; right: -20px; bottom: -20px;"></i>
-                                {{-- <img src="{{ asset('logo.png') }}" alt="logo" class="img-fluid" style="max-height: 120px; filter: brightness(0.5);"> --}}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row g-4">
+                {{-- ROW 1: Quick Menu Actions + Revenue Chart --}}
+                <div class="row g-4 mb-4">
+                    {{-- Quick Actions --}}
                     <div class="col-md-6">
-                        <div class="card border-0 shadow-sm">
+                        <div class="card border-0 shadow-sm h-100">
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="bg-light-primary rounded p-2 me-3">
@@ -54,36 +57,169 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Revenue Chart --}}
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="bg-light-info rounded p-2 me-3">
-                                        <i class="bx bx-line-chart fs-4 text-info"></i>
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light-success rounded p-2 me-3">
+                                            <i class="bx bx-dollar-circle fs-4 text-success"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Revenue</h6>
+                                            <small class="text-muted">Last 7 days</small>
+                                        </div>
                                     </div>
-                                    <h6 class="mb-0 fw-bold">Performance Insights</h6>
+                                    @if($stats->isNotEmpty())
+                                        <span class="badge bg-label-success fs-6">Rs. {{ number_format($stats->sum('total_revenue'), 0) }}</span>
+                                    @endif
                                 </div>
-                                <div class="text-center py-3">
-                                    <i class="bx bx-analyse fs-1 text-muted opacity-25 mb-2"></i>
-                                    <p class="text-muted small mb-0 px-3">Analytics modules are being initialized. Check back soon for detailed scan reports and popular item tracking.</p>
-                                </div>
+                                @if($stats->isNotEmpty())
+                                    <div id="revenueInsightChart"></div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <i class="bx bx-line-chart fs-1 text-muted opacity-25 mb-2 d-block"></i>
+                                        <p class="text-muted small mb-0">No data yet. Revenue will appear once orders are placed.</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {{-- ROW 2: Orders Chart --}}
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light-primary rounded p-2 me-3">
+                                            <i class="bx bx-cart fs-4 text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Total Orders</h6>
+                                            <small class="text-muted">Last 7 days</small>
+                                        </div>
+                                    </div>
+                                    @if($stats->isNotEmpty())
+                                        <span class="badge bg-label-primary fs-6">{{ number_format($stats->sum('total_orders')) }} Orders</span>
+                                    @endif
+                                </div>
+                                @if($stats->isNotEmpty())
+                                    <div id="ordersInsightChart"></div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <i class="bx bx-cart fs-1 text-muted opacity-25 mb-2 d-block"></i>
+                                        <p class="text-muted small mb-0">No data yet. Order trends will appear once orders are placed.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- QR Sidebar -->
             <div class="col-lg-4">
-                @livewire('menu-qr-generator')
+                <div class="sticky-top" style="top: 20px;">
+                    @livewire('menu-qr-generator')
+                </div>
             </div>
         </div>
     </div>
 
     <style>
         .bg-light-primary { background-color: rgba(var(--bs-primary-rgb), 0.1); }
-        .bg-light-info { background-color: rgba(var(--bs-info-rgb), 0.1); }
+        .bg-light-info    { background-color: rgba(var(--bs-info-rgb), 0.1); }
         .bg-light-success { background-color: rgba(var(--bs-success-rgb), 0.1); }
         .list-group-item-action:hover { background-color: transparent; color: var(--bs-primary); }
     </style>
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(isset($stats) && $stats->isNotEmpty())
+                const stats = @json($stats);
+
+                const dates    = stats.map(s => new Date(s.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+                const revenues = stats.map(s => s.total_revenue);
+                const orders   = stats.map(s => s.total_orders);
+
+                // ── Revenue Chart ──────────────────────────────────────────────────
+                new ApexCharts(document.querySelector('#revenueInsightChart'), {
+                    chart: {
+                        type: 'area',
+                        height: 180,
+                        toolbar: { show: false },
+                        sparkline: { enabled: false },
+                        animations: { enabled: true }
+                    },
+                    series: [{ name: 'Revenue (Rs.)', data: revenues }],
+                    colors: ['#28c76f'],
+                    stroke: { curve: 'smooth', width: 2 },
+                    fill: {
+                        type: 'gradient',
+                        gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.04, stops: [0, 100] }
+                    },
+                    xaxis: {
+                        categories: dates,
+                        labels: { style: { fontSize: '11px', colors: '#a0a0a0' } },
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: { fontSize: '11px', colors: '#a0a0a0' },
+                            formatter: val => 'Rs. ' + Number(val).toLocaleString()
+                        }
+                    },
+                    grid: { borderColor: '#f0f0f0', strokeDashArray: 4 },
+                    dataLabels: { enabled: false },
+                    tooltip: {
+                        theme: 'light',
+                        y: { formatter: val => 'Rs. ' + Number(val).toLocaleString() }
+                    }
+                }).render();
+
+                // ── Orders Chart ───────────────────────────────────────────────────
+                new ApexCharts(document.querySelector('#ordersInsightChart'), {
+                    chart: {
+                        type: 'bar',
+                        height: 260,
+                        toolbar: { show: false },
+                        animations: { enabled: true }
+                    },
+                    series: [{ name: 'Orders', data: orders }],
+                    colors: ['#696cff'],
+                    plotOptions: {
+                        bar: { borderRadius: 5, columnWidth: '45%', distributed: false }
+                    },
+                    xaxis: {
+                        categories: dates,
+                        labels: { style: { fontSize: '11px', colors: '#a0a0a0' } },
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: { fontSize: '11px', colors: '#a0a0a0' },
+                            formatter: val => Math.floor(val)
+                        }
+                    },
+                    grid: { borderColor: '#f0f0f0', strokeDashArray: 4 },
+                    dataLabels: { enabled: false },
+                    tooltip: {
+                        theme: 'light',
+                        y: { formatter: val => val + ' orders' }
+                    }
+                }).render();
+            @endif
+        });
+    </script>
+@endpush

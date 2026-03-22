@@ -114,6 +114,13 @@
                     <div data-i18n="Admin Subscriptions">Assign Subscriptions</div>
                 </a>
             </li>
+
+            <li class="menu-item {{ request()->routeIs('master.reports.*') ? 'active' : '' }}">
+                <a href="{{ route('master.reports.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+                    <div data-i18n="Reports">Reports</div>
+                </a>
+            </li>
         @endif
 
         <!-- Billing -->

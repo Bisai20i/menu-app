@@ -42,10 +42,10 @@ class Restaurant extends Model
         static::creating(function ($restaurant) {
             if (empty($restaurant->slug)) {
                 $restaurant->slug = Str::slug($restaurant->name);
-                
+
                 // Ensure slug is unique
                 $originalSlug = $restaurant->slug;
-                $count = 2;
+                $count        = 2;
                 while (static::where('slug', $restaurant->slug)->exists()) {
                     $restaurant->slug = $originalSlug . '-' . $count++;
                 }
@@ -53,16 +53,33 @@ class Restaurant extends Model
         });
 
         static::updating(function ($restaurant) {
-            if ($restaurant->isDirty('name') && !$restaurant->isDirty('slug')) {
+            if ($restaurant->isDirty('name') && ! $restaurant->isDirty('slug')) {
                 $restaurant->slug = Str::slug($restaurant->name);
-                
+
                 // Ensure slug is unique
                 $originalSlug = $restaurant->slug;
-                $count = 2;
+                $count        = 2;
                 while (static::where('slug', $restaurant->slug)->where('id', '!=', $restaurant->id)->exists()) {
                     $restaurant->slug = $originalSlug . '-' . $count++;
                 }
             }
         });
+    }
+
+    /**
+     * All daily stats for this restaurant.
+     */
+    public function dailyStats()
+    {
+        return $this->hasMany(DailyRestaurantStat::class);
+    }
+
+    /**
+     * Helper to get today's specific stat row.
+     */
+    public function todayStat()
+    {
+        return $this->hasOne(DailyRestaurantStat::class)
+            ->where('date', now()->toDateString());
     }
 }

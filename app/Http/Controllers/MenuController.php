@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Events\OrderStatusUpdated;
 use App\Helpers\ColorHelper;
 use App\Models\Admin;
+use App\Models\DailyRestaurantStat;
 use App\Models\MenuCategory;
 use App\Models\MenuImage;
 use App\Models\MenuItem;
@@ -11,7 +13,7 @@ use App\Models\OrderItem;
 use App\Models\Restaurant;
 use App\Models\RestaurantTable;
 use App\Models\TableSession;
-use App\Events\OrderStatusUpdated;
+use App\Models\WaiterCall;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -40,6 +42,14 @@ class MenuController extends Controller
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get();
+
+        /**
+         * increment the menu views for the restaurant
+         */
+        DailyRestaurantStat::updateOrCreate(
+            ['restaurant_id' => $restaurant->id, 'date' => now()->toDateString()],
+            []
+        )->increment('menu_views');
 
         if ($viewSimpleMenu) {
             return view('menus.simple-menu', compact('restaurant', 'galleryImages', 'palette'));
@@ -115,7 +125,7 @@ class MenuController extends Controller
             ]);
 
         // 5. Check if there is an active session for this device on this table
-        $deviceId = request()->query('device_id');
+        $deviceId          = request()->query('device_id');
         $activeSessionUuid = null;
 
         if ($deviceId) {
@@ -127,6 +137,13 @@ class MenuController extends Controller
                 $activeSessionUuid = $existingSession->uuid;
             }
         }
+        /**
+         * increment the menu views for the restaurant
+         */
+        DailyRestaurantStat::updateOrCreate(
+            ['restaurant_id' => $restaurant->id, 'date' => now()->toDateString()],
+            []
+        )->increment('menu_views');
 
         return response()->json([
             'restaurant' => [
@@ -174,7 +191,7 @@ class MenuController extends Controller
         }
 
         // Create WaiterCall record, which triggers WaiterCallObserver
-        \App\Models\WaiterCall::create([
+        WaiterCall::create([
             'restaurant_id'       => $validated['restaurant_id'],
             'restaurant_table_id' => $table->id,
             'table_session_id'    => $table->activeSession->id ?? null,
@@ -258,8 +275,8 @@ class MenuController extends Controller
             if (! $session) {
                 $session = $table->openSession(
                     $validated['restaurant_id'],
-                    null,   // openedByAdminId
-                    null,   // guestCount
+                    null, // openedByAdminId
+                    null, // guestCount
                     $deviceId
                 );
             }
@@ -294,6 +311,10 @@ class MenuController extends Controller
                     'special_request' => $item['special_request'] ?? null,
                 ]);
             }
+
+            DailyRestaurantStat::where('restaurant_id', $order->restaurant_id)
+                ->where('date', $order->paid_at->toDateString())
+                ->increment('total_revenue', $totalAmount);
 
             DB::commit();
 
@@ -369,14 +390,14 @@ class MenuController extends Controller
             ->where('status', 'pending')
             ->first();
 
-        if (!$order) {
+        if (! $order) {
             return response()->json(['message' => 'Order not found or cannot be cancelled.'], 404);
         }
 
         // Check if order was created within the last 2 minutes
         if ($order->created_at->diffInMinutes(now()) >= 2) {
             return response()->json([
-                'message' => 'Orders can only be cancelled within 2 minutes of being placed.'
+                'message' => 'Orders can only be cancelled within 2 minutes of being placed.',
             ], 422);
         }
 

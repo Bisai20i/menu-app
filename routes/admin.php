@@ -11,6 +11,7 @@ use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\TableSessionController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\ReportController;
 use App\Livewire\Admin\OrderManagement;
 use Illuminate\Support\Facades\Route;
 
@@ -32,9 +33,7 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
     Route::middleware('auth:admin')->group(function () {
 
         // Dashboard
-        Route::get('/', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
         // Menu Management
         Route::resource('menu-categories', MenuCategoryController::class);
@@ -78,6 +77,10 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         // Order Management
         Route::get('orders', OrderManagement::class)->name('orders.index');
         Route::livewire('table/sessions', 'pages::admin.table-sessions')->name('table-sessions');
+
+        // Reports (Super Admin only - check role in Controller)
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('reports/{restaurant_id}', [ReportController::class, 'show'])->name('reports.show');
 
         // Billing (for current logged-in admin)
         Route::get('billing', [AdminSubscriptionController::class, 'billing'])->name('billing');

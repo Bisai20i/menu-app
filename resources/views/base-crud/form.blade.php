@@ -22,9 +22,15 @@
 
         @if ($errors->any())
             <div class="alert alert-danger mb-2">
-                Error while saving the record !
+                <p class="fw-bold">Error while saving the record!</p>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
+
         <div class="card border-0 shadow-sm">
 
             <div class="card-body p-4">
