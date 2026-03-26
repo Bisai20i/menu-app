@@ -16,3 +16,7 @@ Broadcast::channel('App.Models.Admin.{id}', function ($user, $id) {
 Broadcast::channel('orders.{device_id}', function(){
     return true;
 });
+
+Broadcast::channel('restaurant.{id}', function ($admin, $id) {
+    return (int) $admin->restaurant_id === (int) $id;
+});

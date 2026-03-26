@@ -125,7 +125,7 @@
                     <p class="text-muted mb-4">Enter your email and password to sign in!</p>
 
                     <!-- Google Sign In -->
-                    <button
+                    {{-- <button
                         class="btn btn-google w-100 py-3 mb-4 rounded-4 d-flex align-items-center justify-content-center">
                         <i class="bi bi-google me-2"></i>
                         Sign in with Google
@@ -133,7 +133,7 @@
 
                     <div class="divider d-flex align-items-center mb-4 text-muted">
                         <span class="mx-3 small">or</span>
-                    </div>
+                    </div> --}}
 
                     <form method="POST" action="{{ route('master.login.submit') }}">
                         @csrf
@@ -191,19 +191,7 @@
             </div>
 
             <!-- Right Side: Background Image (Hidden on mobile) -->
-            <div class="col-lg-7 d-none d-lg-block image-side">
-                <!-- Brand Badge -->
-                <div class="logo-badge">
-                    <div class="text-center">
-                        <!-- Flame/Fork Icon Placeholder -->
-                        <div class="bg-white rounded-circle d-inline-block p-2 mb-1" style="width: 50px; height: 50px;">
-                            <i class="bi bi-fire text-danger fs-4"></i>
-                        </div>
-                        <h4 class="fw-bold mb-0">MENU</h4>
-                        <p class="mb-0 small" style="font-size: 10px; letter-spacing: 1px;">HANOVER AND TAKE</p>
-                    </div>
-                </div>
-            </div>
+            @include('auth.right-side')
 
         </div>
     </div>

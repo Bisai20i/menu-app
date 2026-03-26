@@ -189,6 +189,65 @@
       </div>
     </Transition>
 
+    <!-- Payment QR Modal -->
+    <Transition name="fade">
+      <div v-if="showPaymentQrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+          <div class="p-5 border-b border-gray-100 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">Payment QR</h3>
+              <p class="text-sm text-gray-500 mt-0.5">Show and download to proceed payment.</p>
+            </div>
+            <button
+              class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+              @click="closePaymentQrModal"
+              aria-label="Close payment QR"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="p-5">
+            <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-center overflow-hidden">
+              <img
+                v-if="paymentQrSrc"
+                :src="paymentQrSrc"
+                alt="Payment QR"
+                class="w-56 h-56 sm:w-64 sm:h-64 object-contain"
+              />
+              <div v-else class="text-sm text-gray-500 py-10 text-center">
+                Payment QR unavailable.
+              </div>
+            </div>
+
+            <button
+              v-if="paymentQrSrc"
+              class="mt-4 w-full bg-primary text-white font-semibold px-4 py-3 rounded-2xl hover:bg-primary-dark transition-colors shadow-sm"
+              @click="downloadPaymentQr"
+            >
+              Download QR
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Floating Payment QR Button -->
+    <div
+      v-if="shouldShowPaymentQrButton"
+      class="fixed right-4 z-30"
+      style="bottom: calc(5rem + env(safe-area-inset-bottom));"
+    >
+      <button
+        class="bg-primary text-white font-semibold px-4 py-3 rounded-2xl hover:bg-primary-dark transition-colors text-sm shadow-lg"
+        @click="openPaymentQrModal"
+      >
+        Show Payment QR
+      </button>
+    </div>
+
     <!-- Floating Cart FAB -->
     <CartFab />
 
@@ -221,6 +280,8 @@ const cartStore = useCartStore();
 const toast = useToast();
 
 const orders = ref([]);
+const paymentQr = ref(null);
+const showPaymentQrModal = ref(false);
 const isLoading = ref(false);
 const isRefreshing = ref(false);
 const error = ref(null);
@@ -244,6 +305,37 @@ const sessionTotal = computed(() =>
   orders.value.reduce((sum, o) => sum + Number(o.total_amount), 0)
 );
 
+function normalizePaymentQrSrc(raw) {
+  const val = (raw ?? '').toString().trim();
+  if (!val) return null;
+
+  if (val.startsWith('data:')) return val;
+  if (/^https?:\/\//i.test(val)) return val;
+  if (val.startsWith('/')) return `${window.location.origin}${val}`;
+
+  // If admin pasted raw base64 without the `data:image/...` prefix, try PNG.
+  const looksLikeBase64 = /^[A-Za-z0-9+/]+={0,2}$/.test(val);
+  if (looksLikeBase64 && val.length > 50) return `data:image/png;base64,${val}`;
+
+  // Stored as a relative `storage/...` path or a `payment_qrs/...` path.
+  // Laravel usually serves it under `/storage/{path}`.
+  const withoutStoragePrefix = val.startsWith('storage/')
+    ? val.slice('storage/'.length)
+    : val;
+  return `${window.location.origin}/storage/${withoutStoragePrefix}`;
+}
+
+const paymentQrSrc = computed(() => normalizePaymentQrSrc(paymentQr.value));
+
+const shouldShowPaymentQrButton = computed(() => {
+  if (!paymentQr.value) return false;
+  if (!cartStore.sessionUuid) return false;
+  if (!orders.value.length) return false;
+
+  // Requirement: at least one order is not in the `pending` state.
+  return orders.value.some(o => (o.status ?? 'pending') !== 'pending');
+});
+
 async function loadOrders(refresh = false) {
   if (!cartStore.sessionUuid) return;
 
@@ -253,6 +345,7 @@ async function loadOrders(refresh = false) {
     isLoading.value = true;
   }
   error.value = null;
+  paymentQr.value = null;
 
   try {
     const data = await menuApi.getSessionOrders(cartStore.sessionUuid);
@@ -260,11 +353,61 @@ async function loadOrders(refresh = false) {
     orders.value = (data.orders ?? []).sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
+      paymentQr.value = data.payment_qr ?? null;
   } catch (err) {
     error.value = err.message;
   } finally {
     isLoading.value = false;
     isRefreshing.value = false;
+  }
+}
+
+function openPaymentQrModal() {
+  showPaymentQrModal.value = true;
+}
+
+function closePaymentQrModal() {
+  showPaymentQrModal.value = false;
+}
+
+async function downloadPaymentQr() {
+  const src = paymentQrSrc.value;
+  if (!src) return;
+
+  try {
+    // data URLs can be downloaded directly without CORS.
+    if (src.startsWith('data:')) {
+      const mimeMatch = src.match(/^data:([^;]+);base64,/i);
+      const mime = mimeMatch?.[1] ?? 'image/png';
+      const ext = mime.includes('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
+      const filename = `payment-qr.${ext}`;
+
+      const link = document.createElement('a');
+      link.href = src;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return;
+    }
+
+    // For normal URLs, fetch as blob so we can trigger a download.
+    const res = await fetch(src);
+    if (!res.ok) throw new Error('Failed to fetch payment QR.');
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'payment-qr.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.error(err?.message || 'Failed to download payment QR.');
   }
 }
 
@@ -355,7 +498,7 @@ function statusLabel(status) {
 
 function statusClass(status) {
   return {
-    pending: 'bg-primary-dark/80 text-amber-700',
+    pending: 'bg-amber-100 text-amber-700',
     confirmed: 'bg-blue-100 text-blue-700',
     served: 'bg-green-100 text-green-700',
     cancelled: 'bg-red-100 text-red-700',

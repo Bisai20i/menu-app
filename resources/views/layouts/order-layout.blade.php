@@ -8,12 +8,10 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>{{ $title ?? config('app.name') }}</title>
+    <title>@yield('title')</title>
 
     <meta name="description" content="" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -54,7 +52,6 @@
             background-color: rgba(var(--bs-primary-rgb), 0.1);
         }
     </style>
-    @livewireStyles
 
     @stack('styles')
 
@@ -73,7 +70,7 @@
 
                     <!-- Content -->
                     <div id="page-content" class="container-fluid flex-grow-1 py-3 py-md-4" style="min-height: 85vh;">
-                        {{ $slot }}
+                        @yield('content')
                     </div>
                     <!-- / Content -->
 
@@ -103,7 +100,6 @@
     <script async defer data-navigate-once src="https://buttons.github.io/buttons.js"></script>
 
     @stack('scripts')
-    @livewireScripts
 
 </body>
 

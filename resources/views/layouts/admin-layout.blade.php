@@ -90,10 +90,11 @@
                     <!-- Content -->
 
                     <div class="container-fluid flex-grow-1 container-p-y">
-
-                        @yield('content')
-
-
+                        @isset($slot)
+                            {{ $slot }}
+                        @else
+                            @yield('content')
+                        @endisset
                     </div>
                     <!-- / Content -->
 

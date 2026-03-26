@@ -70,12 +70,11 @@ new class extends Component
         return $this->view([
             'notifications' => $notifications,
             'unreadCount'   => $unreadCount,
-        ]);
+        ])->layout('layouts.admin-layout');
     }
 };
 ?>
 
-{{-- resources/views/livewire/admin/all-notifications.blade.php --}}
 <div>
     {{-- Page Header --}}
     <div class="d-flex align-items-center justify-content-between mb-4">

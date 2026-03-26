@@ -3,21 +3,17 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminManagementController;
 use App\Http\Controllers\AdminSubscriptionController;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\TableViewController;
 use App\Http\Controllers\MenuCategoryController;
 use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\MenuItemController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
-use App\Http\Controllers\TableSessionController;
 use App\Http\Controllers\TestimonialController;
-use App\Http\Controllers\FaqController;
-use App\Http\Controllers\ReportController;
 use App\Livewire\Admin\OrderManagement;
 use Illuminate\Support\Facades\Route;
-
-
-
-
 
 Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
     // Authentication Routes
@@ -90,6 +86,16 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::post('profile', [AdminManagementController::class, 'updateProfile'])->name('profile.update');
 
         //get all notifications
-        Route::get('/notifications', [AdminManagementController::class, 'notifications'])->name('notifications.index');
+        Route::livewire('/notifications', 'pages::admin.all-notifications')->name('notifications.index');
+
+        //table lists and table session management routes
+        Route::get('/tables', [TableViewController::class, 'index'])
+            ->name('tables.index');
+        // Fetch live sessions for a table (sidebar)
+        Route::get('/tables/{uuid}/sessions', [TableViewController::class, 'showSession'])->name('tables.sessions');
+
+        // Close a session
+        Route::post('/sessions/{uuid}/close', [TableViewController::class, 'closeSession'])
+            ->name('sessions.close');
     });
 });

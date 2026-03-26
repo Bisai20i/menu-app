@@ -32,7 +32,7 @@
         </div>
     </div>
     <x-slot name="footer">
-        <button type="button" class="btn btn-label-secondary w-100" data-bs-dismiss="modal">Close Details</button>
+        <button type="button" class="btn btn-outline-secondary fw-semibold py-3 w-100" data-bs-dismiss="modal">Close Details</button>
     </x-slot>
 </x-modal>
 
@@ -94,19 +94,19 @@
                 </div>
                 <div class="row g-3">
                     <div class="col-6">
-                        <div class="d-flex flex-column h-100 p-2 bg-light rounded-3">
+                        <div class="d-flex flex-column h-100 p-2 bg-light border rounded-3">
                             <label class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Restaurant</label>
                             <p class="fw-semibold mb-0 text-dark small">${restaurant.name}</p>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="d-flex flex-column h-100 p-2 bg-light rounded-3">
+                        <div class="d-flex flex-column h-100 p-2 bg-light border rounded-3">
                             <label class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Joined Date</label>
                             <p class="fw-semibold mb-0 text-dark small">${new Date(admin.created_at).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'})}</p>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="d-flex flex-column h-100 p-2 bg-light rounded-3">
+                        <div class="d-flex flex-column h-100 p-2 bg-light border rounded-3">
                             <label class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Account Status</label>
                             <p class="mb-0">
                                 <span class="badge bg-label-${admin.is_active ? 'success' : 'danger'} text-capitalize">
@@ -116,7 +116,7 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="d-flex flex-column h-100 p-2 bg-light rounded-3">
+                        <div class="d-flex flex-column h-100 p-2 bg-light border rounded-3">
                             <label class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">System Role</label>
                             <p class="fw-semibold mb-0 text-capitalize text-dark small">${admin.role}</p>
                         </div>

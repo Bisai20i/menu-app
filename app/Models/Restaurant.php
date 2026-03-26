@@ -82,4 +82,25 @@ class Restaurant extends Model
         return $this->hasOne(DailyRestaurantStat::class)
             ->where('date', now()->toDateString());
     }
+
+    /**
+     * Payment QR value stored inside the `settings` JSON column.
+     *
+     * Expected to be either:
+     * - a `data:image/...` URL (base64), or
+     * - an absolute URL, or
+     * - a site-relative path.
+     */
+    public function getPaymentQrAttribute(): ?string
+    {
+        $settings = is_array($this->settings) ? $this->settings : [];
+        $paymentQr = $settings['payment_qr'] ?? null;
+
+        if (is_string($paymentQr)) {
+            $paymentQr = trim($paymentQr);
+            return $paymentQr !== '' ? $paymentQr : null;
+        }
+
+        return null;
+    }
 }

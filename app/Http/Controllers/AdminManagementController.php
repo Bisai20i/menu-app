@@ -70,6 +70,9 @@ class AdminManagementController extends Controller
             'currency'        => 'required|string|max:10',
             'tax_percentage'  => 'required|numeric|min:0|max:100',
             'primary_color'   => 'required|string|max:7',
+            'payment_qr_image'=> 'nullable|image|max:2048',
+            // Backward compatible: allow old forms to paste a URL/data-url.
+            'payment_qr'      => 'nullable|string|max:200000',
         ]);
 
         // Update Admin
@@ -94,17 +97,41 @@ class AdminManagementController extends Controller
             $admin->update($adminData);
 
             // Restaurant Data
+            $existingSettings = is_array($restaurant?->settings) ? $restaurant->settings : [];
+            $paymentQrSetting = $existingSettings['payment_qr'] ?? null;
+
+            if ($request->hasFile('payment_qr_image')) {
+                // Delete previous file only if it looks like a local `storage/app/public/...` path.
+                $existingPaymentQr = $existingSettings['payment_qr'] ?? null;
+                $isLocalStoredPath = is_string($existingPaymentQr)
+                    && ! \Illuminate\Support\Str::startsWith($existingPaymentQr, ['data:', 'http://', 'https://'])
+                    && ! \Illuminate\Support\Str::startsWith($existingPaymentQr, '/');
+
+                if ($isLocalStoredPath && Storage::disk('public')->exists($existingPaymentQr)) {
+                    Storage::disk('public')->delete($existingPaymentQr);
+                }
+
+                $paymentQrPath = $request->file('payment_qr_image')->store('payment_qrs', 'public');
+                $paymentQrSetting = $paymentQrPath ?: null;
+            } elseif ($request->filled('payment_qr')) {
+                $paymentQrRaw = $request->input('payment_qr');
+                $paymentQrSetting = is_string($paymentQrRaw) ? trim($paymentQrRaw) : null;
+                $paymentQrSetting = $paymentQrSetting !== '' ? $paymentQrSetting : null;
+            }
+
             $restaurantData = [
                 'name'        => $request->restaurant_name,
                 'email'       => $request->restaurant_email,
                 'phone'       => $request->restaurant_phone,
                 'address'     => $request->restaurant_address,
                 'description' => $request->restaurant_description,
-                'settings'    => [
+                'settings'    => array_merge($existingSettings, [
                     'currency'       => $request->currency,
                     'tax_percentage' => (float) $request->tax_percentage,
                     'primary_color'  => $request->primary_color,
-                ],
+                    // Only changes when an image is uploaded (or a legacy `payment_qr` string is provided).
+                    'payment_qr'     => $paymentQrSetting,
+                ]),
             ];
 
             if ($request->hasFile('restaurant_logo')) {

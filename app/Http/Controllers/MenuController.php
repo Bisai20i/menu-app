@@ -312,10 +312,6 @@ class MenuController extends Controller
                 ]);
             }
 
-            DailyRestaurantStat::where('restaurant_id', $order->restaurant_id)
-                ->where('date', $order->paid_at->toDateString())
-                ->increment('total_revenue', $totalAmount);
-
             DB::commit();
 
             return response()->json([
@@ -330,6 +326,7 @@ class MenuController extends Controller
 
             return response()->json([
                 'message' => 'Failed to place order. Please try again.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -346,6 +343,7 @@ class MenuController extends Controller
     {
         $session = TableSession::where('uuid', $sessionUuid)
             ->where('status', 'active')
+            ->with('restaurant')
             ->first();
 
         if (! $session) {
@@ -369,6 +367,7 @@ class MenuController extends Controller
             ]);
 
         return response()->json([
+            'payment_qr' => $session->restaurant?->payment_qr,
             'session' => [
                 'uuid'        => $session->uuid,
                 'status'      => $session->status,
