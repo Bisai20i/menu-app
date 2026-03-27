@@ -87,20 +87,21 @@
                         </th>
                         @foreach ($columns as $key => $col)
                             <th class="border-0"
-                                @if ( isset($col['sortable']) && count($items)) style="cursor:pointer" wire:click="sortBy('{{ $key }}')" @endif>
+                                @if (isset($col['sortable']) && count($items)) style="cursor:pointer" wire:click="sortBy('{{ $key }}')" @endif>
                                 {{ $col['label'] }}
                                 @if ($col['sortable'] ?? false)
                                     <i
                                         class="bx {{ $sortField === $key ? ($sortDirection === 'asc' ? 'bx-up-arrow-alt' : 'bx-down-arrow-alt') : 'bx-sort' }} ms-1"></i>
                                 @endif
-                             </th>
+                            </th>
                         @endforeach
                         <th class="border-0 text-end pe-4">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="position-relative">
                     {{-- Loading overlay moved inside a TR for valid HTML or handled differently --}}
-                    @if(false) {{-- Placeholder for future refined loading UI --}}
+                    @if (false)
+                        {{-- Placeholder for future refined loading UI --}}
                         <div wire:loading.flex
                             class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 align-items-center justify-content-center"
                             style="z-index: 5;">
@@ -162,10 +163,12 @@
                             @endforeach
                             <td class="text-end pe-4">
                                 <div class="btn-group btn-group-sm rounded shadow-sm">
-                                    <a href="{{ route($routePrefix . '.edit', $item->id) }}"
-                                        class="btn btn-white border-end">
-                                        <i class="bx bx-edit-alt text-primary"></i>
-                                    </a>
+                                    @if (Route::has($routePrefix . '.edit'))
+                                        <a href="{{ route($routePrefix . '.edit', $item->id) }}"
+                                            class="btn btn-white border-end">
+                                            <i class="bx bx-edit-alt text-primary"></i>
+                                        </a>
+                                    @endif
                                     <button type="button"
                                         @click="deleteId = {{ $item->id }}; deleteName = 'this record'; modal.show()"
                                         class="btn btn-white text-danger">
@@ -195,13 +198,15 @@
     </div>
 
     <!-- Alpine Controlled Modal -->
-    <div class="modal fade" x-ref="confirmModal" x-init="modal = new bootstrap.Modal($el)" tabindex="-1" aria-hidden="true" wire:ignore.self>
+    <div class="modal fade" x-ref="confirmModal" x-init="modal = new bootstrap.Modal($el)" tabindex="-1" aria-hidden="true"
+        wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow">
                 <div class="modal-body text-center p-4">
                     <div class="text-danger mb-3"><i class="bx bx-error-circle display-4"></i></div>
                     <h5 class="fw-bold">Confirm Action</h5>
-                    <p class="text-muted small mb-4">Are you sure you want to delete <span x-text="deleteName"></span>?
+                    <p class="text-muted small mb-4">Are you sure you want to delete <span
+                            x-text="deleteName"></span>?
                     </p>
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-danger"

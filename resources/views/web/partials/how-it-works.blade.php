@@ -2,7 +2,7 @@
 <section id="how-it-works"
     class="py-16 sm:py-20 md:py-24 px-5 sm:px-8 md:px-12 lg:px-20 relative overflow-hidden">
     <h2
-        class="font-atma font-bold text-3xl sm:text-4xl md:text-5xl text-center mb-8 sm:mb-12 reveal">
+        class="font-atma font-bold text-3xl sm:text-4xl md:text-5xl text-center mb-8 sm:mb-12 reveal heading-shadow">
         How It Works
     </h2>
 
@@ -11,16 +11,16 @@
         <!-- Step 1 -->
         <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-0 reveal-left">
             <div
-                class="relative z-10 w-24 h-24 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56
+                class="relative z-10 w-24 h-24 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
                             flex-shrink-0 rounded-full border-4 border-brand-red overflow-hidden shadow-2xl group cursor-pointer">
                 <img src="{{ asset('frontend/images/scan-qr.png') }}" alt="Scan QR"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy">
             </div>
             <div
-                class="bg-[#fffbf2] sm:-ml-8 md:-ml-12 lg:-ml-16
-                            px-6 sm:px-8 md:px-10 lg:pl-24 py-5 sm:py-7 md:py-9
-                            rounded-full md:rounded-r-full shadow-xl w-full flex-1 text-center sm:text-left">
+                class="bg-[#fffbf2] sm:-ml-20 md:-ml-28 
+                            pr-4 pl-4 sm:pl-24 md:pl-32  py-5 sm:py-7 md:py-9
+                            rounded-md sm:rounded-full shadow-xl w-full flex-1 text-center sm:text-left">
                 <h3 class="font-inter font-extrabold text-brand-red text-base sm:text-lg md:text-2xl uppercase mb-1.5">
                     Scan the QR</h3>
                 <p class="font-inter text-gray-800 text-sm sm:text-base leading-snug">Point the camera. Menu loads in
@@ -31,16 +31,16 @@
         <!-- Step 2 -->
         <div class="flex flex-col sm:flex-row-reverse items-center gap-4 sm:gap-0 reveal-right">
             <div
-                class="relative z-10 w-24 h-24 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56
+                class="relative z-10 w-24 h-24 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
                             flex-shrink-0 rounded-full border-4 border-brand-red overflow-hidden shadow-2xl group cursor-pointer">
                 <img src="{{ asset('frontend/images/explore-menu.png') }}" alt="Explore Menu"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy">
             </div>
             <div
-                class="bg-[#fffbf2] sm:-mr-8 md:-mr-12 lg:-mr-16
-                            px-6 sm:px-8 md:px-10 lg:pr-24 py-5 sm:py-7 md:py-9
-                            rounded-full md:rounded-l-full shadow-xl w-full flex-1 text-center sm:text-right">
+                class="bg-[#fffbf2] sm:-mr-20 md:-mr-28 
+                            pr-4 pl-4 sm:pr-24 md:pr-32  py-5 sm:py-7 md:py-9
+                            rounded-md sm:rounded-full shadow-xl w-full flex-1 text-center sm:text-right">
                 <h3 class="font-inter font-extrabold text-brand-red text-base sm:text-lg md:text-2xl uppercase mb-1.5">
                     Explore Menu & Order</h3>
                 <p class="font-inter text-gray-800 text-sm sm:text-base leading-snug">Add items, track status, and
@@ -51,7 +51,7 @@
         <!-- Step 3 -->
         <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-0 reveal-left">
             <div
-                class="relative z-10 w-24 h-24 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56
+                class="relative z-10 w-24 h-24 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56
                             flex-shrink-0 rounded-full border-4 border-brand-red overflow-hidden shadow-2xl group cursor-pointer">
                 <img src="{{ asset('frontend/images/kitchen-notified.png') }}"
                     alt="Kitchen Notification"
@@ -59,9 +59,9 @@
                     loading="lazy">
             </div>
             <div
-                class="bg-[#fffbf2] sm:-ml-8 md:-ml-12 lg:-ml-16
-                            px-6 sm:px-8 md:px-10 lg:pl-24 py-5 sm:py-7 md:py-9
-                            rounded-full md:rounded-r-full shadow-xl w-full flex-1 text-center sm:text-left">
+                class="bg-[#fffbf2] sm:-ml-20 md:-ml-28 
+                           pr-4 pl-4 sm:pl-24 md:pl-32  py-5 sm:py-7 md:py-9
+                            rounded-md sm:rounded-full shadow-xl w-full flex-1 text-center sm:text-left">
                 <h3 class="font-inter font-extrabold text-brand-red text-base sm:text-lg md:text-2xl uppercase mb-1.5">
                     Kitchen Notified</h3>
                 <p class="font-inter text-gray-800 text-sm sm:text-base leading-snug">Orders print or display by course

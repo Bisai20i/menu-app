@@ -22,6 +22,11 @@ class Testimonial extends Model
         'published' => 'boolean',
     ];
 
+    public function getAvatarUrlAttribute(): string{
+        return $this->avatar ? asset('storage/'.$this->avatar) : asset('frontend/images/default.png');
+    }
+
+    protected $appends = ['avatar_url'];
     public function getTableColumns(): array
     {
         return [

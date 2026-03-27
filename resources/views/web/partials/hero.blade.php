@@ -1,57 +1,7 @@
 <!-- ═══════════════ HERO ═══════════════ -->
 <section
     class="relative min-h-screen w-full flex flex-col
-                    px-5 sm:px-8 md:px-12 lg:px-20 overflow-hidden bg-cover bg-center">
-
-    <div class="relative w-full flex items-center justify-between pt-5 sm:pt-6 md:pt-8 z-50">
-
-    <!-- LOGO -->
-    <div class="w-14 h-14 md:w-16 md:h-16 bg-red-900/60 rounded-full
-                flex items-center justify-center border border-white/20 nav-blur
-                shadow-2xl cursor-pointer hover:scale-110 transition-transform duration-300 flex-shrink-0">
-        <img src="{{ asset('frontend/images/logo-circle.png') }}" alt="Saral Menu Logo" class="w-full h-full object-contain rounded-full">
-    </div>
-
-    <!-- NAV PILL + DROPDOWN wrapper -->
-    <div class="relative flex flex-col items-end">
-
-        <nav class="flex items-center gap-3 sm:gap-5 md:gap-6
-                    bg-white/10 nav-blur border border-white/20
-                    px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full font-atma text-base sm:text-lg shadow-lg">
-            <a href="#features" class="hidden md:block hover:text-brand-orange transition-colors duration-300 relative group">
-                Features
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-orange transition-all duration-300 group-hover:w-full"></span>
-            </a>
-            <a href="#pricing" class="hidden md:block hover:text-brand-orange transition-colors duration-300 relative group">
-                Pricing
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-orange transition-all duration-300 group-hover:w-full"></span>
-            </a>
-            <a href="#faq" class="hidden md:block hover:text-brand-orange transition-colors duration-300 relative group">
-                FAQ
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-orange transition-all duration-300 group-hover:w-full"></span>
-            </a>
-            <button id="menuToggle"
-                class="focus:outline-none hover:scale-110 transition-transform duration-300 p-1 touch-manipulation"
-                aria-label="Toggle menu">
-                <i class='bx bx-menu text-2xl sm:text-3xl'></i>
-            </button>
-        </nav>
-
-        <!-- DROPDOWN — absolute so it floats below the pill without pushing layout -->
-        <div id="navDropdown"
-            class="dropdown-hidden absolute top-full right-0 mt-3 w-56 sm:w-64 p-5 sm:p-7
-                    rounded-2xl sm:rounded-3xl bg-white/10 nav-blur border border-white/20 shadow-2xl z-50">
-            <ul class="space-y-3 font-inter font-semibold text-sm sm:text-base">
-                <li><a href="#features"     class="hover:text-brand-orange transition-colors duration-300 block py-1">Features</a></li>
-                <li><a href="#how-it-works" class="hover:text-brand-orange transition-colors duration-300 block py-1">How It Works</a></li>
-                <li><a href="#pricing"      class="hover:text-brand-orange transition-colors duration-300 block py-1">Subscription Pricing</a></li>
-                <li><a href="#testimonials" class="hover:text-brand-orange transition-colors duration-300 block py-1 text-white/80">Loved By Teams</a></li>
-                <li><a href="#contact"      class="hover:text-brand-orange transition-colors duration-300 block py-1 text-white/80">Contact Us</a></li>
-            </ul>
-        </div>
-
-    </div>
-</div>
+                    px-5 sm:px-8 md:px-12 lg:px-20 pt-20 overflow-hidden bg-cover bg-center">
 
     <!-- TWO-COLUMN BODY -->
     <div class="flex-1 flex items-center">

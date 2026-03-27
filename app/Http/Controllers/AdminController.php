@@ -100,9 +100,12 @@ class AdminController extends Controller
     {
         $admin = auth('admin')->user();
         $restaurantId = $admin->restaurant_id;
+        
+        // Check if admin is superadmin or has active subscription
+        $hasChartAccess = $admin->is_super_admin || $admin->hasActiveSubscription();
 
         $stats = collect();
-        if ($restaurantId) {
+        if ($restaurantId && $hasChartAccess) {
             // Cache for 1 hour to keep dashboard snappy
             $stats = \Illuminate\Support\Facades\Cache::remember("dashboard_stats_res_{$restaurantId}", 3600, function () use ($restaurantId) {
                 return \App\Models\DailyRestaurantStat::where('restaurant_id', $restaurantId)
@@ -114,7 +117,7 @@ class AdminController extends Controller
             });
         }
 
-        return view('admin.dashboard', compact('stats'));
+        return view('admin.dashboard', compact('stats', 'hasChartAccess'));
     }
 
     /**

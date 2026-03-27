@@ -83,6 +83,12 @@
             <li class="menu-header small text-uppercase">
                 <span class="menu-header-text">System Management</span>
             </li>
+            <li class="menu-item {{ request()->routeIs('master.contacts*') ? 'active' : '' }}">
+                <a href="{{ route('master.contacts.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-envelope"></i>
+                    <div data-i18n="Contacts">Contact Messages</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->routeIs('master.testimonials*') ? 'active' : '' }}">
                 <a href="{{ route('master.testimonials.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-message-dots"></i>
@@ -93,6 +99,12 @@
                 <a href="{{ route('master.faqs.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-question-mark"></i>
                     <div data-i18n="Faqs">Faqs</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->routeIs('master.articles*') ? 'active' : '' }}">
+                <a href="{{ route('master.articles.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-news"></i>
+                    <div data-i18n="Articles">Articles</div>
                 </a>
             </li>
             <li class="menu-item {{ request()->routeIs('master.subscription-plans*') ? 'active' : '' }}">
@@ -141,12 +153,12 @@
         </li>
 
         <!-- Logout -->
-        <li class="menu-item">
+        {{-- <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link border-0 bg-transparent w-100 text-start"
                 data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="menu-icon tf-icons bx bx-power-off"></i>
                 <div data-i18n="Logout">Logout</div>
             </a>
-        </li>
+        </li> --}}
     </ul>
 </aside>

@@ -39,8 +39,9 @@
             <div>
                 <h5 class="text-brand-yellow font-bold text-sm sm:text-base uppercase mb-4">Product</h5>
                 <ul class="space-y-2 text-gray-400 font-medium text-sm">
-                    <li><a href="#features" class="hover:text-white transition-colors duration-300">Features</a></li>
-                    <li><a href="#how-it-works" class="hover:text-white transition-colors duration-300">How It Works</a>
+                    <li><a href="{{ route('articles.index') }}" class="hover:text-white transition-colors duration-300 font-bold text-brand-yellow">Blog & Articles</a></li>
+                    <li><a href="/#features" class="hover:text-white transition-colors duration-300">Features</a></li>
+                    <li><a href="/#how-it-works" class="hover:text-white transition-colors duration-300">How It Works</a>
                     </li>
                     <li><a href="#pricing" class="hover:text-white transition-colors duration-300">Subscription
                             Plans</a></li>

@@ -59,37 +59,55 @@
                     </div>
 
                     {{-- Revenue Chart --}}
-                    <div class="col-md-6">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light-success rounded p-2 me-3">
-                                            <i class="bx bx-dollar-circle fs-4 text-success"></i>
+                    @if($hasChartAccess)
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light-success rounded p-2 me-3">
+                                                <i class="bx bx-dollar-circle fs-4 text-success"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Revenue</h6>
+                                                <small class="text-muted">Last 7 days</small>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h6 class="mb-0 fw-bold">Revenue</h6>
-                                            <small class="text-muted">Last 7 days</small>
-                                        </div>
+                                        @if($stats->isNotEmpty())
+                                            <span class="badge bg-label-success fs-6">Rs. {{ number_format($stats->sum('total_revenue'), 0) }}</span>
+                                        @endif
                                     </div>
                                     @if($stats->isNotEmpty())
-                                        <span class="badge bg-label-success fs-6">Rs. {{ number_format($stats->sum('total_revenue'), 0) }}</span>
+                                        <div id="revenueInsightChart"></div>
+                                    @else
+                                        <div class="text-center py-4">
+                                            <i class="bx bx-line-chart fs-1 text-muted opacity-25 mb-2 d-block"></i>
+                                            <p class="text-muted small mb-0">No data yet. Revenue will appear once orders are placed.</p>
+                                        </div>
                                     @endif
                                 </div>
-                                @if($stats->isNotEmpty())
-                                    <div id="revenueInsightChart"></div>
-                                @else
-                                    <div class="text-center py-4">
-                                        <i class="bx bx-line-chart fs-1 text-muted opacity-25 mb-2 d-block"></i>
-                                        <p class="text-muted small mb-0">No data yet. Revenue will appear once orders are placed.</p>
-                                    </div>
-                                @endif
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100 bg-light">
+                                <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 350px;">
+                                    <div class="mb-3">
+                                        <i class="bx bx-lock fs-1 text-warning opacity-75"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-dark mb-2">You are on the Free Plan</h5>
+                                    <p class="text-muted mb-4">Unlock revenue charts and advanced analytics by upgrading to a premium plan.</p>
+                                    <a href="{{ route('master.billing') }}" class="btn btn-primary btn-sm">
+                                        <i class="bx bx-wallet me-1"></i> View Billing Options
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- ROW 2: Orders Chart --}}
+                @if($hasChartAccess)
                 <div class="row g-4">
                     <div class="col-12">
                         <div class="card border-0 shadow-sm">
@@ -120,6 +138,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
             </div>
 
@@ -141,6 +160,7 @@
 @endsection
 
 @push('scripts')
+    @if($hasChartAccess)
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -222,4 +242,5 @@
             @endif
         });
     </script>
+    @endif
 @endpush

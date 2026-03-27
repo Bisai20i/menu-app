@@ -3,17 +3,20 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminManagementController;
 use App\Http\Controllers\AdminSubscriptionController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
-use App\Http\Controllers\TableViewController;
 use App\Http\Controllers\MenuCategoryController;
 use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\TableViewController;
 use App\Http\Controllers\TestimonialController;
 use App\Livewire\Admin\OrderManagement;
 use Illuminate\Support\Facades\Route;
+
 
 Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
     // Authentication Routes
@@ -53,30 +56,38 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         // Admin Resource
         Route::resource('admins', AdminController::class);
 
-        //Subscription Plans
-        Route::resource('subscription-plans', SubscriptionPlanController::class);
+        // System Management (Super Admin only)
+        Route::group(['middleware' => [function ($request, $next) {
+            if (!auth('admin')->user()->is_super_admin) {
+                abort(403);
+            }
+            return $next($request);
+        }]], function () {
+            Route::resource('testimonials', TestimonialController::class);
+            Route::resource('faqs', FaqController::class);
+            Route::resource('articles', ArticleController::class);
+            Route::resource('subscription-plans', SubscriptionPlanController::class);
+            
+            // Contact Messages
+            Route::patch('contacts/{id}/toggle-read', [ContactController::class, 'toggleRead'])->name('contacts.toggle-read');
+            Route::resource('contacts', ContactController::class)->only(['index', 'show', 'destroy']);
 
-        // Testimonials
-        Route::resource('testimonials', TestimonialController::class);
+            // Admin Subscriptions
+            Route::get('admin-subscriptions', [AdminSubscriptionController::class, 'index'])->name('admin-subscriptions.index');
+            Route::post('admin-subscriptions/assign', [AdminSubscriptionController::class, 'assign'])->name('admin-subscriptions.assign');
+            Route::delete('admin-subscriptions/{adminId}/remove', [AdminSubscriptionController::class, 'remove'])->name('admin-subscriptions.remove');
 
-        // FAQs
-        Route::resource('faqs', FaqController::class);
+            // Reports
+            Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+            Route::get('reports/{restaurant_id}', [ReportController::class, 'show'])->name('reports.show');
+        });
 
         // Admin Management
         Route::resource('admin-management', AdminManagementController::class);
 
-        // Admin Subscriptions (Super Admin only)
-        Route::get('admin-subscriptions', [AdminSubscriptionController::class, 'index'])->name('admin-subscriptions.index');
-        Route::post('admin-subscriptions/assign', [AdminSubscriptionController::class, 'assign'])->name('admin-subscriptions.assign');
-        Route::delete('admin-subscriptions/{adminId}/remove', [AdminSubscriptionController::class, 'remove'])->name('admin-subscriptions.remove');
-
         // Order Management
         Route::get('orders', OrderManagement::class)->name('orders.index');
         Route::livewire('table/sessions', 'pages::admin.table-sessions')->name('table-sessions');
-
-        // Reports (Super Admin only - check role in Controller)
-        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-        Route::get('reports/{restaurant_id}', [ReportController::class, 'show'])->name('reports.show');
 
         // Billing (for current logged-in admin)
         Route::get('billing', [AdminSubscriptionController::class, 'billing'])->name('billing');
