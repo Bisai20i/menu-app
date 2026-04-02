@@ -85,11 +85,6 @@ class Restaurant extends Model
 
     /**
      * Payment QR value stored inside the `settings` JSON column.
-     *
-     * Expected to be either:
-     * - a `data:image/...` URL (base64), or
-     * - an absolute URL, or
-     * - a site-relative path.
      */
     public function getPaymentQrAttribute(): ?string
     {
@@ -99,6 +94,22 @@ class Restaurant extends Model
         if (is_string($paymentQr)) {
             $paymentQr = trim($paymentQr);
             return $paymentQr !== '' ? $paymentQr : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Restaurant Wifi QR value stored inside the `settings` JSON column.
+     */
+    public function getRestaurantWifiQrAttribute(): ?string
+    {
+        $settings = is_array($this->settings) ? $this->settings : [];
+        $wifiQr = $settings['restaurant_wifi_qr'] ?? null;
+
+        if (is_string($wifiQr)) {
+            $wifiQr = asset('storage/' . trim($wifiQr));
+            return $wifiQr !== '' ? $wifiQr : null;
         }
 
         return null;

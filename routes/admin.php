@@ -79,6 +79,7 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
 
             // Reports
             Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+            Route::get('reports/system', [ReportController::class, 'system'])->name('reports.system');
             Route::get('reports/{restaurant_id}', [ReportController::class, 'show'])->name('reports.show');
         });
 

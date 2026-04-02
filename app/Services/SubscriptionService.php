@@ -41,18 +41,22 @@ class SubscriptionService
     /**
      * Assign a plan to an admin
      */
-    public function assignPlan(Admin $admin, SubscriptionPlan $plan): AdminSubscription
+    public function assignPlan(Admin $admin, SubscriptionPlan $plan, int $gracePeriod = 30, ?int $customDurationMonths = null): AdminSubscription
     {
         // First, expire any current active subscriptions
         $this->removePlan($admin);
 
         // Calculate expiration date
-        $expiresAt = match ($plan->duration_unit) {
-            'day'   => Carbon::now()->addDays($plan->duration_value),
-            'month' => Carbon::now()->addMonths($plan->duration_value),
-            'year'  => Carbon::now()->addYears($plan->duration_value),
-            default => null, // Shouldn't hit default normally
-        };
+        if ($customDurationMonths !== null) {
+            $expiresAt = Carbon::now()->addMonths($customDurationMonths);
+        } else {
+            $expiresAt = match ($plan->duration_unit) {
+                'day'   => Carbon::now()->addDays($plan->duration_value),
+                'month' => Carbon::now()->addMonths($plan->duration_value),
+                'year'  => Carbon::now()->addYears($plan->duration_value),
+                default => null, // Shouldn't hit default normally
+            };
+        }
 
         return AdminSubscription::create([
             'admin_id'             => $admin->id,
@@ -60,6 +64,7 @@ class SubscriptionService
             'starts_at'            => Carbon::now(),
             'expires_at'           => $expiresAt,
             'status'               => 'active',
+            'grace_period'         => $gracePeriod,
         ]);
     }
 

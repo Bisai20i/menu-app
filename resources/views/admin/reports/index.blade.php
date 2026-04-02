@@ -5,6 +5,22 @@
 @endpush
 
 @section('content')
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-style1 mb-1">
+                <li class="breadcrumb-item text-muted">Analytics</li>
+                <li class="breadcrumb-item active">Reports</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0">System Reports</h3>
+        <p class="text-muted mb-0">View overall system analytics and individual restaurant performance.</p>
+    </div>
+    <div>
+        <a href="{{ route('master.reports.system') }}" class="btn btn-primary shadow-sm"><i class="bx bx-world me-1"></i> View Full System Report</a>
+    </div>
+</div>
+
 <div class="card shadow-sm border-0">
     <div class="card-header bg-white py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
         <h5 class="mb-3 mb-md-0 fw-bold"><i class="bx bx-bar-chart-alt-2 me-2 text-primary"></i>Restaurant Performance Reports</h5>

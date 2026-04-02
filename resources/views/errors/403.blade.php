@@ -355,8 +355,8 @@
             <!-- Headline -->
             <h1 class="mb-3"
                 style="font-family:'Playfair Display',serif; font-size:1.9rem; font-weight:700; color:white; line-height:1.2;">
-                This table is<br>
-                <em style="color:#ef9a9a; font-style:italic;">reserved</em>
+                You are<br>
+                <em style="color:#ef9a9a; font-style:italic;">not authorized</em>
             </h1>
 
             <p class="mb-6" style="color:#6b6060; font-size:14px; line-height:1.75;">
@@ -388,8 +388,8 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <a href="{{ url('/billing/upgrade') }}" class="upgrade-btn-primary">View Plans</a>
-                    <a href="{{ url('/billing') }}" class="upgrade-btn-secondary">Manage Billing</a>
+                    <a href="{{ url('/#pricing') }}" class="upgrade-btn-primary">View Plans</a>
+                    <a href="{{ route('master.login') }}" class="upgrade-btn-secondary">Login</a>
                 </div>
             </div>
 

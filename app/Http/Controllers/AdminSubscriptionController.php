@@ -16,9 +16,51 @@ class AdminSubscriptionController extends Controller
         $this->subscriptionService = $subscriptionService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $admins = Admin::where('role', '!=', 'superadmin')->get();
+        $query = Admin::where('role', '!=', 'superadmin');
+
+        // Search
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Status Filter
+        if ($status = $request->input('status')) {
+            if ($status === 'active') {
+                $query->whereHas('activeSubscription');
+            } elseif ($status === 'expired') {
+                $query->whereDoesntHave('activeSubscription')
+                      ->whereHas('subscriptions', function ($q) {
+                          $q->where('status', 'expired')
+                            ->orWhere(function ($subQ) {
+                                $subQ->where('status', 'active')
+                                     ->whereNotNull('expires_at')
+                                     ->whereRaw('DATE_ADD(expires_at, INTERVAL grace_period DAY) <= ?', [now()]);
+                            });
+                      });
+            } elseif ($status === 'no_subscription') {
+                $query->doesntHave('subscriptions');
+            }
+        }
+
+        $admins = $query->get();
+        
+        // Sorting using Collections
+        $sort = $request->input('sort');
+        if ($sort === 'new_sub') {
+            $admins = $admins->sortByDesc(fn($admin) => $admin->activeSubscription->starts_at ?? null)->values();
+        } elseif ($sort === 'expiring_soon') {
+            $admins = $admins->sortBy(function($admin) {
+                if (!$admin->activeSubscription || !$admin->activeSubscription->expires_at) {
+                    return '9999-12-31';
+                }
+                return $admin->activeSubscription->expires_at;
+            })->values();
+        }
         
         // Enhance admins with their current active plan
         foreach ($admins as $admin) {
@@ -33,8 +75,10 @@ class AdminSubscriptionController extends Controller
     public function assign(Request $request)
     {
         $request->validate([
-            'admin_id'             => 'required|exists:admins,id',
-            'subscription_plan_id' => 'required|exists:subscription_plans,id',
+            'admin_id'               => 'required|exists:admins,id',
+            'subscription_plan_id'   => 'required|exists:subscription_plans,id',
+            'grace_period'           => 'nullable|integer|min:0',
+            'custom_duration_months' => 'nullable|integer|min:1',
         ]);
 
         $admin = Admin::findOrFail($request->admin_id);
@@ -45,8 +89,10 @@ class AdminSubscriptionController extends Controller
         }
 
         $plan = SubscriptionPlan::findOrFail($request->subscription_plan_id);
+        $gracePeriod = $request->input('grace_period', 30);
+        $customDuration = $request->input('custom_duration_months');
 
-        $this->subscriptionService->assignPlan($admin, $plan);
+        $this->subscriptionService->assignPlan($admin, $plan, $gracePeriod, $customDuration);
 
         return back()->with('success', "Plan '{$plan->name}' assigned to {$admin->name} successfully.");
     }

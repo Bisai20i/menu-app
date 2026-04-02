@@ -71,7 +71,7 @@ class Admin extends Authenticatable
             ->where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
+                    ->orWhereRaw('DATE_ADD(expires_at, INTERVAL grace_period DAY) > ?', [now()]);
             })
             ->latest('starts_at');
     }

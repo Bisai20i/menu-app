@@ -1,49 +1,83 @@
 <?php
-
 namespace App\Livewire;
 
+use App\Models\Restaurant;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Support\Facades\Response;
 
 class MenuQRGenerator extends Component
 {
-    public $restaurant;
+    public ?int $restaurantId = null;
 
     public function mount()
     {
-        $this->restaurant = auth()->guard('admin')->user()->restaurant;
+        $this->restaurantId = auth()->guard('admin')->user()?->restaurant_id;
     }
 
     public function downloadQR()
     {
-        if (!$this->restaurant) {
+        $restaurant = $this->getRestaurant();
+
+        if (! $restaurant) {
             return;
         }
 
-        $url = url('/' . $this->restaurant->slug);
-        
-        $image = QrCode::size(500)
+        $menuUrl  = url('/' . $restaurant->slug);
+        $filename = 'Menu_QR_' . Str::slug($restaurant->name) . '.svg';
+
+        $qrPng = (string) QrCode::format('svg')
+            ->size(500)
             ->margin(2)
             ->errorCorrection('H')
-            ->merge(public_path('logo.png'), 0.3, true)
-            ->generate($url);
+            ->generate($menuUrl);
 
-        $filename = 'Menu_QR_' . str_replace(' ', '_', $this->restaurant->name) . '.png';
-
-        return Response::streamDownload(function () use ($image) {
-            echo $image;
-        }, $filename, [
-            'Content-Type' => 'image/png',
-        ]);
+        return response()->streamDownload(
+            fn() => print($qrPng),
+            $filename,
+            ['Content-Type' => 'image/svg+xml']
+        );
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Private helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private function getRestaurant(): ?Restaurant
+    {
+        if (! $this->restaurantId) {
+            return null;
+        }
+
+        return Restaurant::query()
+            ->select([
+                'id',
+                'slug',
+                'name',
+                'description',
+                'logo_path',
+                'email',
+                'phone',
+                'address',
+                'settings',
+            ])
+            ->find($this->restaurantId);
+    }
+
 
     public function render()
     {
-        $menuUrl = $this->restaurant ? url('/' . $this->restaurant->slug) : '#';
-        
+        $restaurant = $this->getRestaurant();
+        $menuUrl    = $restaurant ? url('/' . $restaurant->slug) : '#';
+        $menuQrSvg  = $restaurant
+            ? QrCode::format('svg')->size(200)->errorCorrection('H')->generate($menuUrl)
+            : null;
+
         return view('livewire.menu-qr-generator', [
-            'menuUrl' => $menuUrl
+            'restaurant' => $restaurant,
+            'menuUrl'    => $menuUrl,
+            'menuQrSvg'  => $menuQrSvg,
         ]);
     }
 }

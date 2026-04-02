@@ -105,4 +105,45 @@ class ReportController extends Controller
             'totals' => $statsData['totals']
         ]);
     }
+
+    /**
+     * Display a full system report with aggregated stats.
+     */
+    public function system()
+    {
+        if (!auth('admin')->user()->is_super_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $cacheKey = "report_detail_system_overall";
+
+        $statsData = Cache::remember($cacheKey, 3600, function () {
+            // Group by date for the last 30 days aggregating across all restaurants
+            $stats = DailyRestaurantStat::selectRaw('date, SUM(total_orders) as total_orders, SUM(total_revenue) as total_revenue, SUM(menu_views) as menu_views')
+                ->groupBy('date')
+                ->orderBy('date', 'desc')
+                ->limit(30)
+                ->get()
+                ->reverse()
+                ->values();
+
+            $totals = DailyRestaurantStat::selectRaw('SUM(total_orders) as total_orders, SUM(total_revenue) as total_revenue, SUM(menu_views) as total_views')
+                ->first();
+
+            return [
+                'chart_stats' => $stats,
+                'totals' => $totals
+            ];
+        });
+
+        $totalRestaurants = Cache::remember('total_restaurants_count', 3600, function () {
+            return Restaurant::count();
+        });
+
+        return view('admin.reports.system', [
+            'stats' => $statsData['chart_stats'],
+            'totals' => $statsData['totals'],
+            'totalRestaurants' => $totalRestaurants
+        ]);
+    }
 }

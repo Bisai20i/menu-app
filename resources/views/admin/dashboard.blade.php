@@ -9,6 +9,44 @@
         <div class="row g-4">
             <!-- Welcome Column -->
             <div class="col-lg-8">
+                
+                @php
+                    $adminUser = auth()->guard('admin')->user();
+                    $activeSub = $adminUser->activeSubscription;
+                    $isExpiringSoon = false;
+                    $isExpiredGrace = false;
+                    $daysRemaining = 0;
+                    
+                    if ($activeSub && $activeSub->expires_at && !$adminUser->is_super_admin) {
+                        if ($activeSub->expires_at->isPast()) {
+                            $isExpiredGrace = true;
+                            // Calculate remaining grace period days carefully considering the actual difference
+                            $daysPast = floor(now()->diffInSeconds($activeSub->expires_at) / 86400); 
+                            $daysRemaining = $activeSub->grace_period - $daysPast;
+                        } else {
+                            $daysRemaining = floor(now()->diffInSeconds($activeSub->expires_at) / 86400); 
+                            if ($daysRemaining <= 30) {
+                                $isExpiringSoon = true;
+                            }
+                        }
+                    }
+                @endphp
+
+                @if($isExpiredGrace)
+                    <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4" role="alert">
+                        <i class="bx bx-error-circle fs-3 me-3"></i>
+                        <div>
+                            <strong>Subscription Expired!</strong> You are currently in the grace period. You have <strong>{{ max(0, $daysRemaining) }} days</strong> left to renew before you lose access.
+                        </div>
+                    </div>
+                @elseif($isExpiringSoon)
+                    <div class="alert alert-warning shadow-sm border-0 d-flex align-items-center mb-4" role="alert">
+                        <i class="bx bx-time-five fs-3 me-3"></i>
+                        <div>
+                            <strong>Expiring Soon!</strong> Your subscription will expire in <strong>{{ $daysRemaining }} days</strong>. Please <a href="{{ route('master.billing') }}" class="alert-link">renew soon</a> to avoid interruption.
+                        </div>
+                    </div>
+                @endif
 
                 {{-- Welcome Banner --}}
                 <div class="card border-0 shadow-sm bg-primary text-white mb-4 overflow-hidden">
@@ -146,6 +184,52 @@
             <div class="col-lg-4">
                 <div class="sticky-top" style="top: 20px;">
                     @livewire('menu-qr-generator')
+                    
+                    {{-- Plan Status --}}
+                    @php
+                        $plan = app(\App\Services\SubscriptionService::class)->getActivePlan(auth('admin')->user());
+                    @endphp
+                    @if($plan && $plan->price > 0)
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3"><i class="bx bx-crown text-warning me-2"></i>Current Plan Status</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Plan</span>
+                                <span class="fw-semibold">
+                                    @if($plan->id === 0)
+                                        <span class="badge bg-secondary-subtle text-secondary">{{ $plan->name }}</span>
+                                    @else
+                                        <span class="badge bg-success-subtle text-success">{{ $plan->name }}</span>
+                                    @endif
+                                </span>
+                            </div>
+                            
+                            @if(isset($activeSub) && $activeSub && $activeSub->expires_at)
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Expires On</span>
+                                    <span class="fw-semibold {{ $activeSub->expires_at->isPast() ? 'text-danger' : '' }}">
+                                        {{ $activeSub->expires_at->format('d M, Y') }}
+                                    </span>
+                                </div>
+                                @if($activeSub->expires_at->isPast())
+                                <div class="d-flex justify-content-between align-items-center mb-0">
+                                    <span class="text-muted">Grace Period</span>
+                                    <span class="fw-semibold text-danger">{{ max(0, $daysRemaining ?? 0) }} Days Left</span>
+                                </div>
+                                @endif
+                            @elseif($plan->id !== 0)
+                                <div class="d-flex justify-content-between align-items-center mb-0">
+                                    <span class="text-muted">Validity</span>
+                                    <span class="fw-semibold text-success">Lifetime</span>
+                                </div>
+                            @endif
+                            <hr class="my-3">
+                            <div class="d-grid">
+                                <a href="{{ route('master.billing') }}" class="btn btn-outline-primary btn-sm">Manage Billing</a>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

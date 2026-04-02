@@ -193,9 +193,22 @@
                                             ? $paymentQr
                                             : asset('storage/' . $paymentQr));
                                 }
+
+                                $wifiQr = $admin->restaurant->settings['restaurant_wifi_qr'] ?? null;
+                                $wifiQrSrc = null;
+                                if (is_string($wifiQr) && trim($wifiQr) !== '') {
+                                    $wifiQr = trim($wifiQr);
+                                    $wifiQrSrc = (\Illuminate\Support\Str::startsWith($wifiQr, ['data:', 'http://', 'https://']))
+                                        ? $wifiQr
+                                        : (\Illuminate\Support\Str::startsWith($wifiQr, '/')
+                                            ? $wifiQr
+                                            : asset('storage/' . $wifiQr));
+                                }
                             @endphp
+
                             <div class="row g-3 mt-1">
-                                <div class="col-12 mb-1">
+                                <!-- Payment QR -->
+                                <div class="col-md-6 mb-3">
                                     <label class="form-label fw-semibold">Payment QR</label>
                                     <input
                                         type="file"
@@ -205,36 +218,70 @@
                                         accept="image/*"
                                     >
                                     @error('payment_qr_image') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    <div class="form-text">
-                                        Upload a PNG/JPG QR image (max 2MB). Leave empty to keep the current QR.
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center gap-4 flex-wrap">
+                                    
+                                    <div class="mt-3">
                                         @if(!empty($paymentQrSrc))
                                             <img
                                                 id="paymentQrPreview"
                                                 src="{{ $paymentQrSrc }}"
                                                 data-initial-src="{{ $paymentQrSrc }}"
                                                 alt="payment-qr-preview"
-                                                style="max-height: 180px; max-width: 180px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: #fff;"
+                                                style="max-height: 150px; max-width: 100%; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: #fff;"
                                             >
                                         @else
-                                            <div id="paymentQrPreviewPlaceholder" class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="height: 180px; width: 180px; border: 1px dashed #e0e0e0;">
+                                            <div id="paymentQrPreviewPlaceholder" class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="height: 150px; width: 150px; border: 1px dashed #e0e0e0;">
                                                 <span>QR Preview</span>
                                             </div>
                                             <img
                                                 id="paymentQrPreview"
                                                 class="d-none"
                                                 alt="payment-qr-preview"
-                                                style="max-height: 180px; max-width: 180px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: #fff;"
+                                                style="max-height: 150px; max-width: 100%; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: #fff;"
                                                 data-initial-src=""
                                             >
                                         @endif
-                                        <div class="text-muted small" style="max-width: 420px;">
-                                            Tip: Use a clear QR image (square, high contrast) so guests can scan easily.
-                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Wifi QR -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Restaurant Wifi QR</label>
+                                    <input
+                                        type="file"
+                                        name="restaurant_wifi_qr_image"
+                                        id="wifiQrImageInput"
+                                        class="form-control @error('restaurant_wifi_qr_image') is-invalid @enderror"
+                                        accept="image/*"
+                                    >
+                                    @error('restaurant_wifi_qr_image') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    
+                                    <div class="mt-3">
+                                        @if(!empty($wifiQrSrc))
+                                            <img
+                                                id="wifiQrPreview"
+                                                src="{{ $wifiQrSrc }}"
+                                                data-initial-src="{{ $wifiQrSrc }}"
+                                                alt="wifi-qr-preview"
+                                                style="max-height: 150px; max-width: 100%; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: #fff;"
+                                            >
+                                        @else
+                                            <div id="wifiQrPreviewPlaceholder" class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="height: 150px; width: 150px; border: 1px dashed #e0e0e0;">
+                                                <span>QR Preview</span>
+                                            </div>
+                                            <img
+                                                id="wifiQrPreview"
+                                                class="d-none"
+                                                alt="wifi-qr-preview"
+                                                style="max-height: 150px; max-width: 100%; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: #fff;"
+                                                data-initial-src=""
+                                            >
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="text-muted small">
+                                        Tip: Use high-contrast QR images (square) so guests can scan easily for payments and Wi-Fi access.
                                     </div>
                                 </div>
                             </div>
@@ -299,37 +346,41 @@
         }
     });
 
-    // Payment QR live preview (image upload)
-    const paymentQrImageInput = document.getElementById('paymentQrImageInput');
-    const paymentQrPreview = document.getElementById('paymentQrPreview');
-    const paymentQrPreviewPlaceholder = document.getElementById('paymentQrPreviewPlaceholder');
+    // Handle QR Previews (Reusable Logic)
+    function setupImagePreview(inputId, previewId, placeholderId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const placeholder = document.getElementById(placeholderId);
 
-    if (paymentQrImageInput && paymentQrPreview) {
-        const initialSrc = paymentQrPreview.getAttribute('data-initial-src') || '';
+        if (input && preview) {
+            const initialSrc = preview.getAttribute('data-initial-src') || '';
 
-        paymentQrImageInput.addEventListener('change', function() {
-            const file = this.files && this.files[0] ? this.files[0] : null;
-            if (!file) {
-                // Reset back to server-provided QR (if any)
-                if (initialSrc) {
-                    paymentQrPreview.src = initialSrc;
-                    paymentQrPreview.classList.remove('d-none');
-                    if (paymentQrPreviewPlaceholder) paymentQrPreviewPlaceholder.classList.add('d-none');
-                } else {
-                    paymentQrPreview.classList.add('d-none');
-                    if (paymentQrPreviewPlaceholder) paymentQrPreviewPlaceholder.classList.remove('d-none');
+            input.addEventListener('change', function() {
+                const file = this.files && this.files[0] ? this.files[0] : null;
+                if (!file) {
+                    if (initialSrc) {
+                        preview.src = initialSrc;
+                        preview.classList.remove('d-none');
+                        if (placeholder) placeholder.classList.add('d-none');
+                    } else {
+                        preview.classList.add('d-none');
+                        if (placeholder) placeholder.classList.remove('d-none');
+                    }
+                    return;
                 }
-                return;
-            }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                paymentQrPreview.src = e.target.result;
-                paymentQrPreview.classList.remove('d-none');
-                if (paymentQrPreviewPlaceholder) paymentQrPreviewPlaceholder.classList.add('d-none');
-            };
-            reader.readAsDataURL(file);
-        });
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                    if (placeholder) placeholder.classList.add('d-none');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     }
+
+    setupImagePreview('paymentQrImageInput', 'paymentQrPreview', 'paymentQrPreviewPlaceholder');
+    setupImagePreview('wifiQrImageInput', 'wifiQrPreview', 'wifiQrPreviewPlaceholder');
 </script>
 @endpush

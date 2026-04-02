@@ -250,12 +250,12 @@
             navPill.classList.add('bg-black/70', 'shadow-2xl', 'border-white/40');
             navPill.classList.remove('bg-white/10', 'border-white/20');
             navDropdown.classList.add('bg-black/70', 'shadow-2xl', 'border-white/40')
-            if (mainNavbar) mainNavbar.classList.add('bg-black/10', 'backdrop-blur-sm');
+            // if (mainNavbar) mainNavbar.classList.add('bg-black/10', 'backdrop-blur-sm');
         } else {
             navPill.classList.remove('bg-black/70', 'shadow-2xl', 'border-white/40');
             navPill.classList.add('bg-white/10', 'border-white/20');
             navDropdown.classList.remove('bg-black/70', 'shadow-2xl', 'border-white/40')
-            if (mainNavbar) mainNavbar.classList.remove('bg-black/10', 'backdrop-blur-sm');
+            // if (mainNavbar) mainNavbar.classList.remove('bg-black/10', 'backdrop-blur-sm');
         }
     }, {
         passive: true

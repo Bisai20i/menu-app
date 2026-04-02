@@ -7,6 +7,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\FileHelper;
 
 class AdminManagementController extends Controller
 {
@@ -71,8 +72,9 @@ class AdminManagementController extends Controller
             'tax_percentage'  => 'required|numeric|min:0|max:100',
             'primary_color'   => 'required|string|max:7',
             'payment_qr_image'=> 'nullable|image|max:2048',
-            // Backward compatible: allow old forms to paste a URL/data-url.
             'payment_qr'      => 'nullable|string|max:200000',
+            'restaurant_wifi_qr_image' => 'nullable|image|max:2048',
+            'restaurant_wifi_qr'       => 'nullable|string|max:200000',
         ]);
 
         // Update Admin
@@ -86,9 +88,7 @@ class AdminManagementController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($admin->image) {
-                Storage::disk('public')->delete($admin->image);
-            }
+            FileHelper::deleteFile($admin->image);
             $adminData['image'] = $request->file('image')->store('admins', 'public');
         }
 
@@ -98,25 +98,23 @@ class AdminManagementController extends Controller
 
             // Restaurant Data
             $existingSettings = is_array($restaurant?->settings) ? $restaurant->settings : [];
+            
+            // Handle Payment QR
             $paymentQrSetting = $existingSettings['payment_qr'] ?? null;
-
             if ($request->hasFile('payment_qr_image')) {
-                // Delete previous file only if it looks like a local `storage/app/public/...` path.
-                $existingPaymentQr = $existingSettings['payment_qr'] ?? null;
-                $isLocalStoredPath = is_string($existingPaymentQr)
-                    && ! \Illuminate\Support\Str::startsWith($existingPaymentQr, ['data:', 'http://', 'https://'])
-                    && ! \Illuminate\Support\Str::startsWith($existingPaymentQr, '/');
-
-                if ($isLocalStoredPath && Storage::disk('public')->exists($existingPaymentQr)) {
-                    Storage::disk('public')->delete($existingPaymentQr);
-                }
-
-                $paymentQrPath = $request->file('payment_qr_image')->store('payment_qrs', 'public');
-                $paymentQrSetting = $paymentQrPath ?: null;
+                FileHelper::deleteFile($paymentQrSetting);
+                $paymentQrSetting = $request->file('payment_qr_image')->store('payment_qrs', 'public');
             } elseif ($request->filled('payment_qr')) {
-                $paymentQrRaw = $request->input('payment_qr');
-                $paymentQrSetting = is_string($paymentQrRaw) ? trim($paymentQrRaw) : null;
-                $paymentQrSetting = $paymentQrSetting !== '' ? $paymentQrSetting : null;
+                $paymentQrSetting = trim($request->input('payment_qr'));
+            }
+
+            // Handle Wifi QR
+            $wifiQrSetting = $existingSettings['restaurant_wifi_qr'] ?? null;
+            if ($request->hasFile('restaurant_wifi_qr_image')) {
+                FileHelper::deleteFile($wifiQrSetting);
+                $wifiQrSetting = $request->file('restaurant_wifi_qr_image')->store('wifi_qrs', 'public');
+            } elseif ($request->filled('restaurant_wifi_qr')) {
+                $wifiQrSetting = trim($request->input('restaurant_wifi_qr'));
             }
 
             $restaurantData = [
@@ -126,18 +124,16 @@ class AdminManagementController extends Controller
                 'address'     => $request->restaurant_address,
                 'description' => $request->restaurant_description,
                 'settings'    => array_merge($existingSettings, [
-                    'currency'       => $request->currency,
-                    'tax_percentage' => (float) $request->tax_percentage,
-                    'primary_color'  => $request->primary_color,
-                    // Only changes when an image is uploaded (or a legacy `payment_qr` string is provided).
-                    'payment_qr'     => $paymentQrSetting,
+                    'currency'           => $request->currency,
+                    'tax_percentage'     => (float) $request->tax_percentage,
+                    'primary_color'      => $request->primary_color,
+                    'payment_qr'         => $paymentQrSetting,
+                    'restaurant_wifi_qr' => $wifiQrSetting,
                 ]),
             ];
 
             if ($request->hasFile('restaurant_logo')) {
-                if ($restaurant && $restaurant->logo_path) {
-                    Storage::disk('public')->delete($restaurant->logo_path);
-                }
+                FileHelper::deleteFile($restaurant->logo_path ?? null);
                 $restaurantData['logo_path'] = $request->file('restaurant_logo')->store('restaurants', 'public');
             }
 

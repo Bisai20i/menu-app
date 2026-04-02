@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+    //
     }
 
     /**
@@ -69,6 +69,14 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('updateRecord', function ($user = null, $record = null) use ($policy) {
             $admin = auth('admin')->user();
             return $admin && $record ? $policy->updateRecord($admin, $record) : false;
+        });
+
+        Gate::define('viewPulse', function ($user = null) {
+            // Only allow specific emails or admin roles
+            $admin = auth('admin')->user();
+            return $admin && in_array($admin->email, [
+            'admin@example.com',
+            ]);
         });
     }
 }
