@@ -20,6 +20,12 @@ Route::get('/sessions/{session_uuid}/orders', [MenuController::class, 'getSessio
 
 Route::post('/orders/{order_uuid}/cancel', [MenuController::class, 'cancelOrder'])
     ->name('api.orders.cancel');
+
+Route::post('/orders/{order_uuid}/confirm', [MenuController::class, 'userConfirmOrder'])
+    ->name('api.orders.confirm');
+
+Route::post('/orders/{order_uuid}/request-confirmation', [MenuController::class, 'adminRequestConfirmation'])
+    ->name('api.orders.request-confirmation');
 // Authenticated user route
 // Route::get('/user', function (Request $request) {
 //     return $request->user();

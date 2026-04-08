@@ -53,6 +53,7 @@ class OrderStatusUpdated implements ShouldBroadcastNow
                 'status'       => $this->order->status,
                 'is_paid'      => $this->order->is_paid,
                 'total_amount' => $this->order->total_amount,
+                'needs_user_confirmation' => $this->order->needs_user_confirmation,
             ],
         ];
     }

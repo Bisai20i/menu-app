@@ -15,12 +15,15 @@ class OrderItem extends Model
         'unit_price',
         'subtotal',
         'special_request',
+        'is_cancelled',
+        'cancellation_note',
     ];
 
     protected $casts = [
-        'quantity'   => 'integer',
-        'unit_price' => 'decimal:2',
-        'subtotal'   => 'decimal:2',
+        'quantity'     => 'integer',
+        'unit_price'   => 'decimal:2',
+        'subtotal'     => 'decimal:2',
+        'is_cancelled' => 'boolean',
     ];
 
     protected static function booted(): void

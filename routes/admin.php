@@ -9,6 +9,7 @@ use App\Http\Controllers\FaqController;
 use App\Http\Controllers\MenuCategoryController;
 use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\MenuItemController;
+use App\Http\Controllers\OrderHistoryController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
@@ -88,6 +89,7 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
 
         // Order Management
         Route::get('orders', OrderManagement::class)->name('orders.index');
+        Route::get('order-history', [OrderHistoryController::class, 'index'])->name('order-history.index');
         Route::livewire('table/sessions', 'pages::admin.table-sessions')->name('table-sessions');
 
         // Billing (for current logged-in admin)

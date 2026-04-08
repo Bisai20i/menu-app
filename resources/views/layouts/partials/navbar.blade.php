@@ -135,8 +135,9 @@
 
         /* Hide "Order Management" text button on very small screens,
            show a compact icon-only version instead */
-        .btn-order-full  { display: none !important; }
-        .btn-order-icon  { display: inline-flex !important; }
+        /* Hide buttons on very small screens */
+        .btn-order-full, .btn-history-full { display: none !important; }
+        .btn-order-icon, .btn-history-icon { display: inline-flex !important; }
 
         /* Tighten spacing between icon items */
         .navbar-nav.flex-row { gap: 0.25rem; }
@@ -154,12 +155,12 @@
 
     /* ── Desktop (≥ 1200px) ── */
     @media (min-width: 1200px) {
-        .btn-order-full  { display: inline-flex !important; }
-        .btn-order-icon  { display: none !important; }
+        .btn-order-full, .btn-history-full { display: inline-flex !important; }
+        .btn-order-icon, .btn-history-icon { display: none !important; }
     }
 
-    /* Icon-only order button (mobile) – hidden by default */
-    .btn-order-icon {
+    /* Icon-only buttons (mobile) */
+    .btn-order-icon, .btn-history-icon {
         display: none;
         align-items: center;
         justify-content: center;
@@ -230,20 +231,29 @@
 
             {{-- ── Order Management ── --}}
             @if ($canManageOrder)
-                {{-- Full button: tablet + desktop --}}
+                {{-- Orders Button --}}
                 <li class="nav-item lh-1">
                     <a class="btn btn-outline-primary btn-order-full d-flex align-items-center justify-content-center"
-                       href="{{ route('master.orders.index') }}">
+                       href="{{ route('master.orders.index') }}" title="Real-time Orders">
                         <i class="bx bx-list-ul me-1"></i> Order Management
                     </a>
-                </li>
-                {{-- Icon-only button: mobile --}}
-                <li class="nav-item lh-1">
                     <a class="btn btn-outline-primary btn-order-icon"
                        href="{{ route('master.orders.index') }}"
-                       title="Order Management"
-                       aria-label="Order Management">
+                       title="Order Management">
                         <i class="bx bx-list-ul"></i>
+                    </a>
+                </li>
+
+                {{-- History Button --}}
+                <li class="nav-item lh-1">
+                    <a class="btn btn-outline-secondary btn-history-full d-flex align-items-center justify-content-center"
+                       href="{{ route('master.order-history.index') }}" title="Order History">
+                        <i class="bx bx-history me-1"></i> History
+                    </a>
+                    <a class="btn btn-outline-secondary btn-history-icon"
+                       href="{{ route('master.order-history.index') }}"
+                       title="Order History">
+                        <i class="bx bx-history"></i>
                     </a>
                 </li>
             @endif

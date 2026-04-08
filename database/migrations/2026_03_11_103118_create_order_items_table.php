@@ -15,16 +15,16 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('order_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('menu_item_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('restaurant_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->unsignedSmallInteger('quantity');
 
@@ -33,6 +33,9 @@ return new class extends Migration
 
             // Computed: quantity * unit_price (stored for fast reporting, no recalculation needed)
             $table->decimal('subtotal', 10, 2);
+
+            $table->boolean('is_cancelled')->default(false);
+            $table->text('cancellation_note')->nullable();
 
             // Per-item special requests (e.g. "no onions", "extra sauce")
             $table->string('special_request')->nullable();

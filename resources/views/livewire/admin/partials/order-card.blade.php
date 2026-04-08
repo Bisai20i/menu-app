@@ -13,6 +13,12 @@
                 @if($order->table?->section)
                     <span class="text-muted" style="font-size:0.72rem;">({{ $order->table->section }})</span>
                 @endif
+
+                @if($order->needs_user_confirmation)
+                    <span class="badge bg-label-warning ms-1 animate__animated animate__pulse animate__infinite">
+                        <i class="bx bx-error-circle me-1" style="font-size: 0.8rem;"></i>Needs Reconfirm
+                    </span>
+                @endif
             </div>
             <span class="text-muted" style="font-size:0.72rem;">
                 {{ $order->created_at->format('g:i A') }}
@@ -24,11 +30,14 @@
             {{-- Items Preview --}}
             <ul class="list-unstyled mb-2" style="max-height: 140px; overflow-y:auto;">
                 @foreach($order->items as $item)
-                    <li class="d-flex justify-content-between align-items-start py-1 border-bottom">
+                    <li class="d-flex justify-content-between align-items-start py-1 border-bottom {{ $item->is_cancelled ? 'opacity-50 text-decoration-line-through' : '' }}">
                         <div>
                             <span class="fw-semibold small">{{ $item->menuItem?->name ?? 'Deleted Item' }}</span>
                             @if($item->special_request)
                                 <div class="text-warning" style="font-size:0.72rem;">📝 {{ $item->special_request }}</div>
+                            @endif
+                            @if($item->is_cancelled && $item->cancellation_note)
+                                <div class="text-danger" style="font-size:0.7rem;">🚫 {{ $item->cancellation_note }}</div>
                             @endif
                         </div>
                         <div class="text-end ms-2 flex-shrink-0">
@@ -74,6 +83,28 @@
                 ]) }})">
                 <i class="bx bx-list-ul"></i>
             </button>
+
+            {{-- Reconfirm Action --}}
+            @if(!$order->needs_user_confirmation && $order->status === 'pending')
+                <button type="button" class="btn btn-sm btn-outline-warning flex-shrink-0"
+                    title="Request Reconfirmation"
+                    wire:click="requestUserConfirmation({{ $order->id }})"
+                    wire:loading.attr="disabled"
+                    wire:target="requestUserConfirmation({{ $order->id }})">
+                    <i class="bx bx-redo"></i>
+                </button>
+            @endif
+
+            {{-- Bulk Cancel Action: Allowed ONLY if pending --}}
+            @if($order->isPending())
+                <button type="button" class="btn btn-sm btn-outline-danger flex-shrink-0"
+                    title="Cancel Items"
+                    wire:click="openCancelItemsModal({{ $order->id }})"
+                    wire:loading.attr="disabled"
+                    wire:target="openCancelItemsModal({{ $order->id }})">
+                    <i class="bx bx-x-circle"></i>
+                </button>
+            @endif
 
             {{-- Primary Action --}}
             <button type="button"

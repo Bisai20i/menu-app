@@ -67,6 +67,7 @@ export const useCartStore = defineStore('cart', () => {
     const sessionUuid  = ref(null);
     const orderNote    = ref('');
     const deviceId     = ref(getOrCreateDeviceId());
+    const hasPendingReconfirmation = ref(false);
 
     const totalItems = computed(() =>
         items.value.reduce((sum, item) => sum + item.quantity, 0)
@@ -159,12 +160,17 @@ export const useCartStore = defineStore('cart', () => {
         return item ? item.quantity : 0;
     }
 
+    function setReconfirmationStatus(status) {
+        hasPendingReconfirmation.value = status;
+    }
+
     return {
         items, isCartOpen, restaurantId, tableUuid, tableNumber,
-        sessionUuid, orderNote, deviceId,
+        sessionUuid, orderNote, deviceId, hasPendingReconfirmation,
         totalItems, totalPrice,
         setTableInfo, rehydrateSession, setSessionUuid, clearSession,
         addItem, removeItem, deleteItem, clearCart,
         openCart, closeCart, toggleCart, getItemQuantity,
+        setReconfirmationStatus,
     };
 });

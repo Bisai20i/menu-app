@@ -87,7 +87,8 @@
 
         <!-- Order cards -->
         <div v-for="(order, index) in orders" :key="order.uuid"
-          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          class="bg-white rounded-2xl shadow-sm border overflow-hidden transition-all duration-300"
+          :class="order.needs_user_confirmation ? 'border-orange-400 ring-2 ring-orange-400 ring-opacity-20 shadow-lg scale-[1.01]' : 'border-gray-100 shadow-sm'">
           <!-- Order card header -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <div class="flex items-center gap-3">
@@ -111,13 +112,29 @@
                 {{ statusLabel(order.status) }}
               </span>
             </div>
-            <!-- Cancel Button -->
-            <button
-              v-if="canCancel(order)"
-              class="text-[10px] font-bold text-red-500 hover:text-red-600 bg-red-50 px-2 py-1 rounded-lg transition-colors border border-red-100"
-              @click="confirmCancelOrder(order.uuid)">
-              Cancel Order
-            </button>
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+              <!-- Reconfirm Button -->
+              <button
+                v-if="order.needs_user_confirmation"
+                class="text-[10px] font-bold text-white bg-orange-500 hover:bg-orange-600 px-2 py-1 rounded-lg transition-colors shadow-sm shadow-orange-200 animate-pulse"
+                @click="confirmReconfirmOrder(order.uuid)">
+                Confirm Order
+              </button>
+              <!-- Cancel Button -->
+              <button
+                v-if="canCancel(order)"
+                class="text-[10px] font-bold text-red-500 hover:text-red-600 bg-red-50 px-2 py-1 rounded-lg transition-colors border border-red-100"
+                @click="confirmCancelOrder(order.uuid)">
+                Cancel Order
+              </button>
+            </div>
+          </div>
+
+          <!-- Reconfirmation Alert -->
+          <div v-if="order.needs_user_confirmation" class="px-4 py-2 bg-orange-50 border-b border-orange-100 flex items-center gap-2">
+            <span class="text-sm">⚠️</span>
+            <p class="text-[11px] font-semibold text-orange-700">Please reconfirm your order details below.</p>
           </div>
 
           <!-- Status progress bar -->
@@ -137,19 +154,29 @@
 
           <!-- Order items -->
           <div class="divide-y divide-gray-50">
-            <div v-for="item in order.items" :key="item.id" class="flex items-center justify-between px-4 py-3 gap-3">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 text-lg">
-                  {{ getEmoji(item.menu_item) }}
+            <div v-for="item in order.items" :key="item.id" class="flex flex-col border-b border-gray-50 last:border-0">
+              <div class="flex items-center justify-between px-4 py-3 gap-3" :class="{ 'opacity-50': item.is_cancelled }">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 text-lg">
+                    {{ getEmoji(item.menu_item) }}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-800 line-clamp-1" :class="{ 'line-through': item.is_cancelled }">
+                      {{ item.menu_item?.name ?? '—' }}
+                    </p>
+                    <p class="text-xs text-gray-400">Rs. {{ fmt(item.unit_price) }} × {{ item.quantity }}</p>
+                  </div>
                 </div>
-                <div class="min-w-0">
-                  <p class="text-sm font-semibold text-gray-800 line-clamp-1">
-                    {{ item.menu_item?.name ?? '—' }}
-                  </p>
-                  <p class="text-xs text-gray-400">Rs. {{ fmt(item.unit_price) }} × {{ item.quantity }}</p>
+                <p class="text-sm font-bold text-gray-800 shrink-0" :class="{ 'line-through': item.is_cancelled }">
+                  Rs. {{ fmt(item.subtotal) }}
+                </p>
+              </div>
+              <!-- Cancellation Note -->
+              <div v-if="item.is_cancelled && item.cancellation_note" class="px-4 pb-2 -mt-1">
+                <div class="bg-red-50 text-red-600 text-[10px] py-1 px-2 rounded-md font-medium border border-red-100 italic">
+                  🚫 {{ item.cancellation_note }}
                 </div>
               </div>
-              <p class="text-sm font-bold text-gray-800 shrink-0">Rs. {{ fmt(item.subtotal) }}</p>
             </div>
           </div>
 
@@ -164,25 +191,24 @@
             </p>
           </div>
         </div>
-
       </div>
     </template>
 
-    <!-- Cancel Confirmation Modal -->
+    <!-- User Confirmation Modal -->
     <Transition name="fade">
-      <div v-if="showCancelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+      <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
           <div class="p-6 text-center">
-            <div class="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+            <div class="w-16 h-16 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mx-auto mb-4">
               <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Cancel Order?</h3>
-            <p class="text-sm text-gray-500 mb-6">Are you sure you want to cancel this order? This action cannot be undone.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Confirm Order</h3>
+            <p class="text-sm text-gray-500 mb-6">Please confirm that you have reviewed the changes to your order.</p>
             <div class="flex gap-3">
-              <button class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors" @click="closeCancelModal">Keep Order</button>
-              <button class="flex-1 px-4 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors shadow-sm shadow-red-200" @click="executeCancelOrder">Yes, Cancel</button>
+              <button class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors" @click="closeConfirmModal">Cancel</button>
+              <button class="flex-1 px-4 py-3 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors shadow-sm shadow-orange-200" @click="executeConfirmOrder">Yes, Confirm</button>
             </div>
           </div>
         </div>
@@ -289,6 +315,9 @@ const error = ref(null);
 const showCancelModal = ref(false);
 const orderToCancel = ref(null);
 
+const showConfirmModal = ref(false);
+const orderToConfirm = ref(null);
+
 const statusSteps = [
   { key: 'pending', label: 'Placed' },
   { key: 'confirmed', label: 'Confirmed' },
@@ -359,7 +388,13 @@ async function loadOrders(refresh = false) {
   } finally {
     isLoading.value = false;
     isRefreshing.value = false;
+    syncReconfirmationStatus();
   }
+}
+
+function syncReconfirmationStatus() {
+  const hasPending = orders.value.some(o => o.needs_user_confirmation);
+  cartStore.setReconfirmationStatus(hasPending);
 }
 
 function openPaymentQrModal() {
@@ -417,6 +452,7 @@ function handleOrderUpdate(updatedOrder) {
   const index = orders.value.findIndex(o => o.uuid === updatedOrder.uuid);
   if (index !== -1) {
     orders.value[index] = { ...orders.value[index], ...updatedOrder };
+    syncReconfirmationStatus();
   }
 }
 
@@ -444,6 +480,30 @@ async function executeCancelOrder() {
     loadOrders(true);
   } catch (err) {
     toast.error(err.message || 'Failed to cancel order');
+  }
+}
+
+function confirmReconfirmOrder(uuid) {
+  orderToConfirm.value = uuid;
+  showConfirmModal.value = true;
+}
+
+function closeConfirmModal() {
+  showConfirmModal.value = false;
+  orderToConfirm.value = null;
+}
+
+async function executeConfirmOrder() {
+  if (!orderToConfirm.value) return;
+  const uuid = orderToConfirm.value;
+  closeConfirmModal();
+  
+  try {
+    await menuApi.confirmOrder(uuid);
+    toast.success('Order confirmed successfully');
+    loadOrders(true);
+  } catch (err) {
+    toast.error(err.message || 'Failed to confirm order');
   }
 }
 

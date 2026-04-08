@@ -21,12 +21,14 @@ class Order extends Model
         'note',
         'confirmed_by',
         'served_by',
+        'needs_user_confirmation',
     ];
 
     protected $casts = [
-        'is_paid'      => 'boolean',
-        'paid_at'      => 'datetime',
-        'total_amount' => 'decimal:2',
+        'is_paid'                 => 'boolean',
+        'needs_user_confirmation' => 'boolean',
+        'paid_at'                 => 'datetime',
+        'total_amount'            => 'decimal:2',
     ];
 
     protected static function booted(): void

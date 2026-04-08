@@ -40,9 +40,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('master.tables.index') ? 'active text-primary' : 'text-secondary' }}"
-                       href="{{ route('master.tables.index') }}">
-                        Table List
+                    <a class="nav-link {{ request()->routeIs('master.order-history.index') ? 'active text-primary' : 'text-secondary' }} d-flex align-items-center"
+                       href="{{ route('master.order-history.index') }}">
+                        Order History
                     </a>
                 </li>
             </ul>
@@ -75,6 +75,12 @@
                   {{ request()->routeIs('master.tables.index') ? 'text-primary border-bottom border-2 border-primary' : 'text-secondary border-bottom border-2 border-transparent' }}">
             <i class="bx bx-table"></i>
             Table List
+        </a>
+        <a href="{{ route('master.order-history.index') }}"
+           class="d-flex align-items-center gap-1 px-3 py-2 small fw-medium text-decoration-none flex-shrink-0
+                  {{ request()->routeIs('master.order-history.index') ? 'text-primary border-bottom border-2 border-primary' : 'text-secondary border-bottom border-2 border-transparent' }}">
+            <i class="bx bx-history"></i>
+            History
         </a>
     </div>
 

@@ -13,7 +13,10 @@
     formatCurrency(amount) {
         return 'Rs. ' + parseFloat(amount).toFixed(2);
     }
-}" class="order-management-wrap">
+}" 
+x-on:open-cancel-modal.window="new bootstrap.Modal(document.getElementById('cancelItemsModal')).show()"
+x-on:close-cancel-modal.window="bootstrap.Modal.getInstance(document.getElementById('cancelItemsModal')).hide()"
+class="order-management-wrap">
 
     {{-- ── Page Header ──────────────────────────────────────────────────── --}}
     <div class="d-flex align-items-center justify-content-between flex-wrap-reverse gap-2 mb-3">
@@ -57,6 +60,16 @@
                     Paid
                     @if ($paidOrders->count())
                         <span class="badge bg-success rounded-pill">{{ $paidOrders->count() }}</span>
+                    @endif
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link d-flex align-items-center gap-2"
+                    :class="activeTab === 'cancelled' ? 'active' : ''" @click="activeTab = 'cancelled'">
+                    <i class="bx bx-x-circle"></i>
+                    Cancelled
+                    @if ($cancelled->count())
+                        <span class="badge bg-secondary rounded-pill">{{ $cancelled->count() }}</span>
                     @endif
                 </button>
             </li>
@@ -154,6 +167,7 @@
                 'label' => 'No paid orders yet',
             ])
         @else
+            {{-- ... existing table ... --}}
             <div class="card border-0 shadow-sm">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -233,6 +247,31 @@
         @endif
     </div>
 
+    {{-- Cancelled Orders --}}
+    <div x-show="activeTab === 'cancelled'" x-transition>
+        @if ($cancelled->isEmpty())
+            @include('livewire.admin.partials.empty-state', [
+                'icon' => 'bx-x-circle',
+                'label' => 'No cancelled orders',
+            ])
+        @else
+            <div class="row g-3">
+                @foreach ($cancelled as $order)
+                    @php
+                        $isUndoable = $order->created_at->diffInMinutes(now()) <= 30;
+                    @endphp
+                    @include('livewire.admin.partials.order-card', [
+                        'order' => $order,
+                        'action' => 'undo',
+                        'btnClass' => $isUndoable ? 'btn-outline-primary' : 'btn-outline-secondary disabled',
+                        'btnLabel' => $isUndoable ? 'Undo Cancellation' : 'Restore Expired',
+                        'wireAction' => $isUndoable ? "undoOrderCancellation({$order->id})" : '',
+                    ])
+                @endforeach
+            </div>
+        @endif
+    </div>
+
     {{-- ── Order Detail Modal (Alpine-driven, zero Livewire roundtrip) ──── --}}
     <div x-show="showDetail" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
@@ -291,17 +330,19 @@
                                 </thead>
                                 <tbody>
                                     <template x-for="item in orderDetail.items" :key="item.name + item.qty">
-                                        <tr>
                                             <td>
-                                                <div class="fw-semibold small" x-text="item.name"></div>
+                                                <div class="fw-semibold small" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''" x-text="item.name"></div>
                                                 <div class="text-muted" style="font-size:0.75rem;"
                                                     x-text="item.note ? '📝 ' + item.note : ''" x-show="item.note">
                                                 </div>
+                                                <div class="text-danger fw-bold" style="font-size:0.7rem;"
+                                                    x-text="item.cancellation_note ? '🚫 ' + item.cancellation_note : ''" x-show="item.is_cancelled && item.cancellation_note">
+                                                </div>
                                             </td>
-                                            <td class="text-center" x-text="item.qty"></td>
-                                            <td class="text-end small"
+                                            <td class="text-center" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''" x-text="item.qty"></td>
+                                            <td class="text-end small" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''"
                                                 x-text="'Rs. ' + parseFloat(item.price).toFixed(2)"></td>
-                                            <td class="text-end small fw-semibold"
+                                            <td class="text-end small fw-semibold" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''"
                                                 x-text="'Rs. ' + parseFloat(item.subtotal).toFixed(2)"></td>
                                         </tr>
                                     </template>
@@ -318,6 +359,61 @@
                     </div>
                 </div>
             </template>
+        </div>
+    </div>
+
+    {{-- ── Cancellation Modal ────────────────────────────────────────── --}}
+    <div wire:ignore.self class="modal fade" id="cancelItemsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold text-white">Cancel Order Items</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form wire:submit.prevent="submitCancelItems">
+                    <div class="modal-body">
+                        @if($cancelModalOrderId)
+                            @php $targetOrder = $pending->firstWhere('id', $cancelModalOrderId) ?? $confirmed->firstWhere('id', $cancelModalOrderId); @endphp
+                            
+                            @if($targetOrder)
+                                <p class="small text-muted mb-3">Select items to cancel from Order <strong>#{{ strtoupper(substr($targetOrder->uuid, 0, 8)) }}</strong></p>
+                                
+                                <div class="list-group mb-3 shadow-none border">
+                                    @foreach($targetOrder->items as $item)
+                                        <label class="list-group-item d-flex align-items-center gap-3 border-0 border-bottom {{ $item->is_cancelled ? 'bg-light opacity-50' : '' }}">
+                                            <input class="form-check-input flex-shrink-0" type="checkbox" 
+                                                   value="{{ $item->id }}" 
+                                                   wire:model="selectedOrderItemIds"
+                                                   @if($item->is_cancelled) disabled @endif>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-semibold {{ $item->is_cancelled ? 'text-decoration-line-through' : '' }}">{{ $item->menuItem?->name }}</div>
+                                                <div class="text-muted small">Qty: {{ $item->quantity }} • Rs. {{ number_format($item->subtotal, 2) }}</div>
+                                            </div>
+                                            @if($item->is_cancelled)
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            @endif
+                                        </label>
+                                    @endforeach
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="form-label fw-semibold">Cancellation Note (Shown to customer)</label>
+                                    <textarea class="form-control" wire:model="cancellationNote" rows="2" placeholder="e.g., This item is currently unavailable..."></textarea>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger px-4 fw-bold" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="submitCancelItems">Confirm Cancellation</span>
+                            <span wire:loading wire:target="submitCancelItems">
+                                <span class="spinner-border spinner-border-sm me-1"></span> Processing...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

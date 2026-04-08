@@ -66,6 +66,11 @@ export const menuApi = {
             method: 'POST',
         });
     },
+    confirmOrder(orderUuid) {
+        return request(`/orders/${orderUuid}/confirm`, {
+            method: 'POST',
+        });
+    },
 };
 
 export default menuApi;

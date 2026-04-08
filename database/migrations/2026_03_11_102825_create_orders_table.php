@@ -17,16 +17,16 @@ return new class extends Migration
             $table->uuid('uuid')->unique(); // Public-facing order reference
 
             $table->foreignId('table_session_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('restaurant_table_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('restaurant_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             // Order fulfilment status
             $table->enum('status', [
@@ -35,6 +35,8 @@ return new class extends Migration
                 'served',       // All items delivered to the table
                 'cancelled',    // Cancelled by customer or staff
             ])->default('pending');
+
+            $table->boolean('needs_user_confirmation')->default(false);
 
             // Payment is tracked independently from fulfilment
             $table->boolean('is_paid')->default(false);
@@ -48,14 +50,14 @@ return new class extends Migration
 
             // Which staff member confirmed/served (optional, for accountability)
             $table->foreignId('confirmed_by')
-                  ->nullable()
-                  ->constrained('admins')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('admins')
+                ->nullOnDelete();
 
             $table->foreignId('served_by')
-                  ->nullable()
-                  ->constrained('admins')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('admins')
+                ->nullOnDelete();
 
             $table->timestamps();
         });

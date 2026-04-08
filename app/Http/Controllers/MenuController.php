@@ -281,6 +281,17 @@ class MenuController extends Controller
                 );
             }
 
+            // [SECURITY CHK] If any order in this session needs user re-confirmation, block new ones.
+            $hasPendingReconfirmation = Order::where('table_session_id', $session->id)
+                ->where('needs_user_confirmation', true)
+                ->exists();
+
+            if ($hasPendingReconfirmation) {
+                return response()->json([
+                    'message' => 'Please resolve your pending order reconfirmation before placing new orders.',
+                ], 403);
+            }
+
             // Build order total from server-side prices (never trust client price)
             $totalAmount = collect($validated['items'])->sum(function ($item) use ($validItems) {
                 return $validItems[$item['menu_item_id']]->price * $item['quantity'];
@@ -363,8 +374,15 @@ class MenuController extends Controller
             ->orderByDesc('created_at')
             ->get([
                 'id', 'uuid', 'status', 'is_paid', 'paid_at',
-                'total_amount', 'note', 'created_at',
+                'total_amount', 'note', 'created_at', 'needs_user_confirmation',
             ]);
+
+        $orders->each(function ($order) {
+            $order->items->each(function ($item) {
+                // Ensure cancellation fields are loaded
+                $item->makeVisible(['is_cancelled', 'cancellation_note']);
+            });
+        });
 
         return response()->json([
             'payment_qr' => $session->restaurant?->payment_qr,
@@ -406,5 +424,35 @@ class MenuController extends Controller
         OrderStatusUpdated::dispatch($order);
 
         return response()->json(['message' => 'Order cancelled successfully.']);
+    }
+
+    /**
+     * Admin requests user to reconfirm the order.
+     */
+    public function adminRequestConfirmation(string $orderUuid): JsonResponse
+    {
+        $order = Order::where('uuid', $orderUuid)->firstOrFail();
+        
+        $order->update(['needs_user_confirmation' => true]);
+
+        // Notify client
+        \App\Events\OrderStatusUpdated::dispatch($order);
+
+        return response()->json(['message' => 'Confirmation requested from user.']);
+    }
+
+    /**
+     * User confirms the order.
+     */
+    public function userConfirmOrder(string $orderUuid): JsonResponse
+    {
+        $order = Order::where('uuid', $orderUuid)->firstOrFail();
+        
+        $order->update(['needs_user_confirmation' => false]);
+
+        // Notify staff
+        \App\Events\OrderStatusUpdated::dispatch($order);
+
+        return response()->json(['message' => 'Order confirmed successfully.']);
     }
 }

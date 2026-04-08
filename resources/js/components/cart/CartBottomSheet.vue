@@ -176,7 +176,13 @@
                         </div>
 
                         <div class="px-4 pt-3 pb-4 border-t border-gray-100 shrink-0">
-                            <button :disabled="isPlacingOrder"
+                            <!-- Pending Reconfirmation Warning -->
+                            <div v-if="cartStore.hasPendingReconfirmation" class="flex items-center gap-2 p-3 mb-3 bg-orange-50 rounded-xl border border-orange-100">
+                                <span class="text-lg">⚠️</span>
+                                <p class="text-[11px] font-semibold text-orange-700">Please review and confirm your previous order details in <strong class="cursor-pointer underline" @click="goToOrders">My Orders</strong> before placing a new one.</p>
+                            </div>
+
+                            <button :disabled="isPlacingOrder || cartStore.hasPendingReconfirmation"
                                 class="w-full bg-primary text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dark active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-primary-dark/20 text-base"
                                 @click="confirmOrder">
                                 <span v-if="isPlacingOrder"
