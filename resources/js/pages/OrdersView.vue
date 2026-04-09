@@ -405,7 +405,7 @@ async function loadOrders(refresh = false) {
 
     // Sync restaurant state for the review component and other UI needs
     if (data.restaurant) {
-      menuStore.restaurant = data.restaurant;
+      menuStore.setRestaurant(data.restaurant);
       cartStore.setTableInfo(
         data.restaurant.id,
         route.params.table_uuid,

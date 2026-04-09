@@ -27,8 +27,11 @@
             <header class="sticky top-0 z-40 bg-white border-b border-gray-100">
                 <div class="max-w-screen-xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-3">
                     <!-- Restaurant info -->
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div
+                    <div class="flex items-center gap-2.5 min-w-0 cursor-pointer hover:opacity-80 transition-opacity" @click="isInfoOpen = true">
+                        <div v-if="menuStore.restaurant.logo_url" class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm p-0.5 border border-gray-100">
+                            <img :src="menuStore.restaurant.logo_url" :alt="menuStore.restaurant.name" class="w-full h-full object-contain rounded-lg" />
+                        </div>
+                        <div v-else
                             class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shrink-0 shadow-sm">
                             <span class="text-base">🍽️</span>
                         </div>
@@ -279,6 +282,13 @@
 
         <!-- Toast notifications -->
         <ToastNotification />
+
+        <!-- Restaurant Info Off-Canvas -->
+        <RestaurantInfoOffCanvas 
+            :is-open="isInfoOpen" 
+            :restaurant="menuStore.restaurant" 
+            @close="isInfoOpen = false" 
+        />
     </div>
 </template>
 
@@ -297,6 +307,7 @@ import CartFab from '../components/cart/CartFab.vue';
 import CartBottomSheet from '../components/cart/CartBottomSheet.vue';
 import ToastNotification from '../components/ui/ToastNotification.vue';
 import BottomNav from '../components/ui/BottomNav.vue';
+import RestaurantInfoOffCanvas from '../components/ui/RestaurantInfoOffCanvas.vue';
 
 const route = useRoute();
 const menuStore = useMenuStore();
@@ -309,6 +320,7 @@ const searchInputRef = ref(null);
 const selectedItem = ref(null);
 const isCallingWaiter = ref(false);
 const tableNumber = ref(null);
+const isInfoOpen = ref(false);
 
 async function fetchMenu() {
     const { restaurant_slug, table_uuid } = route.params;

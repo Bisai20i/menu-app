@@ -151,7 +151,16 @@ class MenuController extends Controller
                 'name'               => $restaurant->name,
                 'description'        => $restaurant->description,
                 'logo'               => $restaurant->logo_path,
+                'logo_url'           => $restaurant->logo_url,
+                'address'            => $restaurant->address,
+                'phone'              => $restaurant->phone,
+                'email'              => $restaurant->email,
                 'google_review_link' => $restaurant->google_review_link,
+                'reviews'            => $restaurant->reviews()
+                    ->where('is_public', true)
+                    ->latest()
+                    ->take(20)
+                    ->get(['id', 'rating', 'comment', 'created_at']),
             ],
             'table'      => [
                 'id'                  => $table->id,

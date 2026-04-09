@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
@@ -30,6 +31,14 @@ class Restaurant extends Model
     public function admin(): HasOne
     {
         return $this->hasOne(Admin::class);
+    }
+
+    /**
+     * Relationship to Reviews
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 
     /**
@@ -142,5 +151,16 @@ class Restaurant extends Model
     {
         $settings = is_array($this->settings) ? $this->settings : [];
         return $settings['google_place_id'] ?? null;
+    }
+
+    /**
+     * Full URL for the restaurant logo.
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if ($this->logo_path) {
+            return asset('storage/' . $this->logo_path);
+        }
+        return null;
     }
 }

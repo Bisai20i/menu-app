@@ -44,13 +44,21 @@ export const useMenuStore = defineStore('menu', () => {
         })).filter(c => c.items.length > 0);
     });
 
+    function setRestaurant(data) {
+        if (!restaurant.value) {
+            restaurant.value = data;
+        } else {
+            restaurant.value = { ...restaurant.value, ...data };
+        }
+    }
+
     async function loadMenu(restaurantSlug, tableUuid, deviceId) {
         isLoading.value = true;
         error.value = null;
         try {
             const data = await menuApi.getMenu(restaurantSlug, tableUuid, deviceId);
             
-            restaurant.value = data.restaurant;
+            setRestaurant(data.restaurant);
             tableData.value = data.table
             // console.log('Table Data:', data.table)
             categories.value = data.categories || [];
@@ -77,6 +85,6 @@ export const useMenuStore = defineStore('menu', () => {
         restaurant, categories, featuredItems, allItems,
         isLoading, error, activeCategory, searchQuery,
         filteredItems, groupedByCategory,tableData,
-        loadMenu, setCategory, setSearch,
+        loadMenu, setCategory, setSearch, setRestaurant,
     };
 });
