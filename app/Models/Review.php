@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Traits\BelongsToRestaurant;
+use App\Traits\HasDynamicTable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-    use HasFactory, BelongsToRestaurant;
+    use HasFactory, BelongsToRestaurant, HasDynamicTable;
 
     protected $fillable = [
         'rating',
@@ -24,7 +25,7 @@ class Review extends Model
     /**
      * Columns to show in the DynamicDataTable
      */
-    public function getTableColumns()
+    public function getTableColumns(): array
     {
         return [
             'rating' => ['label' => 'Rating', 'type' => 'text', 'sortable' => true],
@@ -39,7 +40,7 @@ class Review extends Model
     /**
      * Filters for the DynamicDataTable
      */
-    public function getTableFilters()
+    public function getTableFilters(): array
     {
         return [
             'rating' => [
@@ -72,7 +73,7 @@ class Review extends Model
     /**
      * Badge styles for the DynamicDataTable
      */
-    public function getTableBadges()
+    public function getTableBadges(): array
     {
         return [
             'source' => [
@@ -89,7 +90,7 @@ class Review extends Model
     /**
      * Relations to eager load
      */
-    public function getTableRelations()
+    public function getTableRelations(): array
     {
         return [];
     }
