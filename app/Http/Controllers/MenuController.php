@@ -147,10 +147,11 @@ class MenuController extends Controller
 
         return response()->json([
             'restaurant' => [
-                'id'          => $restaurant->id,
-                'name'        => $restaurant->name,
-                'description' => $restaurant->description,
-                'logo'        => $restaurant->logo_path,
+                'id'                 => $restaurant->id,
+                'name'               => $restaurant->name,
+                'description'        => $restaurant->description,
+                'logo'               => $restaurant->logo_path,
+                'google_review_link' => $restaurant->google_review_link,
             ],
             'table'      => [
                 'id'                  => $table->id,
@@ -385,6 +386,12 @@ class MenuController extends Controller
         });
 
         return response()->json([
+            'restaurant' => [
+                'id'                 => $session->restaurant->id,
+                'name'               => $session->restaurant->name,
+                'logo'               => $session->restaurant->logo_path,
+                'google_review_link' => $session->restaurant->google_review_link,
+            ],
             'payment_qr' => $session->restaurant?->payment_qr,
             'session' => [
                 'uuid'        => $session->uuid,
@@ -454,5 +461,32 @@ class MenuController extends Controller
         \App\Events\OrderStatusUpdated::dispatch($order);
 
         return response()->json(['message' => 'Order confirmed successfully.']);
+    }
+
+    /**
+     * Store a customer review.
+     * POST /api/reviews
+     */
+    public function storeReview(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'restaurant_id'        => ['required', 'integer', 'exists:restaurants,id'],
+            'rating'               => ['required', 'integer', 'min:1', 'max:5'],
+            'comment'              => ['nullable', 'string', 'max:1000'],
+            'redirected_to_google' => ['required', 'boolean'],
+        ]);
+
+        \App\Models\Review::create([
+            'restaurant_id'        => $validated['restaurant_id'],
+            'rating'               => $validated['rating'],
+            'comment'              => $validated['comment'] ?? null,
+            'source'               => $validated['redirected_to_google'] ? 'google_redirect' : 'internal',
+            'redirected_to_google' => $validated['redirected_to_google'],
+            'ip_address'           => $request->ip(),
+            'user_agent'           => $request->userAgent(),
+            'is_public'            => false,
+        ]);
+
+        return response()->json(['message' => 'Review submitted successfully.']);
     }
 }

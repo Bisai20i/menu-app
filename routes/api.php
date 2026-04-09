@@ -26,6 +26,10 @@ Route::post('/orders/{order_uuid}/confirm', [MenuController::class, 'userConfirm
 
 Route::post('/orders/{order_uuid}/request-confirmation', [MenuController::class, 'adminRequestConfirmation'])
     ->name('api.orders.request-confirmation');
+
+Route::post('/reviews', [MenuController::class, 'storeReview'])
+    ->name('api.reviews.store');
+
 // Authenticated user route
 // Route::get('/user', function (Request $request) {
 //     return $request->user();

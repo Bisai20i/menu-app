@@ -61,6 +61,14 @@
             </a>
         </li>
 
+        <!-- Review Management -->
+        <li class="menu-item {{ request()->routeIs('master.reviews.*') ? 'active' : '' }}">
+            <a href="{{ route('master.reviews.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-star"></i>
+                <div data-i18n="Reviews">Reviews</div>
+            </a>
+        </li>
+
         @can('accessCreateRestaurantTable')
             <!-- Restaurant Tables -->
             <li class="menu-item {{ request()->routeIs('master.restaurant-tables.*') ? 'active' : '' }}">

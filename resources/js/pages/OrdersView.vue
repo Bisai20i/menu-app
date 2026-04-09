@@ -274,6 +274,12 @@
       </button>
     </div>
 
+    <!-- Give a Review Button -->
+    <FloatingReviewButton 
+      :show="shouldShowReviewButton" 
+      :offsetY="shouldShowPaymentQrButton ? 4 : 0" 
+    />
+
     <!-- Floating Cart FAB -->
     <CartFab />
 
@@ -292,6 +298,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart.js';
+import { useMenuStore } from '../stores/menu.js';
 import { useToast } from '../composables/useToast.js';
 import { menuApi } from '../services/api.js';
 import { useOrderUpdates } from '../composables/useOrderUpdates.js';
@@ -299,10 +306,12 @@ import BottomNav from '../components/ui/BottomNav.vue';
 import ToastNotification from '../components/ui/ToastNotification.vue';
 import CartFab from '../components/cart/CartFab.vue';
 import CartBottomSheet from '../components/cart/CartBottomSheet.vue';
+import FloatingReviewButton from '../components/ui/FloatingReviewButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 const cartStore = useCartStore();
+const menuStore = useMenuStore();
 const toast = useToast();
 
 const orders = ref([]);
@@ -365,6 +374,16 @@ const shouldShowPaymentQrButton = computed(() => {
   return orders.value.some(o => (o.status ?? 'pending') !== 'pending');
 });
 
+const shouldShowReviewButton = computed(() => {
+  if (!orders.value.length) return false;
+  
+  // Show only if at least one order is served AND has at least one uncancelled item
+  return orders.value.some(o => 
+    o.status === 'served' && 
+    o.items && o.items.some(i => !i.is_cancelled)
+  );
+});
+
 async function loadOrders(refresh = false) {
   if (!cartStore.sessionUuid) return;
 
@@ -382,7 +401,17 @@ async function loadOrders(refresh = false) {
     orders.value = (data.orders ?? []).sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
-      paymentQr.value = data.payment_qr ?? null;
+    paymentQr.value = data.payment_qr ?? null;
+
+    // Sync restaurant state for the review component and other UI needs
+    if (data.restaurant) {
+      menuStore.restaurant = data.restaurant;
+      cartStore.setTableInfo(
+        data.restaurant.id,
+        route.params.table_uuid,
+        cartStore.tableNumber
+      );
+    }
   } catch (err) {
     error.value = err.message;
   } finally {

@@ -71,6 +71,13 @@ export const menuApi = {
             method: 'POST',
         });
     },
+    // POST /api/reviews
+    submitReview(payload) {
+        return request(`/reviews`, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    },
 };
 
 export default menuApi;

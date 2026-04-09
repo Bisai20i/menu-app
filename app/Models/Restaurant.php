@@ -114,4 +114,33 @@ class Restaurant extends Model
 
         return null;
     }
+
+    /**
+     * Google Review Link stored inside the `settings` JSON column.
+     */
+    public function getGoogleReviewLinkAttribute(): ?string
+    {
+        $settings = is_array($this->settings) ? $this->settings : [];
+        $link = $settings['google_review_link'] ?? null;
+
+        if ($link && trim($link) !== '') {
+            return $link;
+        }
+
+        $placeId = $settings['google_place_id'] ?? null;
+        if ($placeId && trim($placeId) !== '') {
+            return "https://search.google.com/local/writereview?placeid=" . trim($placeId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Google Place ID stored inside the `settings` JSON column.
+     */
+    public function getGooglePlaceIdAttribute(): ?string
+    {
+        $settings = is_array($this->settings) ? $this->settings : [];
+        return $settings['google_place_id'] ?? null;
+    }
 }

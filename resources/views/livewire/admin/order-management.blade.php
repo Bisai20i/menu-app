@@ -1,14 +1,15 @@
 <div x-data="{
     activeTab: @entangle('activeTab'),
     orderDetail: null,
-    showDetail: false,
     openOrder(order) {
         this.orderDetail = order;
-        this.showDetail = true;
+        const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+        modal.show();
     },
     closeDetail() {
-        this.showDetail = false;
-        setTimeout(() => this.orderDetail = null, 300);
+        const modalEl = document.getElementById('orderDetailModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
     },
     formatCurrency(amount) {
         return 'Rs. ' + parseFloat(amount).toFixed(2);
@@ -77,16 +78,19 @@ class="order-management-wrap">
 
         <div class="d-flex gap-2 align-items-center">
             {{-- Table Filter --}}
-            <select wire:model.live="filterTableId" class="form-select form-select-sm" style="width:auto">
-                <option value="0">All Tables</option>
-                @foreach ($tables as $t)
-                    <option value="{{ $t->id }}">Table {{ $t->table_number }}
-                        @if ($t->section)
-                            ({{ $t->section }})
-                        @endif
-                    </option>
-                @endforeach
-            </select>
+            <div wire:loading.class="opacity-50" wire:target="filterTableId">
+                <select wire:model.live="filterTableId" class="form-select form-select-sm" style="width:auto">
+                    <option value="0">All Tables</option>
+                    @foreach ($tables as $t)
+                        <option value="{{ $t->id }}">Table {{ $t->table_number }}
+                            @if ($t->section)
+                                ({{ $t->section }})
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div wire:loading wire:target="filterTableId" class="spinner-border spinner-border-sm text-primary"></div>
         </div>
     </div>
 
@@ -167,7 +171,6 @@ class="order-management-wrap">
                 'label' => 'No paid orders yet',
             ])
         @else
-            {{-- ... existing table ... --}}
             <div class="card border-0 shadow-sm">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -272,150 +275,131 @@ class="order-management-wrap">
         @endif
     </div>
 
-    {{-- ── Order Detail Modal (Alpine-driven, zero Livewire roundtrip) ──── --}}
-    <div x-show="showDetail" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="modal-backdrop-custom"
-        @click.self="closeDetail()" style="display:none;">
-
-        <div x-show="showDetail" x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95" class="order-detail-modal card shadow-lg">
-
-            <template x-if="orderDetail">
-                <div>
-                    <div class="card-header d-flex align-items-center justify-content-between border-0 pb-2">
-                        <div>
-                            <h6 class="fw-bold mb-0">Order Details</h6>
-                            <span class="text-muted small"
-                                x-text="'#' + orderDetail.uuid?.substring(0, 8).toUpperCase()"></span>
-                        </div>
-                        <button type="button" class="btn-close" @click="closeDetail()"></button>
-                    </div>
-                    <div class="card-body pt-1">
-                        <div class="d-flex gap-3 mb-3 flex-wrap">
-                            <div class="info-pill">
-                                <i class="bx bx-table me-1"></i>
-                                <span>Table <strong x-text="orderDetail.table ?? 'N/A'"></strong></span>
-                            </div>
-                            <div class="info-pill">
-                                <i class="bx bx-time me-1"></i>
-                                <span x-text="orderDetail.created_at"></span>
-                            </div>
-                            <div class="info-pill">
-                                <i class="bx bx-tag me-1"></i>
-                                <span class="text-capitalize" x-text="orderDetail.status"></span>
-                            </div>
-                        </div>
-
-                        {{-- Note --}}
-                        <template x-if="orderDetail.note">
-                            <div class="alert alert-warning py-2 px-3 small mb-3">
-                                <i class="bx bx-note me-1"></i>
-                                <strong>Note:</strong> <span x-text="orderDetail.note"></span>
-                            </div>
-                        </template>
-
-                        {{-- Items Table --}}
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Item</th>
-                                        <th class="text-center">Qty</th>
-                                        <th class="text-end">Price</th>
-                                        <th class="text-end">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template x-for="item in orderDetail.items" :key="item.name + item.qty">
-                                            <td>
-                                                <div class="fw-semibold small" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''" x-text="item.name"></div>
-                                                <div class="text-muted" style="font-size:0.75rem;"
-                                                    x-text="item.note ? '📝 ' + item.note : ''" x-show="item.note">
-                                                </div>
-                                                <div class="text-danger fw-bold" style="font-size:0.7rem;"
-                                                    x-text="item.cancellation_note ? '🚫 ' + item.cancellation_note : ''" x-show="item.is_cancelled && item.cancellation_note">
-                                                </div>
-                                            </td>
-                                            <td class="text-center" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''" x-text="item.qty"></td>
-                                            <td class="text-end small" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''"
-                                                x-text="'Rs. ' + parseFloat(item.price).toFixed(2)"></td>
-                                            <td class="text-end small fw-semibold" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''"
-                                                x-text="'Rs. ' + parseFloat(item.subtotal).toFixed(2)"></td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                                <tfoot>
-                                    <tr class="table-light">
-                                        <td colspan="3" class="text-end fw-bold">Total</td>
-                                        <td class="text-end fw-bold text-primary"
-                                            x-text="'Rs. ' + parseFloat(orderDetail.total).toFixed(2)"></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+    {{-- ── Order Detail Modal ──── --}}
+    <x-modal id="orderDetailModal" title="Order Details" size="modal-lg">
+        <template x-if="orderDetail">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <span class="text-muted small" x-text="'#' + orderDetail.uuid?.substring(0, 8).toUpperCase()"></span>
                     </div>
                 </div>
-            </template>
-        </div>
-    </div>
+
+                <div class="d-flex gap-3 mb-3 flex-wrap">
+                    <div class="info-pill">
+                        <i class="bx bx-table me-1"></i>
+                        <span>Table <strong x-text="orderDetail.table ?? 'N/A'"></strong></span>
+                    </div>
+                    <div class="info-pill">
+                        <i class="bx bx-time me-1"></i>
+                        <span x-text="orderDetail.created_at"></span>
+                    </div>
+                    <div class="info-pill">
+                        <i class="bx bx-tag me-1"></i>
+                        <span class="text-capitalize" x-text="orderDetail.status"></span>
+                    </div>
+                </div>
+
+                {{-- Note --}}
+                <template x-if="orderDetail.note">
+                    <div class="alert alert-warning py-2 px-3 small mb-3">
+                        <i class="bx bx-note me-1"></i>
+                        <strong>Note:</strong> <span x-text="orderDetail.note"></span>
+                    </div>
+                </template>
+
+                {{-- Items Table --}}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Price</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in orderDetail.items" :key="item.name + item.qty">
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold small" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''" x-text="item.name"></div>
+                                        <div class="text-muted" style="font-size:0.75rem;"
+                                            x-text="item.note ? '📝 ' + item.note : ''" x-show="item.note">
+                                        </div>
+                                        <div class="text-danger fw-bold" style="font-size:0.7rem;"
+                                            x-text="item.cancellation_note ? '🚫 ' + item.cancellation_note : ''" x-show="item.is_cancelled && item.cancellation_note">
+                                        </div>
+                                    </td>
+                                    <td class="text-center" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''" x-text="item.qty"></td>
+                                    <td class="text-end small" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''"
+                                        x-text="'Rs. ' + parseFloat(item.price).toFixed(2)"></td>
+                                    <td class="text-end small fw-semibold" :class="item.is_cancelled ? 'text-decoration-line-through opacity-50' : ''"
+                                        x-text="'Rs. ' + parseFloat(item.subtotal).toFixed(2)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end fw-bold">Total</td>
+                                <td class="text-end fw-bold text-primary"
+                                    x-text="'Rs. ' + parseFloat(orderDetail.total).toFixed(2)"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </template>
+        <x-slot:footer>
+            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+        </x-slot:footer>
+    </x-modal>
 
     {{-- ── Cancellation Modal ────────────────────────────────────────── --}}
-    <div wire:ignore.self class="modal fade" id="cancelItemsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title fw-bold text-white">Cancel Order Items</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form wire:submit.prevent="submitCancelItems">
-                    <div class="modal-body">
-                        @if($cancelModalOrderId)
-                            @php $targetOrder = $pending->firstWhere('id', $cancelModalOrderId) ?? $confirmed->firstWhere('id', $cancelModalOrderId); @endphp
-                            
-                            @if($targetOrder)
-                                <p class="small text-muted mb-3">Select items to cancel from Order <strong>#{{ strtoupper(substr($targetOrder->uuid, 0, 8)) }}</strong></p>
-                                
-                                <div class="list-group mb-3 shadow-none border">
-                                    @foreach($targetOrder->items as $item)
-                                        <label class="list-group-item d-flex align-items-center gap-3 border-0 border-bottom {{ $item->is_cancelled ? 'bg-light opacity-50' : '' }}">
-                                            <input class="form-check-input flex-shrink-0" type="checkbox" 
-                                                   value="{{ $item->id }}" 
-                                                   wire:model="selectedOrderItemIds"
-                                                   @if($item->is_cancelled) disabled @endif>
-                                            <div class="flex-grow-1">
-                                                <div class="fw-semibold {{ $item->is_cancelled ? 'text-decoration-line-through' : '' }}">{{ $item->menuItem?->name }}</div>
-                                                <div class="text-muted small">Qty: {{ $item->quantity }} • Rs. {{ number_format($item->subtotal, 2) }}</div>
-                                            </div>
-                                            @if($item->is_cancelled)
-                                                <span class="badge bg-secondary">Cancelled</span>
-                                            @endif
-                                        </label>
-                                    @endforeach
+    <x-modal id="cancelItemsModal" title="Cancel Order Items" centered="true">
+        <form wire:submit.prevent="submitCancelItems">
+            @if($cancelModalOrderId)
+                @php $targetOrder = $pending->firstWhere('id', $cancelModalOrderId) ?? $confirmed->firstWhere('id', $cancelModalOrderId); @endphp
+                
+                @if($targetOrder)
+                    <p class="small text-muted mb-3">Select items to cancel from Order <strong>#{{ strtoupper(substr($targetOrder->uuid, 0, 8)) }}</strong></p>
+                    
+                    <div class="list-group mb-3 shadow-none border">
+                        @foreach($targetOrder->items as $item)
+                            <label class="list-group-item d-flex align-items-center gap-3 border-0 border-bottom {{ $item->is_cancelled ? 'bg-light opacity-50' : '' }}">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" 
+                                        value="{{ $item->id }}" 
+                                        wire:model="selectedOrderItemIds"
+                                        @if($item->is_cancelled) disabled @endif>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold {{ $item->is_cancelled ? 'text-decoration-line-through' : '' }}">{{ $item->menuItem?->name }}</div>
+                                    <div class="text-muted small">Qty: {{ $item->quantity }} • Rs. {{ number_format($item->subtotal, 2) }}</div>
                                 </div>
+                                @if($item->is_cancelled)
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                @endif
+                            </label>
+                        @endforeach
+                    </div>
 
-                                <div class="mb-0">
-                                    <label class="form-label fw-semibold">Cancellation Note (Shown to customer)</label>
-                                    <textarea class="form-control" wire:model="cancellationNote" rows="2" placeholder="e.g., This item is currently unavailable..."></textarea>
-                                </div>
-                            @endif
-                        @endif
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold">Cancellation Note (Shown to customer)</label>
+                        <textarea class="form-control" wire:model="cancellationNote" rows="2" placeholder="e.g., This item is currently unavailable..."></textarea>
                     </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger px-4 fw-bold" wire:loading.attr="disabled">
-                            <span wire:loading.remove wire:target="submitCancelItems">Confirm Cancellation</span>
-                            <span wire:loading wire:target="submitCancelItems">
-                                <span class="spinner-border spinner-border-sm me-1"></span> Processing...
-                            </span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                @endif
+            @endif
+
+            <x-slot:footer>
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-danger px-4 fw-bold rounded-pill" wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="submitCancelItems">Confirm Cancellation</span>
+                    <span wire:loading wire:target="submitCancelItems">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Processing...
+                    </span>
+                </button>
+            </x-slot:footer>
+        </form>
+    </x-modal>
 
 </div>
 
@@ -423,25 +407,6 @@ class="order-management-wrap">
     <style>
         .order-management-wrap {
             position: relative;
-        }
-
-        .modal-backdrop-custom {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: 2028;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .order-detail-modal {
-            width: 100%;
-            max-width: 560px;
-            max-height: 85vh;
-            overflow-y: auto;
-            border-radius: 0.75rem;
         }
 
         .info-pill {

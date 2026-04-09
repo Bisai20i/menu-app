@@ -1,12 +1,12 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use App\Models\Restaurant;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use App\Helpers\FileHelper;
 
 class AdminManagementController extends Controller
@@ -60,18 +60,19 @@ class AdminManagementController extends Controller
             'email'           => 'required|email|unique:admins,email,' . $admin->id,
             'password'        => 'nullable|min:8|confirmed',
             'image'           => 'nullable|image|max:2048',
-            
+
             'restaurant_name' => 'required|string|max:255',
-            'restaurant_email'=> 'nullable|email|max:255',
-            'restaurant_phone'=> 'nullable|string|max:20',
-            'restaurant_address'=> 'nullable|string|max:500',
-            'restaurant_description'=> 'nullable|string|max:1000',
+            'restaurant_email' => 'nullable|email|max:255',
+            'restaurant_phone' => 'nullable|string|max:20',
+            'restaurant_address' => 'nullable|string|max:500',
+            'restaurant_description' => 'nullable|string|max:1000',
             'restaurant_logo' => 'nullable|image|max:2048',
-            
+
             'currency'        => 'required|string|max:10',
-            'tax_percentage'  => 'required|numeric|min:0|max:100',
+            'google_review_link' => 'nullable|url|max:500',
+            'google_place_id'    => 'nullable|string|max:100',
             'primary_color'   => 'required|string|max:7',
-            'payment_qr_image'=> 'nullable|image|max:2048',
+            'payment_qr_image' => 'nullable|image|max:2048',
             'payment_qr'      => 'nullable|string|max:200000',
             'restaurant_wifi_qr_image' => 'nullable|image|max:2048',
             'restaurant_wifi_qr'       => 'nullable|string|max:200000',
@@ -98,7 +99,7 @@ class AdminManagementController extends Controller
 
             // Restaurant Data
             $existingSettings = is_array($restaurant?->settings) ? $restaurant->settings : [];
-            
+
             // Handle Payment QR
             $paymentQrSetting = $existingSettings['payment_qr'] ?? null;
             if ($request->hasFile('payment_qr_image')) {
@@ -125,7 +126,8 @@ class AdminManagementController extends Controller
                 'description' => $request->restaurant_description,
                 'settings'    => array_merge($existingSettings, [
                     'currency'           => $request->currency,
-                    'tax_percentage'     => (float) $request->tax_percentage,
+                    'google_review_link' => $request->google_review_link,
+                    'google_place_id'    => $request->google_place_id,
                     'primary_color'      => $request->primary_color,
                     'payment_qr'         => $paymentQrSetting,
                     'restaurant_wifi_qr' => $wifiQrSetting,

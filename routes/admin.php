@@ -11,6 +11,7 @@ use App\Http\Controllers\MenuImageController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\OrderHistoryController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RestaurantTableController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\TableViewController;
@@ -48,6 +49,9 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
 
         // Restaurant Tables
         Route::resource('restaurant-tables', RestaurantTableController::class);
+
+        // Review Management
+        Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
         // Table QR Generator
         Route::get('table-qr', function () {
