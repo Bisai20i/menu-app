@@ -9,7 +9,7 @@ class SubscriptionPlan extends Model
 {
     use HasDynamicTable;
 
-    protected static function booted()
+    protected static function boot()
     {
         parent::boot();
         static::creating(function ($model) {

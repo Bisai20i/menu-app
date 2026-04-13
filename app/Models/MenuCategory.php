@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Traits\BelongsToRestaurant;
@@ -13,11 +12,13 @@ class MenuCategory extends Model
     use HasDynamicTable;
     use BelongsToRestaurant;
 
-    protected static function booted(){
+    protected static function boot()
+    {
         parent::boot();
+
         static::creating(function ($category) {
             $slug = Str::slug($category->name);
-            $count = self::where('slug', 'LIKE', "$slug%")->count();
+            $count          = self::where('slug', 'LIKE', "$slug%")->count();
             $category->slug = $count ? "$slug-$count" : $slug;
         });
     }
@@ -27,12 +28,12 @@ class MenuCategory extends Model
     public function getTableColumns(): array
     {
         return [
-            'image'       => ['label' => 'Image', 'sortable' => false, 'type' => 'image'],
-            'name'        => ['label' => 'Name', 'sortable' => true, 'type' => 'text'],
-            'slug'        => ['label' => 'Slug', 'sortable' => true, 'type' => 'text'],
-            'sort_order'  => ['label' => 'Order', 'sortable' => true, 'type' => 'text'],
-            'is_active'   => ['label' => 'Status', 'sortable' => true, 'type' => 'toggleable'],
-            'created_at'  => ['label' => 'Created', 'sortable' => true, 'type' => 'date'],
+            'image'      => ['label' => 'Image', 'sortable' => false, 'type' => 'image'],
+            'name'       => ['label' => 'Name', 'sortable' => true, 'type' => 'text'],
+            'slug'       => ['label' => 'Slug', 'sortable' => true, 'type' => 'text'],
+            'sort_order' => ['label' => 'Order', 'sortable' => true, 'type' => 'text'],
+            'is_active'  => ['label' => 'Status', 'sortable' => true, 'type' => 'toggleable'],
+            'created_at' => ['label' => 'Created', 'sortable' => true, 'type' => 'date'],
         ];
     }
 

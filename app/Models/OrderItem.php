@@ -26,7 +26,7 @@ class OrderItem extends Model
         'is_cancelled' => 'boolean',
     ];
 
-    protected static function booted(): void
+    protected static function boot(): void
     {
         parent::boot();
         // Auto-compute subtotal before saving

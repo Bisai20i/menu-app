@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use ReflectionClass;
 
@@ -67,6 +68,7 @@ abstract class BaseCrudController extends Controller
     public function edit($id)
     {
         $item = $this->model::findOrFail($id);
+        $this->authorizeOwnership($item);
 
         return view($this->formPath . '.form', [
             'item'        => $item,
@@ -82,6 +84,7 @@ abstract class BaseCrudController extends Controller
     public function update(Request $request, $id)
     {
         $item      = $this->model::findOrFail($id);
+        $this->authorizeOwnership($item);
         $validated = $request->validate($this->rules($id));
 
         $data = $this->handleFileUploads($request, $validated, $item);
@@ -96,6 +99,7 @@ abstract class BaseCrudController extends Controller
     public function destroy($id)
     {
         $item = $this->model::findOrFail($id);
+        $this->authorizeOwnership($item);
 
         // Clean up images defined in fields
         foreach ($this->fields() as $name => $meta) {
@@ -108,6 +112,22 @@ abstract class BaseCrudController extends Controller
 
         return redirect()->route($this->routePrefix . '.index')
             ->with('success', 'Record deleted successfully.');
+    }
+
+    /**
+     * Abort with 403 if the record does not belong to the current admin's restaurant.
+     * This is defense-in-depth: the global scope already prevents fetching foreign records,
+     * but this explicit check blocks any path that bypasses Eloquent scopes.
+     */
+    protected function authorizeOwnership(mixed $item): void
+    {
+        if (
+            Auth::guard('admin')->check()
+            && property_exists($item, 'restaurant_id')
+            && Auth::guard('admin')->user()->restaurant_id !== $item->restaurant_id
+        ) {
+            abort(403, 'You do not have permission to access this resource.');
+        }
     }
 
     /**

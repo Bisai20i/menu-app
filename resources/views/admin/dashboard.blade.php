@@ -25,7 +25,7 @@
                             $daysRemaining = $activeSub->grace_period - $daysPast;
                         } else {
                             $daysRemaining = floor(now()->diffInSeconds($activeSub->expires_at) / 86400); 
-                            if ($daysRemaining <= 30) {
+                            if ($daysRemaining <= 15) {
                                 $isExpiringSoon = true;
                             }
                         }
@@ -44,6 +44,19 @@
                         <i class="bx bx-time-five fs-3 me-3"></i>
                         <div>
                             <strong>Expiring Soon!</strong> Your subscription will expire in <strong>{{ $daysRemaining }} days</strong>. Please <a href="{{ route('master.billing') }}" class="alert-link">renew soon</a> to avoid interruption.
+                        </div>
+                    </div>
+                @endif
+
+                @if(!$adminUser->restaurant_id)
+                    <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4" role="alert">
+                        <i class="bx bx-store-alt fs-3 me-3"></i>
+                        <div>
+                            <strong>Restaurant Profile Missing!</strong> You haven't created a restaurant profile yet. You need to create one to manage menus, tables, and orders.
+                            <br>
+                            <a href="{{ route('master.profile') }}" class="btn btn-sm btn-danger mt-2 shadow-sm">
+                                <i class="bx bx-plus-circle me-1"></i> Create Restaurant Profile
+                            </a>
                         </div>
                     </div>
                 @endif
@@ -225,7 +238,7 @@
                             @endif
                             <hr class="my-3">
                             <div class="d-grid">
-                                <a href="{{ route('master.billing') }}" class="btn btn-outline-primary btn-sm">Manage Billing</a>
+                                <a href="{{ route('master.billing') }}" class="btn btn-outline-primary">Manage Billing</a>
                             </div>
                         </div>
                     </div>

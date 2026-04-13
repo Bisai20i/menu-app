@@ -29,8 +29,9 @@ class TableSession extends Model
         'closed_at'   => 'datetime',
     ];
 
-    protected static function booted(): void
+    protected static function boot(): void
     {
+        parent::boot();
         static::creating(function (TableSession $session) {
             $session->uuid       = (string) Str::uuid();
             $session->opened_at  = now();

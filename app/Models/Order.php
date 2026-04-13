@@ -31,8 +31,9 @@ class Order extends Model
         'total_amount'            => 'decimal:2',
     ];
 
-    protected static function booted(): void
+    protected static function boot(): void
     {
+        parent::boot();
         static::creating(function (Order $order) {
             $order->uuid = (string) Str::uuid();
         });

@@ -26,66 +26,68 @@
             </a>
         </li>
 
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Menu Management</span>
-        </li>
-        <!-- Order Management -->
-        {{-- <li class="menu-item {{ request()->routeIs('master.orders.*') ? 'active' : '' }}">
-            <a href="{{ route('master.orders.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-receipt"></i>
-                <div data-i18n="Orders">Orders</div>
-            </a>
-        </li> --}}
-        @can('accessCreateMenu')
-            <!-- Menu Categories -->
-            <li class="menu-item {{ request()->is('*master/menu-categories*') ? 'active' : '' }}">
-                <a href="{{ route('master.menu-categories.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-category"></i>
-                    <div data-i18n="Menu Categories">Categories</div>
+        @if (auth('admin')->user()->restaurant_id)
+            <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">Menu Management</span>
+            </li>
+            <!-- Order Management -->
+            {{-- <li class="menu-item {{ request()->routeIs('master.orders.*') ? 'active' : '' }}">
+                <a href="{{ route('master.orders.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-receipt"></i>
+                    <div data-i18n="Orders">Orders</div>
+                </a>
+            </li> --}}
+            @can('accessCreateMenu')
+                <!-- Menu Categories -->
+                <li class="menu-item {{ request()->is('*master/menu-categories*') ? 'active' : '' }}">
+                    <a href="{{ route('master.menu-categories.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-category"></i>
+                        <div data-i18n="Menu Categories">Categories</div>
+                    </a>
+                </li>
+
+                <!-- Menu Items -->
+                <li class="menu-item {{ request()->is('*master/menu-items*') ? 'active' : '' }}">
+                    <a href="{{ route('master.menu-items.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-food-menu"></i>
+                        <div data-i18n="Menu Items">Menu Items</div>
+                    </a>
+                </li>
+            @endcan
+            <!-- Menu Gallery -->
+            <li class="menu-item {{ request()->routeIs('master.menu-gallery.*') ? 'active' : '' }}">
+                <a href="{{ route('master.menu-gallery.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-image"></i>
+                    <div data-i18n="Gallery">Gallery</div>
                 </a>
             </li>
 
-            <!-- Menu Items -->
-            <li class="menu-item {{ request()->is('*master/menu-items*') ? 'active' : '' }}">
-                <a href="{{ route('master.menu-items.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-food-menu"></i>
-                    <div data-i18n="Menu Items">Menu Items</div>
-                </a>
-            </li>
-        @endcan
-        <!-- Menu Gallery -->
-        <li class="menu-item {{ request()->routeIs('master.menu-gallery.*') ? 'active' : '' }}">
-            <a href="{{ route('master.menu-gallery.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-image"></i>
-                <div data-i18n="Gallery">Gallery</div>
-            </a>
-        </li>
-
-        <!-- Review Management -->
-        <li class="menu-item {{ request()->routeIs('master.reviews.*') ? 'active' : '' }}">
-            <a href="{{ route('master.reviews.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-star"></i>
-                <div data-i18n="Reviews">Reviews</div>
-            </a>
-        </li>
-
-        @can('accessCreateRestaurantTable')
-            <!-- Restaurant Tables -->
-            <li class="menu-item {{ request()->routeIs('master.restaurant-tables.*') ? 'active' : '' }}">
-                <a href="{{ route('master.restaurant-tables.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-table"></i>
-                    <div data-i18n="Tables">Restaurant Tables</div>
+            <!-- Review Management -->
+            <li class="menu-item {{ request()->routeIs('master.reviews.*') ? 'active' : '' }}">
+                <a href="{{ route('master.reviews.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-star"></i>
+                    <div data-i18n="Reviews">Reviews</div>
                 </a>
             </li>
 
-            <!-- Table QR Codes -->
-            <li class="menu-item {{ request()->routeIs('master.table-qr') ? 'active' : '' }}">
-                <a href="{{ route('master.table-qr') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-qr"></i>
-                    <div data-i18n="QR Codes">Table QR Codes</div>
-                </a>
-            </li>
-        @endcan
+            @can('accessCreateRestaurantTable')
+                <!-- Restaurant Tables -->
+                <li class="menu-item {{ request()->routeIs('master.restaurant-tables.*') ? 'active' : '' }}">
+                    <a href="{{ route('master.restaurant-tables.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-table"></i>
+                        <div data-i18n="Tables">Restaurant Tables</div>
+                    </a>
+                </li>
+
+                <!-- Table QR Codes -->
+                <li class="menu-item {{ request()->routeIs('master.table-qr') ? 'active' : '' }}">
+                    <a href="{{ route('master.table-qr') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-qr"></i>
+                        <div data-i18n="QR Codes">Table QR Codes</div>
+                    </a>
+                </li>
+            @endcan
+        @endif
 
         @if ($is_super_admin)
             <li class="menu-header small text-uppercase">

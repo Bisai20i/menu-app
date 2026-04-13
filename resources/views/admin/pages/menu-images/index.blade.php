@@ -15,6 +15,24 @@
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bx bx-error-circle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li><i class="bx bx-error-circle me-1"></i> {{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Professional Upload Section -->
     <div class="card mb-5 border-0 shadow-sm overflow-hidden">
         <div class="card-body p-0">
@@ -316,9 +334,19 @@
 
     function handleFiles(files) {
         previewGrid.innerHTML = '';
+        const dt = new DataTransfer();
+        let rejectedFiles = [];
+
         if (files.length > 0) {
-            clearBtn.classList.remove('d-none');
             Array.from(files).forEach(file => {
+                // Check file size (5MB = 5 * 1024 * 1024 bytes)
+                if (file.size > 5 * 1024 * 1024) {
+                    rejectedFiles.push(file.name);
+                    return; // Skip this file
+                }
+
+                dt.items.add(file); // Add to our valid list
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const div = document.createElement('div');
@@ -338,6 +366,19 @@
                 }
                 reader.readAsDataURL(file);
             });
+
+            // Update file input with only valid files
+            fileInput.files = dt.files;
+
+            if (rejectedFiles.length > 0) {
+                alert(`The following files were rejected because they exceed 5MB:\n\n${rejectedFiles.join('\n')}`);
+            }
+
+            if (fileInput.files.length > 0) {
+                clearBtn.classList.remove('d-none');
+            } else if (previewGrid.innerHTML === '') {
+                previewGrid.appendChild(emptyPreview);
+            }
         } else {
             resetUpload();
         }

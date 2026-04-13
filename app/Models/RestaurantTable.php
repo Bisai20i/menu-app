@@ -30,7 +30,7 @@ class RestaurantTable extends Model
         'capacity' => 'integer',
     ];
 
-    protected static function booted()
+    protected static function boot()
     {
         parent::boot();
         static::creating(function ($table) {
