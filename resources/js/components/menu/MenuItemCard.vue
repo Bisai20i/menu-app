@@ -4,7 +4,7 @@
         <!-- Image -->
         <div
             class="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-primary-light flex items-center justify-center">
-            <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover" />
+            <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
             <span v-else class="text-3xl">{{ getEmoji(item) }}</span>
         </div>
 

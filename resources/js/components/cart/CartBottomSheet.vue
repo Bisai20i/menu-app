@@ -48,7 +48,7 @@
                                 class="flex items-center gap-3 bg-gray-50 rounded-2xl p-3">
                                 <div
                                     class="w-14 h-14 rounded-xl overflow-hidden bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                    <img v-if="item.image" :src="item.image" :alt="item.name"
+                                    <img v-if="item.image_url" :src="item.image_url" :alt="item.name"
                                         class="w-full h-full object-cover" />
                                     <span v-else class="text-2xl">{{ getEmoji(item) }}</span>
                                 </div>

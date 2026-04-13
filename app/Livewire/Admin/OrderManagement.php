@@ -38,9 +38,7 @@ class OrderManagement extends Component
         if (!$admin) return [];
 
         return [
-            // Listen for new orders (broadcasted via notification)
-            "echo-private:App.Models.Admin.{$admin->id},Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => '$refresh',
-            // Listen for status updates across the restaurant
+            // Listen for all order changes for the current restaurant, including brand-new orders.
             "echo-private:restaurant.{$admin->restaurant_id},OrderStatusUpdated" => '$refresh',
         ];
     }

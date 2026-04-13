@@ -14,7 +14,7 @@
                     class="snap-start shrink-0 grow-1 min-w-52 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer active:scale-95 transition-transform"
                     @click="$emit('view-item', item)">
                     <div class="relative h-32 bg-gradient-to-br from-primary-light/50 to-primary-light/30">
-                        <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover" />
+                        <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center text-4xl">
                             {{ getEmoji(item) }}
                         </div>

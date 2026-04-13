@@ -203,7 +203,7 @@
                 @click.self="selectedItem = null">
                 <div class="bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl overflow-hidden shadow-2xl">
                     <div class="relative h-56 bg-gradient-to-br from-primary-light to-yellow-50">
-                        <img v-if="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name"
+                        <img v-if="selectedItem.image_url" :src="selectedItem.image_url" :alt="selectedItem.name"
                             class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center text-7xl">
                             {{ getEmoji(selectedItem) }}

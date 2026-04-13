@@ -157,8 +157,9 @@
             <div v-for="item in order.items" :key="item.id" class="flex flex-col border-b border-gray-50 last:border-0">
               <div class="flex items-center justify-between px-4 py-3 gap-3" :class="{ 'opacity-50': item.is_cancelled }">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 text-lg">
-                    {{ getEmoji(item.menu_item) }}
+                  <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 text-lg overflow-hidden">
+                    <img v-if="item.menu_item?.image_url" :src="item.menu_item.image_url" :alt="item.menu_item.name" class="w-full h-full object-cover" />
+                    <span v-else>{{ getEmoji(item.menu_item) }}</span>
                   </div>
                   <div class="min-w-0">
                     <p class="text-sm font-semibold text-gray-800 line-clamp-1" :class="{ 'line-through': item.is_cancelled }">

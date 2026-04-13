@@ -9,7 +9,7 @@ require __DIR__ . '/admin.php';
 
 
 Route::get('/', [WebController::class , 'index']);
-Route::get('/contact', [WebController::class, 'index'])->name('contact'); // Assuming this exists or is needed
+Route::get('/contact', [WebController::class, 'index'])->name('contact');
 Route::post('/contact', [WebController::class, 'storeContact'])->name('contact.store');
 
 Route::get('/articles', [WebController::class, 'articles'])->name('articles.index');

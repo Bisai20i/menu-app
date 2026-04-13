@@ -55,6 +55,7 @@
         }
     </style>
     @livewireStyles
+    @vite(['resources/js/admin.js'])
 
     @stack('styles')
 

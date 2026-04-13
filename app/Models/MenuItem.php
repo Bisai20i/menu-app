@@ -29,6 +29,8 @@ class MenuItem extends Model
         ];
     }
 
+    protected $appends = [ 'image_url'];
+
     public function getTableRelations(): array
     {
         return ['category'];
@@ -44,5 +46,13 @@ class MenuItem extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(MenuCategory::class, 'menu_category_id');
+    }
+
+    /**
+     * get image url attribute
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/'.$this->image) : null;
     }
 }

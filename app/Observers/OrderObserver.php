@@ -2,10 +2,12 @@
 
 namespace App\Observers;
 
+use App\Events\OrderStatusUpdated;
 use App\Models\Admin;
 use App\Models\DailyRestaurantStat;
 use App\Models\Order;
 use App\Notifications\NewOrderNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 
@@ -18,12 +20,23 @@ class OrderObserver
      */
     public function created(Order $order): void
     {
-        // Notify all restaurant admins about the new order
-        $admins = Admin::where('restaurant_id', $order->restaurant_id)->get();
+        DB::afterCommit(function () use ($order): void {
+            $freshOrder = Order::with(['items.menuItem', 'table', 'session'])->find($order->id);
 
-        if ($admins->isNotEmpty()) {
-            Notification::send($admins, new NewOrderNotification($order));
-        }
+            if (! $freshOrder) {
+                return;
+            }
+
+            // Notify all restaurant admins after the order transaction is fully committed.
+            $admins = Admin::where('restaurant_id', $freshOrder->restaurant_id)->get();
+
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new NewOrderNotification($freshOrder));
+            }
+
+            // Broadcast the new pending order to the restaurant dashboard once it is queryable.
+            OrderStatusUpdated::dispatch($freshOrder);
+        });
 
         // Track total orders for today
         DailyRestaurantStat::updateOrCreate(
