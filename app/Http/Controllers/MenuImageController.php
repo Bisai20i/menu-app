@@ -26,6 +26,9 @@ class MenuImageController extends Controller
         $request->validate([
             'files.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
             'external_url' => 'nullable|url'
+        ], [
+            'files.*.max' => 'Each image or PDF must be less than 5 MB.',
+            'files.*.mimes' => 'Only JPEG, PNG, JPG, GIF, and PDF files are allowed.'
         ]);
 
         $adminId = Auth::guard('admin')->id();

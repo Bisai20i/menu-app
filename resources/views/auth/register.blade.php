@@ -121,14 +121,14 @@
                 <p class="text-muted mb-4">Enter your email and password to sign up!</p>
 
                 <!-- Google Sign In -->
-                <button class="btn btn-google w-100 rounded-4 mb-4 d-flex align-items-center justify-content-center">
+                {{-- <button class="btn btn-google w-100 rounded-4 mb-4 d-flex align-items-center justify-content-center">
                     <i class="bi bi-google me-2"></i>
                     <span style="font-size: 0.9rem;">Sign in with Google</span>
                 </button>
 
                 <div class="divider d-flex align-items-center mb-4 text-muted">
                     <span class="mx-3 small text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">or</span>
-                </div>
+                </div> --}}
 
                 <form method="POST" action="{{ route('master.register.submit') }}">
                     @csrf
@@ -201,19 +201,7 @@
         </div>
 
         <!-- Right Side: Decorative Image (Hidden on smaller screens) -->
-        <div class="col-lg-7 d-none d-lg-block image-side">
-            <!-- Central Logo Badge -->
-            <div class="logo-badge">
-                <div class="text-center">
-                    <!-- Custom Flame/Fork Icon Representation -->
-                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 55px; height: 55px;">
-                         <i class="bi bi-fire text-danger fs-3"></i>
-                    </div>
-                    <h3 class="fw-bold mb-0" style="letter-spacing: 1px;">MENU</h3>
-                    <p class="mb-0 fw-bold" style="font-size: 8px; letter-spacing: 2px;">HANOVER AND TYKE</p>
-                </div>
-            </div>
-        </div>
+        @include('auth.right-side')
 
     </div>
 </div>

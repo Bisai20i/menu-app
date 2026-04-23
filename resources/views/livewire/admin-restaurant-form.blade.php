@@ -54,10 +54,16 @@
                                 @error('currency') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Tax Percentage (%)</label>
-                                <input type="number" step="0.01" wire:model="tax_percentage" class="form-control @error('tax_percentage') is-invalid @enderror" placeholder="13.0">
-                                @error('tax_percentage') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label class="form-label">Google Place ID</label>
+                                <input type="text" wire:model="google_place_id" class="form-control @error('google_place_id') is-invalid @enderror" placeholder="ChIJa1p3...');">
+                                @error('google_place_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Google Review Link</label>
+                            <input type="url" wire:model="google_review_link" class="form-control @error('google_review_link') is-invalid @enderror" placeholder="https://search.google.com/local/writereview?placeid=...">
+                            @error('google_review_link') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">

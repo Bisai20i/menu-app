@@ -13,16 +13,15 @@ trait BelongsToRestaurant
     protected static function bootBelongsToRestaurant(): void
     {
         // 1. Automatically filter results for the logged-in Admin
+        //    The auth check alone is sufficient — public/guest routes have no admin session.
+        //    The previous route-path check ($request->is('master/*')) was fragile and
+        //    silently skipped scope application on any non-matching route.
         static::addGlobalScope('restaurant', function (Builder $builder) {
             if (Auth::guard('admin')->check()) {
                 $user = Auth::guard('admin')->user();
 
-                // If user is a regular admin, only show data for their restaurant
-                if (isset($user->restaurant_id)) {
-                    $builder->where('restaurant_id', $user->restaurant_id);
-                }
-                
-                // Note: Superadmins see everything because we don't apply the scope for them
+                // Always scope to the admin's restaurant_id
+                $builder->where($builder->getModel()->getTable() . '.restaurant_id', $user->restaurant_id);
             }
         });
 

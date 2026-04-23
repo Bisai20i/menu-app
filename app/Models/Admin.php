@@ -3,10 +3,10 @@ namespace App\Models;
 
 use App\Traits\HasDynamicTable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Auth\User as Authenticable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Admin extends Authenticable
+class Admin extends Authenticatable 
 {
     use Notifiable;
     use HasDynamicTable;
@@ -49,7 +49,7 @@ class Admin extends Authenticable
     /**
      * get the restaurant associated with the admin
      */
-    public function restaurant():BelongsTo
+    public function restaurant(): BelongsTo
     {
         return $this->belongsTo(Restaurant::class);
     }
@@ -71,9 +71,17 @@ class Admin extends Authenticable
             ->where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
+                    ->orWhereRaw('DATE_ADD(expires_at, INTERVAL grace_period DAY) > ?', [now()]);
             })
             ->latest('starts_at');
+    }
+
+    /**
+     * active subscription check convinience accessor
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription()->exists();
     }
 
     /**

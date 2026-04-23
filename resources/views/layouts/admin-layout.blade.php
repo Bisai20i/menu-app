@@ -42,11 +42,54 @@
 
     <script src="{{ asset('backend/assets/js/config.js') }}"></script>
     @livewireStyles
-
+    @vite(['resources/js/admin.js'])
     @stack('styles')
 </head>
 
 <body>
+    @php
+    $adminLayoutUser = auth()->guard('admin')->user();
+    $layoutGraceDaysRemaining = null;
+    if ($adminLayoutUser && $adminLayoutUser->activeSubscription && !$adminLayoutUser->is_super_admin) {
+        $sub = $adminLayoutUser->activeSubscription;
+        if ($sub->expires_at && $sub->expires_at->isPast() && $sub->expires_at->copy()->addDays($sub->grace_period)->isFuture()) {
+            $layoutGraceDaysRemaining = max(0, $sub->grace_period - floor(now()->diffInSeconds($sub->expires_at) / 86400));
+        }
+    }
+@endphp
+
+@if($layoutGraceDaysRemaining !== null)
+<div style="
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
+    width: 100%;
+">
+    <div class="text-danger" style="
+        font-size: 10vw;
+        font-weight: 900;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        opacity: 0.07;
+        line-height: 1;
+    ">Grace Period</div>
+    <div class="text-danger border border-danger rounded px-4 py-2 mt-3" style="
+        font-size: 1rem;
+        font-weight: 600;
+        opacity: 0.35;
+        white-space: nowrap;
+        max-width: 800px;
+        margin: 0 auto;
+    ">
+        {{ $layoutGraceDaysRemaining }} {{ $layoutGraceDaysRemaining === 1 ? 'day' : 'days' }} left - Please contact Super Admin to renew
+    </div>
+</div>
+@endif
     @if (session()->has('success') || session()->has('error') || session()->has('info'))
         <div class="position-absolute toast-container top-3 end-0 p-3" style="z-index: 5000">
             @foreach (['success', 'error', 'info'] as $type)
@@ -90,10 +133,11 @@
                     <!-- Content -->
 
                     <div class="container-fluid flex-grow-1 container-p-y">
-
-                        @yield('content')
-
-
+                        @isset($slot)
+                            {{ $slot }}
+                        @else
+                            @yield('content')
+                        @endisset
                     </div>
                     <!-- / Content -->
 

@@ -10,7 +10,7 @@ class SubscriptionPlanController extends BaseCrudController
     protected $model       = SubscriptionPlan::class;
     protected $routePrefix = 'master.subscription-plans';
 
-    protected $jsonFields = ['features'];
+    protected $arrayFields = ['features'];
 
     protected function rules($id = null): array
     {
@@ -24,8 +24,6 @@ class SubscriptionPlanController extends BaseCrudController
             'sort_order'       => 'nullable|integer',
 
             'features'         => 'nullable|array',
-            'features.*.key'   => 'required|string',
-            'features.*.value' => 'nullable',
         ];
     }
 
@@ -109,14 +107,22 @@ class SubscriptionPlanController extends BaseCrudController
                 'column'      => 'col-5 col-md-2',
             ],
 
-            'features'       => [
-                'type'              => 'json',
-                'label'             => 'Plan Features',
-                'column'            => 'col-12',
-                'key_placeholder'   => 'Feature key (job_posts)',
-                'value_placeholder' => 'Value (50)',
-                'help'              => 'Define plan features as key-value pairs',
+            'features' => [
+                'type' => 'array',
+                'label' => 'Plan Features',
+                'placeholder' => 'e.g. Feature one, Feature two',
+                'column' => 'col-12',
+                'help' => 'Add features for this subscription plan.',
             ],
+
+            // 'features'       => [
+            //     'type'              => 'json',
+            //     'label'             => 'Plan Features',
+            //     'column'            => 'col-12',
+            //     'key_placeholder'   => 'Feature key (job_posts)',
+            //     'value_placeholder' => 'Value (50)',
+            //     'help'              => 'Define plan features as key-value pairs',
+            // ],
 
         ];
     }
@@ -159,15 +165,15 @@ class SubscriptionPlanController extends BaseCrudController
         // Store Screenshot
         $path = $request->file('screenshot')->store('payments', 'public');
 
-        Payment::create([
-            'admin_id'             => auth('admin')->id(),
-            'subscription_plan_id' => $plan->id,
-            'amount'               => $plan->price,
-            'currency'             => $plan->currency,
-            'screenshot'           => $path,
-            'transaction_id'       => $request->transaction_id,
-            'status'               => 'pending',
-        ]);
+        // Payment::create([
+        //     'admin_id'             => auth('admin')->id(),
+        //     'subscription_plan_id' => $plan->id,
+        //     'amount'               => $plan->price,
+        //     'currency'             => $plan->currency,
+        //     'screenshot'           => $path,
+        //     'transaction_id'       => $request->transaction_id,
+        //     'status'               => 'pending',
+        // ]);
 
         return redirect()->route('admin.subscriptions.index')
             ->with('success', 'Payment proof submitted. Admin will verify and activate your subscription soon.');

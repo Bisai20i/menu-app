@@ -20,7 +20,8 @@ class AdminRestaurantForm extends Component
     // Restaurant Fields
     public $restaurant_name;
     public $currency = 'NPR';
-    public $tax_percentage = 0;
+    public $google_review_link;
+    public $google_place_id;
     public $primary_color = '#000000';
 
     protected function rules()
@@ -32,7 +33,8 @@ class AdminRestaurantForm extends Component
             'password'        => $this->adminId ? 'nullable|min:8' : 'required|min:8',
             'restaurant_name' => 'required|string|max:255',
             'currency'        => 'required|string|max:10',
-            'tax_percentage'  => 'required|numeric|min:0|max:100',
+            'google_review_link' => 'nullable|url|max:500',
+            'google_place_id'    => 'nullable|string|max:100',
             'primary_color'   => 'required|string|max:7',
         ];
     }
@@ -49,7 +51,8 @@ class AdminRestaurantForm extends Component
             if ($admin->restaurant) {
                 $this->restaurant_name = $admin->restaurant->name;
                 $this->currency        = $admin->restaurant->settings['currency'] ?? 'NPR';
-                $this->tax_percentage  = $admin->restaurant->settings['tax_percentage'] ?? 0;
+                $this->google_review_link = $admin->restaurant->settings['google_review_link'] ?? '';
+                $this->google_place_id    = $admin->restaurant->settings['google_place_id'] ?? '';
                 $this->primary_color   = $admin->restaurant->settings['primary_color'] ?? '#000000';
             }
         }
@@ -62,9 +65,10 @@ class AdminRestaurantForm extends Component
         $restaurantData = [
             'name'     => $this->restaurant_name,
             'settings' => [
-                'currency'       => $this->currency,
-                'tax_percentage' => (float) $this->tax_percentage,
-                'primary_color'  => $this->primary_color,
+                'currency'           => $this->currency,
+                'google_review_link' => $this->google_review_link,
+                'google_place_id'    => $this->google_place_id,
+                'primary_color'      => $this->primary_color,
             ],
         ];
 

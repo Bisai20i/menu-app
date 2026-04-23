@@ -13,6 +13,7 @@ class AdminSubscription extends Model
         'starts_at',
         'expires_at',
         'status',
+        'grace_period',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class AdminSubscription extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active' && ($this->expires_at === null || $this->expires_at->isFuture());
+        return $this->status === 'active' && 
+               ($this->expires_at === null || $this->expires_at->copy()->addDays($this->grace_period)->isFuture());
     }
 }

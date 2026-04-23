@@ -15,6 +15,24 @@
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bx bx-error-circle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li><i class="bx bx-error-circle me-1"></i> {{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Professional Upload Section -->
     <div class="card mb-5 border-0 shadow-sm overflow-hidden">
         <div class="card-body p-0">
@@ -201,6 +219,30 @@
         </div>
     </x-slot>
 </x-modal>
+ 
+ <!-- Validation Error Modal -->
+ <div class="modal fade" id="validationModal" tabindex="-1" aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered">
+         <div class="modal-content border-0 shadow">
+             <div class="modal-header border-0 pb-0">
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+             </div>
+             <div class="modal-body text-center pb-4">
+                 <div class="mb-3">
+                     <i class="bx bx-error-circle text-warning opacity-75" style="font-size: 4rem;"></i>
+                 </div>
+                 <h5 class="fw-bold mb-2">Files Too Large</h5>
+                 <p class="text-muted small mb-3">The following files exceed the 5MB limit and were not added:</p>
+                 <ul id="rejectedFilesList" class="list-group list-group-flush text-start small mb-0 border rounded overflow-hidden">
+                     <!-- Rejected files will be listed here -->
+                 </ul>
+             </div>
+             <div class="modal-footer border-0 pt-0">
+                 <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Understood</button>
+             </div>
+         </div>
+     </div>
+ </div>
 
 <style>
     .transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -268,6 +310,8 @@
     const externalUrl = document.getElementById('external_url');
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     const deleteForm = document.getElementById('deleteForm');
+    const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+    const rejectedFilesList = document.getElementById('rejectedFilesList');
 
     function confirmDelete(url) {
         deleteForm.action = url;
@@ -316,9 +360,19 @@
 
     function handleFiles(files) {
         previewGrid.innerHTML = '';
+        const dt = new DataTransfer();
+        let rejectedFiles = [];
+
         if (files.length > 0) {
-            clearBtn.classList.remove('d-none');
             Array.from(files).forEach(file => {
+                // Check file size (5MB = 5 * 1024 * 1024 bytes)
+                if (file.size > 5 * 1024 * 1024) {
+                    rejectedFiles.push(file.name);
+                    return; // Skip this file
+                }
+
+                dt.items.add(file); // Add to our valid list
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const div = document.createElement('div');
@@ -338,6 +392,26 @@
                 }
                 reader.readAsDataURL(file);
             });
+
+            // Update file input with only valid files
+            fileInput.files = dt.files;
+
+            if (rejectedFiles.length > 0) {
+                rejectedFilesList.innerHTML = '';
+                rejectedFiles.forEach(name => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item py-1 px-3 d-flex align-items-center';
+                    li.innerHTML = `<i class="bx bx-x-circle text-danger me-2"></i> <span class="text-truncate">${name}</span>`;
+                    rejectedFilesList.appendChild(li);
+                });
+                validationModal.show();
+            }
+
+            if (fileInput.files.length > 0) {
+                clearBtn.classList.remove('d-none');
+            } else if (previewGrid.innerHTML === '') {
+                previewGrid.appendChild(emptyPreview);
+            }
         } else {
             resetUpload();
         }

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Saral Menu - Print Ready</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        @page {
+            size: A6;
+            margin: 8mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            width: 105mm;
+            min-height: 148mm;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 18px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top: 6px solid #000;
+            border-bottom: 6px solid #000;
+        }
+
+        .logo {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .qr-box {
+            background: #fafafa;
+            padding: 14px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .qr-box img {
+            width: 220px;
+            height: 220px;
+        }
+
+        .cta {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .subtext {
+            font-size: 12px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0 28px 0;
+        }
+
+        /* NEW WIFI SECTION */
+        .wifi-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid #dedede;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .wifi-left {
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            text-align: center;
+            border-right: 1px solid #eded;
+        }
+
+        .wifi-left span {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .wifi-left strong {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #fff;
+            background: #000;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .wifi-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+
+        }
+
+        .wifi-right img {
+            width: 90px;
+            height: 90px;
+        }
+
+        .wifi-caption {
+            font-size: 11px;
+            margin-top: 6px;
+            color: #444;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 14px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            background: #000;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #printArea,
+            #printArea * {
+                visibility: visible;
+            }
+
+            #printArea {
+                position: absolute;
+                top: 0;
+                left: 0;
+                box-shadow: none;
+            }
+
+            .buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="printArea" class="card">
+
+        <!-- HEADER -->
+        <div>
+            <div class="logo">Your Restaurant</div>
+            <div class="header">Saral Menu</div>
+
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=Menu" alt="Menu QR">
+            </div>
+
+            <div class="cta">Scan to View Menu & Order</div>
+            <div class="subtext">No app needed • Works on any phone</div>
+        </div>
+
+        <!-- FOOTER -->
+        <div>
+            <div class="divider"></div>
+
+            <div class="wifi-section">
+                <div class="wifi-left">
+                    <span>Available</span>
+                    <strong>FREE WIFI</strong>
+                </div>
+
+                <div class="wifi-right">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=WiFi" alt="WiFi QR">
+                    <div class="wifi-caption">Scan for WiFi access</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="buttons">
+        <button onclick="window.print()">Print</button>
+        <button onclick="downloadPNG()">Download PNG</button>
+    </div>
+
+    <script>
+        function downloadPNG() {
+            const element = document.getElementById('printArea');
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'saral-menu.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+
+</body>
+
+</html>

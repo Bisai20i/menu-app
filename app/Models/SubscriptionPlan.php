@@ -9,10 +9,13 @@ class SubscriptionPlan extends Model
 {
     use HasDynamicTable;
 
-    protected static function booted()
+    protected static function boot()
     {
+        parent::boot();
         static::creating(function ($model) {
-            $model->admin_id = auth('admin')->id();
+            if (!$model->admin_id) {
+                $model->admin_id = auth('admin')->id();
+            }
         });
     }
     protected $fillable = [

@@ -17,6 +17,42 @@
             <p class="text-muted mb-0">Manage and assign subscription plans to admins.</p>
         </div>
     </div>
+    </div>
+
+    {{-- Search and Filters --}}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form action="{{ route('master.admin-subscriptions.index') }}" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="search" class="form-label text-muted small text-uppercase fw-semibold mb-1">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search by name or email..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label text-muted small text-uppercase fw-semibold mb-1">Status Filter</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Admins</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active Subscription</option>
+                        <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Expired Subscription</option>
+                        <option value="no_subscription" {{ request('status') === 'no_subscription' ? 'selected' : '' }}>No Subscription</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sort" class="form-label text-muted small text-uppercase fw-semibold mb-1">Sort By</label>
+                    <select class="form-select" id="sort" name="sort">
+                        <option value="">Default Sort</option>
+                        <option value="new_sub" {{ request('sort') === 'new_sub' ? 'selected' : '' }}>Newly Created</option>
+                        <option value="expiring_soon" {{ request('sort') === 'expiring_soon' ? 'selected' : '' }}>Expiring Soon</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1"><i class="bx bx-filter-alt me-1"></i>Filter</button>
+                    @if(request()->hasAny(['search', 'status', 'sort']))
+                        <a href="{{ route('master.admin-subscriptions.index') }}" class="btn btn-outline-secondary"><i class="bx bx-reset"></i></a>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
 
     {{-- Table Card --}}
     <div class="card border-0 shadow-sm overflow-hidden">
@@ -66,10 +102,13 @@
                                     @if($admin->current_plan->id === 0)
                                         <span class="text-muted small">—</span>
                                     @elseif($admin->activeSubscription)
-                                        <div class="fw-semibold small">
-                                            {{ $admin->activeSubscription->expires_at ? $admin->activeSubscription->expires_at->format('d M Y') : 'Never' }}
-                                        </div>
-                                        <div class="text-muted" style="font-size:0.75rem;">
+                                    <div class="fw-semibold small">
+                                        {{ $admin->activeSubscription->expires_at ? $admin->activeSubscription->expires_at->format('d M Y') : 'Never' }}
+                                    </div>
+                                    @if($admin->activeSubscription->expires_at && $admin->activeSubscription->expires_at->isPast())
+                                        <div class="mt-1"><span class="badge bg-warning text-dark" style="font-size:0.7rem;">In Grace Period</span></div>
+                                    @endif
+                                    <div class="text-muted mt-1" style="font-size:0.75rem;">
                                             {{ $admin->current_plan->duration_value }} {{ Str::plural($admin->current_plan->duration_unit, $admin->current_plan->duration_value) }}
                                         </div>
                                     @endif
@@ -145,6 +184,19 @@
                                                                 </div>
                                                             </label>
                                                         @endforeach
+                                                    </div>
+                                                    
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label for="custom_duration_{{ $admin->id }}" class="form-label fw-semibold">Custom Duration (Months)</label>
+                                                            <input type="number" name="custom_duration_months" id="custom_duration_{{ $admin->id }}" class="form-control" min="1" placeholder="Leave empty for plan default">
+                                                            <div class="form-text text-muted small">Optional: Override plan's default duration here.</div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="grace_period_{{ $admin->id }}" class="form-label fw-semibold">Grace Period (Days)</label>
+                                                            <input type="number" name="grace_period" id="grace_period_{{ $admin->id }}" class="form-control" value="30" min="0" required>
+                                                            <div class="form-text text-muted small">Days admin can still use the system after expiry.</div>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             </div>

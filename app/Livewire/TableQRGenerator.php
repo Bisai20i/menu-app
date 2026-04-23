@@ -10,10 +10,16 @@ use Illuminate\Support\Facades\Response;
 class TableQRGenerator extends Component
 {
     public $search = '';
+    public $restaurant_slug = null;
+
+    public function mount()
+    {
+        $this->restaurant_slug = auth('admin')->user()->restaurant->slug;
+    }
 
     public function downloadQR($uuid, $tableNumber)
     {
-        $url = url('/table/' . $uuid);
+        $url = url('/app/' . $this->restaurant_slug . '/' . $uuid);
         
         $image = QrCode::size(500)
             ->margin(2)

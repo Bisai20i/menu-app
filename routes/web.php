@@ -2,18 +2,23 @@
 
 use App\Http\Controllers\MenuController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WebController;
+
+require __DIR__ . '/admin.php';
 
 
-require __DIR__.'/admin.php';
 
-Route::get('/', function () {
-    return view('main');
-});
+Route::get('/', [WebController::class , 'index']);
+Route::get('/contact', [WebController::class, 'index'])->name('contact');
+Route::post('/contact', [WebController::class, 'storeContact'])->name('contact.store');
 
-Route::get('/simple-menu', function () {
-    return view('menus.simple-menu');
-});
+Route::get('/articles', [WebController::class, 'articles'])->name('articles.index');
+Route::get('/articles/{slug}', [WebController::class, 'showArticle'])->name('articles.show');
 
-Route::get('/{slug}', [MenuController::class, 'show'])->name('public.menu');
 
-Route::view('detailed-menu', 'menus.detailed-menu');
+Route::get('/app/{any?}', function () {
+    return view('app');
+})->where('any', '.*');
+
+Route::get('/{slug}', [MenuController::class , 'show'])->name('public.menu');
+// Route::get('/{slug}/{uuid}', [MenuController::class, 'show'])->name('public.menu.table');

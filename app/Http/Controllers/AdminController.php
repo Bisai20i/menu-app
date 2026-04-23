@@ -94,6 +94,33 @@ class AdminController extends Controller
     }
 
     /**
+     * Show the admin dashboard with performance insights.
+     */
+    public function dashboard()
+    {
+        $admin = auth('admin')->user();
+        $restaurantId = $admin->restaurant_id;
+        
+        // Check if admin is superadmin or has active subscription
+        $hasChartAccess = $admin->is_super_admin || $admin->hasActiveSubscription();
+
+        $stats = collect();
+        if ($restaurantId && $hasChartAccess) {
+            // Cache for 1 hour to keep dashboard snappy
+            $stats = \Illuminate\Support\Facades\Cache::remember("dashboard_stats_res_{$restaurantId}", 3600, function () use ($restaurantId) {
+                return \App\Models\DailyRestaurantStat::where('restaurant_id', $restaurantId)
+                    ->orderBy('date', 'desc')
+                    ->limit(7)
+                    ->get()
+                    ->reverse()
+                    ->values();
+            });
+        }
+
+        return view('admin.dashboard', compact('stats', 'hasChartAccess'));
+    }
+
+    /**
      * Placeholder for forget password functionality.
      */
     public function forgetPassword(Request $request)
