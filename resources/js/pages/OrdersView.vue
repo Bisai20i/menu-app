@@ -215,6 +215,27 @@
         </div>
       </div>
     </Transition>
+    
+    <!-- Cancel Order Modal -->
+    <Transition name="fade">
+      <div v-if="showCancelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+          <div class="p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Cancel Order</h3>
+            <p class="text-sm text-gray-500 mb-6">Are you sure you want to cancel this order? This action cannot be undone.</p>
+            <div class="flex gap-3">
+              <button class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors" @click="closeCancelModal">No, Keep It</button>
+              <button class="flex-1 px-4 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors shadow-sm shadow-red-200" @click="executeCancelOrder">Yes, Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- Payment QR Modal -->
     <Transition name="fade">

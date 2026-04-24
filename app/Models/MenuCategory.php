@@ -18,8 +18,16 @@ class MenuCategory extends Model
 
         static::creating(function ($category) {
             $slug = Str::slug($category->name);
-            $count          = self::where('slug', 'LIKE', "$slug%")->count();
+            $count = self::withoutGlobalScopes()->where('slug', 'LIKE', "$slug%")->count();
             $category->slug = $count ? "$slug-$count" : $slug;
+        });
+
+        static::updating(function ($category) {
+            if ($category->isDirty('name')) {
+                $slug = Str::slug($category->name);
+                $count = self::withoutGlobalScopes()->where('slug', 'LIKE', "$slug%")->count();
+                $category->slug = $count ? "$slug-$count" : $slug;
+            }
         });
     }
 
@@ -28,11 +36,11 @@ class MenuCategory extends Model
     public function getTableColumns(): array
     {
         return [
-            'image'      => ['label' => 'Image', 'sortable' => false, 'type' => 'image'],
-            'name'       => ['label' => 'Name', 'sortable' => true, 'type' => 'text'],
-            'slug'       => ['label' => 'Slug', 'sortable' => true, 'type' => 'text'],
+            'image' => ['label' => 'Image', 'sortable' => false, 'type' => 'image'],
+            'name' => ['label' => 'Name', 'sortable' => true, 'type' => 'text'],
+            'slug' => ['label' => 'Slug', 'sortable' => true, 'type' => 'text'],
             'sort_order' => ['label' => 'Order', 'sortable' => true, 'type' => 'text'],
-            'is_active'  => ['label' => 'Status', 'sortable' => true, 'type' => 'toggleable'],
+            'is_active' => ['label' => 'Status', 'sortable' => true, 'type' => 'toggleable'],
             'created_at' => ['label' => 'Created', 'sortable' => true, 'type' => 'date'],
         ];
     }
@@ -40,6 +48,16 @@ class MenuCategory extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected $appends = ['image_url'];
+
+    /**
+     * get image url attribute
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 
     public function menuItems(): HasMany
     {

@@ -53,6 +53,14 @@
                         <div data-i18n="Menu Items">Menu Items</div>
                     </a>
                 </li>
+
+                <!-- Review Management -->
+                <li class="menu-item {{ request()->routeIs('master.reviews.*') ? 'active' : '' }}">
+                    <a href="{{ route('master.reviews.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-star"></i>
+                        <div data-i18n="Reviews">Reviews</div>
+                    </a>
+                </li>
             @endcan
             <!-- Menu Gallery -->
             <li class="menu-item {{ request()->routeIs('master.menu-gallery.*') ? 'active' : '' }}">
@@ -62,13 +70,7 @@
                 </a>
             </li>
 
-            <!-- Review Management -->
-            <li class="menu-item {{ request()->routeIs('master.reviews.*') ? 'active' : '' }}">
-                <a href="{{ route('master.reviews.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-star"></i>
-                    <div data-i18n="Reviews">Reviews</div>
-                </a>
-            </li>
+
 
             @can('accessCreateRestaurantTable')
                 <!-- Restaurant Tables -->

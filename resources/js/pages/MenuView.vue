@@ -123,7 +123,10 @@
                                     :class="menuStore.activeCategory === cat.id
                                         ? 'bg-primary text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-50'" @click="menuStore.setCategory(cat.id)">
-                                    <span class="text-base leading-none">{{ getCategoryEmoji(cat.name) }}</span>
+                                    <div v-if="cat.image_url" class="w-6 h-6 rounded-md overflow-hidden shrink-0 border border-gray-100">
+                                        <img :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover" />
+                                    </div>
+                                    <span v-else class="text-base leading-none">{{ getCategoryEmoji(cat.name) }}</span>
                                     <span class="flex-1 truncate">{{ cat.name }}</span>
                                     <span class="text-xs font-bold px-1.5 py-0.5 rounded-full shrink-0"
                                         :class="menuStore.activeCategory === cat.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'">{{
@@ -166,7 +169,10 @@
                                 <section v-for="group in menuStore.groupedByCategory" :key="group.id">
                                     <div class="flex items-center justify-between mb-3">
                                         <h2 class="font-bold text-gray-800 text-base flex items-center gap-2">
-                                            <span>{{ getCategoryEmoji(group.name) }}</span>
+                                            <div v-if="group.image_url" class="w-6 h-6 rounded-md overflow-hidden shrink-0 border border-gray-100">
+                                                <img :src="group.image_url" :alt="group.name" class="w-full h-full object-cover" />
+                                            </div>
+                                            <span v-else>{{ getCategoryEmoji(group.name) }}</span>
                                             {{ group.name }}
                                         </h2>
                                         <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{{
@@ -285,6 +291,7 @@
 
         <!-- Restaurant Info Off-Canvas -->
         <RestaurantInfoOffCanvas 
+            v-if="menuStore.restaurant"
             :is-open="isInfoOpen" 
             :restaurant="menuStore.restaurant" 
             @close="isInfoOpen = false" 

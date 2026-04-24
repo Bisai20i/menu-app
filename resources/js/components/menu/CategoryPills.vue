@@ -10,11 +10,15 @@
             </button>
 
             <button v-for="cat in categories" :key="cat.id"
-                class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap"
+                class="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap"
                 :class="active === cat.id
                     ? 'bg-primary text-white shadow-md shadow-primary-dark/20'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" @click="$emit('select', cat.id)">
-                {{ getCategoryEmoji(cat.name) }} {{ cat.name }}
+                <div v-if="cat.image_url" class="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-white/20">
+                    <img :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover" />
+                </div>
+                <span v-else>{{ getCategoryEmoji(cat.name) }}</span>
+                {{ cat.name }}
             </button>
         </div>
     </div>
