@@ -19,7 +19,7 @@ class TableQrGenerator extends Component
 
     public function downloadQR($uuid, $tableNumber)
     {
-        $url = url('/app/' . $this->restaurant_slug . '/' . $uuid);
+        $url = url('/restaurant/' . $this->restaurant_slug . '/' . $uuid);
         
         $image = QrCode::size(500)
             ->margin(2)

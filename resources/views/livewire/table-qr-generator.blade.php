@@ -27,14 +27,14 @@
                         
                         <!-- QR Preview -->
                         <div class="qr-container bg-light rounded-3 p-3 mb-4 d-inline-block shadow-inner">
-                            {!! QrCode::size(150)->margin(1)->generate(url('/app/' . $restaurant_slug . '/' . $table->uuid)) !!}
+                            {!! QrCode::size(150)->margin(1)->generate(url('/restaurant/' . $restaurant_slug . '/' . $table->uuid)) !!}
                         </div>
 
                         <div class="d-grid gap-2">
                             <button wire:click="downloadQR('{{ $table->uuid }}', '{{ $table->table_number }}')" class="btn btn-primary d-flex align-items-center justify-content-center">
                                 <i class="bx bx-download me-2"></i> Download SVG
                             </button>
-                            <a href="{{ url('/app/' . $restaurant_slug . '/' . $table->uuid) }}" target="_blank" class="btn btn-link btn-sm text-muted text-decoration-none">
+                            <a href="{{ url('/restaurant/' . $restaurant_slug . '/' . $table->uuid) }}" target="_blank" class="btn btn-link btn-sm text-muted text-decoration-none">
                                 <i class="bx bx-link-external me-1"></i> Preview Link
                             </a>
                         </div>

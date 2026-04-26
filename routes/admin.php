@@ -54,7 +54,7 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
         // Table QR Generator
-        Route::get('table-qr', [RestaurantTablecontroller::class, 'table-qr'])->name('table-qr');
+        Route::get('table-qr', [RestaurantTablecontroller::class, 'table_qr'])->name('table-qr');
 
         // Admin Resource
         Route::resource('admins', AdminController::class);
