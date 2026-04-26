@@ -54,20 +54,13 @@ Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
         // Table QR Generator
-        Route::get('table-qr', function () {
-            return view('admin.pages.qr-generator');
-        })->name('table-qr');
+        Route::get('table-qr', [RestaurantTablecontroller::class, 'table-qr'])->name('table-qr');
 
         // Admin Resource
         Route::resource('admins', AdminController::class);
 
         // System Management (Super Admin only)
-        Route::group(['middleware' => [function ($request, $next) {
-            if (!auth('admin')->user()->is_super_admin) {
-                abort(403);
-            }
-            return $next($request);
-        }]], function () {
+        Route::group(['middleware' => ['superadmin']], function () {
             Route::resource('testimonials', TestimonialController::class);
             Route::resource('faqs', FaqController::class);
             Route::resource('articles', ArticleController::class);

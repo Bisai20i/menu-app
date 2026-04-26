@@ -49,4 +49,8 @@ class RestaurantTableController extends BaseCrudController
             ],
         ];
     }
+
+    public function table-qr{
+        return view('admin.pages.qr-generator');
+    }
 }
