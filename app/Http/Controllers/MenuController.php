@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
+    public function index(){
+        return view('app');
+    }
     public function show($slug)
     {
         $restaurant = Restaurant::where('slug', $slug)

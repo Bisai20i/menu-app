@@ -16,9 +16,7 @@ Route::get('/articles', [WebController::class, 'articles'])->name('articles.inde
 Route::get('/articles/{slug}', [WebController::class, 'showArticle'])->name('articles.show');
 
 
-Route::get('/restaurant/{any?}', function () {
-    return view('app');
-})->where('any', '.*');
+Route::get('/restaurant/{any?}', [MenuController::class, 'index'])->where('any', '.*');
 
 Route::get('/{slug}', [MenuController::class , 'show'])->name('public.menu');
 // Route::get('/{slug}/{uuid}', [MenuController::class, 'show'])->name('public.menu.table');
