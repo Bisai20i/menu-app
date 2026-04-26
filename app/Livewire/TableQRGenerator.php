@@ -7,7 +7,7 @@ use Livewire\Component;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Response;
 
-class TableQRGenerator extends Component
+class TableQrGenerator extends Component
 {
     public $search = '';
     public $restaurant_slug = null;

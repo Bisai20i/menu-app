@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-class MenuQRGenerator extends Component
+class MenuQrGenerator extends Component
 {
     public ?int $restaurantId = null;
 

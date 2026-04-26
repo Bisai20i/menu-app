@@ -16,7 +16,7 @@ Route::get('/articles', [WebController::class, 'articles'])->name('articles.inde
 Route::get('/articles/{slug}', [WebController::class, 'showArticle'])->name('articles.show');
 
 
-Route::get('/app/{any?}', function () {
+Route::get('/restaurant/{any?}', function () {
     return view('app');
 })->where('any', '.*');
 
