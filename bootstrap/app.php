@@ -15,8 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/master/login');
-        $middleware->alise([
-            'superadmin' => SuperAdminUserMiddleware
+        $middleware->alias([
+            'superadmin' => SuperAdminUserMiddleware::class
         ]);
 
     })
