@@ -34,7 +34,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory('/app'),
+    history: createWebHistory('/restaurant'),
     routes,
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) return savedPosition;
