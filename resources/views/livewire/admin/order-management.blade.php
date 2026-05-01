@@ -382,22 +382,22 @@ class="order-management-wrap">
                         @endforeach
                     </div>
 
-                    <div class="mb-0">
+                    <div class="mb-4">
                         <label class="form-label fw-semibold">Cancellation Note (Shown to customer)</label>
                         <textarea class="form-control" wire:model="cancellationNote" rows="2" placeholder="e.g., This item is currently unavailable..."></textarea>
                     </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger px-4 fw-bold rounded-pill" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="submitCancelItems">Confirm Cancellation</span>
+                            <span wire:loading wire:target="submitCancelItems">
+                                <span class="spinner-border spinner-border-sm me-1"></span> Processing...
+                            </span>
+                        </button>
+                    </div>
                 @endif
             @endif
-
-            <x-slot:footer>
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-danger px-4 fw-bold rounded-pill" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="submitCancelItems">Confirm Cancellation</span>
-                    <span wire:loading wire:target="submitCancelItems">
-                        <span class="spinner-border spinner-border-sm me-1"></span> Processing...
-                    </span>
-                </button>
-            </x-slot:footer>
         </form>
     </x-modal>
 

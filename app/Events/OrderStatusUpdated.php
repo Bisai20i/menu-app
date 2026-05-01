@@ -47,6 +47,9 @@ class OrderStatusUpdated implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
+        // Force reload items to get the latest cancellation data from DB
+        $this->order->load(['items.menuItem']);
+
         return [
             'order' => [
                 'uuid'         => $this->order->uuid,
@@ -54,6 +57,19 @@ class OrderStatusUpdated implements ShouldBroadcastNow
                 'is_paid'      => $this->order->is_paid,
                 'total_amount' => $this->order->total_amount,
                 'needs_user_confirmation' => $this->order->needs_user_confirmation,
+                'items' => $this->order->items->map(fn($item) => [
+                    'id'                => $item->id,
+                    'menu_item_id'      => $item->menu_item_id,
+                    'quantity'          => $item->quantity,
+                    'unit_price'        => $item->unit_price,
+                    'subtotal'          => $item->subtotal,
+                    'is_cancelled'      => $item->is_cancelled,
+                    'cancellation_note' => $item->cancellation_note,
+                    'menu_item'         => [
+                        'name'      => $item->menuItem?->name,
+                        'image_url' => $item->menuItem?->image_url,
+                    ],
+                ])->toArray(),
             ],
         ];
     }

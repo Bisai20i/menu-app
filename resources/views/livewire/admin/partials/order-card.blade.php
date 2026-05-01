@@ -30,9 +30,9 @@
             {{-- Items Preview --}}
             <ul class="list-unstyled mb-2" style="max-height: 140px; overflow-y:auto;">
                 @foreach($order->items as $item)
-                    <li class="d-flex justify-content-between align-items-start py-1 border-bottom {{ $item->is_cancelled ? 'opacity-50 text-decoration-line-through' : '' }}">
+                    <li class="d-flex justify-content-between align-items-start py-1 border-bottom {{ $item->is_cancelled ? 'opacity-50' : '' }}">
                         <div>
-                            <span class="fw-semibold small">{{ $item->menuItem?->name ?? 'Deleted Item' }}</span>
+                            <span class="fw-semibold small {{ $item->is_cancelled ? 'text-decoration-line-through' : '' }}">{{ $item->menuItem?->name ?? 'Deleted Item' }}</span>
                             @if($item->special_request)
                                 <div class="text-warning" style="font-size:0.72rem;">📝 {{ $item->special_request }}</div>
                             @endif
@@ -79,6 +79,8 @@
                         'price'    => $i->unit_price,
                         'subtotal' => $i->subtotal,
                         'note'     => $i->special_request,
+                        'is_cancelled' => $i->is_cancelled,
+                        'cancellation_note' => $i->cancellation_note,
                     ])->toArray(),
                 ]) }})">
                 <i class="bx bx-list-ul"></i>

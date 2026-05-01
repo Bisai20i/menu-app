@@ -254,6 +254,9 @@
         .bg-light-success { background-color: rgba(var(--bs-success-rgb), 0.1); }
         .list-group-item-action:hover { background-color: transparent; color: var(--bs-primary); }
     </style>
+
+    {{-- QR Print Modal: needed for the menu-qr-generator widget on this page --}}
+    <x-qr-print-modal />
 @endsection
 
 @push('scripts')

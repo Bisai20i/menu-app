@@ -379,7 +379,8 @@ class MenuController extends Controller
                 'items' => function ($query) {
                     $query->select(
                         'id', 'order_id', 'menu_item_id',
-                        'quantity', 'unit_price', 'subtotal'
+                        'quantity', 'unit_price', 'subtotal',
+                        'is_cancelled', 'cancellation_note'
                     );
                 },
                 'items.menuItem:id,name,image',

@@ -19,6 +19,8 @@ class OrderManagement extends Component
     // Track which table/section we're filtering by (0 = all)
     public int $filterTableId = 0;
 
+    public int $restaurantId;
+
     // Cancellation Modal State
     public ?int $cancelModalOrderId = null;
     public array $selectedOrderItemIds = [];
@@ -28,6 +30,7 @@ class OrderManagement extends Component
 
     public function mount(): void
     {
+        $this->restaurantId = Auth::guard('admin')->user()->restaurant_id;
         // Default to the pending tab so staff see urgent orders first
         $this->activeTab = 'pending';
     }
@@ -38,9 +41,14 @@ class OrderManagement extends Component
         if (!$admin) return [];
 
         return [
-            // Listen for all order changes for the current restaurant, including brand-new orders.
-            "echo-private:restaurant.{$admin->restaurant_id},OrderStatusUpdated" => '$refresh',
+            "echo-private:restaurant.{$admin->restaurant_id},.OrderStatusUpdated" => 'handleOrderUpdate',
+            "echo-notification:App.Models.Admin.{$admin->id}" => 'handleOrderUpdate',
         ];
+    }
+
+    public function handleOrderUpdate(): void
+    {
+        // Simply triggering a re-render
     }
 
     // ── Actions ──────────────────────────────────────────────────────
