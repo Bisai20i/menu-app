@@ -37,6 +37,11 @@
                                         <input type="file" id="imageUpload" name="image" hidden accept="image/*" />
                                     </label>
                                 </div>
+                                @error('image')
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="bx bx-exclamation-circle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
                                 <h5 class="fw-bold mb-1">{{ $admin->name }}</h5>
                                 <p class="text-muted small mb-3">{{ $admin->email }}</p>
                                 <span class="badge bg-light text-primary border px-3 py-2 rounded-pill fw-semibold small">Super Admin</span>
@@ -66,6 +71,11 @@
                                         <input type="file" id="logoUpload" name="restaurant_logo" hidden accept="image/*" />
                                     </label>
                                 </div>
+                                @error('restaurant_logo')
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="bx bx-exclamation-circle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
                                 <h5 class="fw-bold mb-0">{{ $admin->restaurant->name ?? '-- Not Set --' }}</h5>
                                 <p class="text-muted small mb-0">{{ $admin->restaurant->slug ?? 'slug-pending' }}</p>
                             </div>
@@ -233,7 +243,7 @@
                                 id="paymentQrImageInput"
                                 class="form-control @error('payment_qr_image') is-invalid @enderror"
                                 accept="image/*">
-                            @error('payment_qr_image') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @error('payment_qr_image') <div class="invalid-feedback d-block mt-2"><i class="bx bx-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
 
                             <div class="mt-3">
                                 @if(!empty($paymentQrSrc))
@@ -266,7 +276,7 @@
                                 id="wifiQrImageInput"
                                 class="form-control @error('restaurant_wifi_qr_image') is-invalid @enderror"
                                 accept="image/*">
-                            @error('restaurant_wifi_qr_image') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @error('restaurant_wifi_qr_image') <div class="invalid-feedback d-block mt-2"><i class="bx bx-exclamation-circle me-1"></i>{{ $message }}</div> @enderror
 
                             <div class="mt-3">
                                 @if(!empty($wifiQrSrc))
@@ -311,6 +321,9 @@
 </div>
 </form>
 </div>
+
+<!-- Single Reusable Image Validation Modal -->
+<x-image-validation-modal id="imageValidationModal" />
 
 <!-- Modal: How to get Google Review Link & Place ID -->
 <x-modal id="googleHelpModal" title="Google Review Setup Guide" size="modal-lg">
@@ -371,39 +384,109 @@
 
 @push('scripts')
 <script>
+    // Constants
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+    // Single Reusable Modal Instance
+    const imageValidationModal = new bootstrap.Modal(document.getElementById('imageValidationModal'));
+
+    // Helper: Show validation modal with dynamic content
+    function showValidationModal(title, message, errors) {
+        const modalElement = document.getElementById('imageValidationModal');
+        document.getElementById('imageValidationModal-title').textContent = title;
+        document.getElementById('imageValidationModal-message').textContent = message;
+        
+        const listElement = document.getElementById('imageValidationModal-list');
+        listElement.innerHTML = errors
+            .map(error => `<li class="list-group-item py-1 px-3 d-flex align-items-center"><i class="bx bx-x-circle text-danger me-2"></i><span class="text-truncate">${error}</span></li>`)
+            .join('');
+        
+        imageValidationModal.show();
+    }
+
+    // Helper: Validate and preview image
+    function validateAndPreviewImage(inputId, previewId, placeholderId, modalTitle) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        input.addEventListener('change', function() {
+            const file = this.files && this.files[0] ? this.files[0] : null;
+
+            // Reset validation state
+            input.classList.remove('is-invalid');
+
+            if (!file) {
+                // No file selected - reset preview
+                if (placeholderId && document.getElementById(placeholderId)) {
+                    const placeholder = document.getElementById(placeholderId);
+                    const preview = document.getElementById(previewId);
+                    
+                    if (placeholder.getAttribute('data-initial-src')) {
+                        preview.src = placeholder.getAttribute('data-initial-src');
+                        preview.classList.remove('d-none');
+                        placeholder.classList.add('d-none');
+                    } else {
+                        preview.classList.add('d-none');
+                        placeholder?.classList.remove('d-none');
+                    }
+                }
+                return;
+            }
+
+            // File validation
+            let validationErrors = [];
+
+            if (file.size > MAX_FILE_SIZE) {
+                validationErrors.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) - Maximum allowed size is 2MB`);
+            }
+
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                validationErrors.push(`${file.name} - Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.`);
+            }
+
+            if (validationErrors.length > 0) {
+                // Show error
+                input.classList.add('is-invalid');
+                
+                // Show validation modal with dynamic content
+                showValidationModal(
+                    `${modalTitle} Error`,
+                    `Your ${modalTitle.toLowerCase()} validation failed:`,
+                    validationErrors
+                );
+                
+                // Reset file input
+                this.value = '';
+                return;
+            }
+
+            // File is valid - show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById(previewId);
+                const placeholder = document.getElementById(placeholderId);
+
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                if (placeholder) placeholder.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Initialize all image validations with single modal
+    validateAndPreviewImage('imageUpload', 'profilePreview', null, 'Profile Image');
+    validateAndPreviewImage('logoUpload', 'logoPreview', 'logoPreviewPlaceholder', 'Restaurant Logo');
+    validateAndPreviewImage('paymentQrImageInput', 'paymentQrPreview', 'paymentQrPreviewPlaceholder', 'Payment QR Code');
+    validateAndPreviewImage('wifiQrImageInput', 'wifiQrPreview', 'wifiQrPreviewPlaceholder', 'WiFi QR Code');
+
     // Real-time Hex display
     document.getElementById('brandColor').addEventListener('input', function() {
         document.getElementById('colorHex').textContent = this.value;
     });
 
-    // Profile Photo Preview
-    document.getElementById('imageUpload').addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('profilePreview').src = e.target.result;
-            }
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // Logo Preview
-    document.getElementById('logoUpload').addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('logoPreview');
-                const placeholder = document.getElementById('logoPreviewPlaceholder');
-
-                preview.src = e.target.result;
-                preview.classList.remove('d-none');
-                if (placeholder) placeholder.classList.add('d-none');
-            }
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // Handle QR Previews (Reusable Logic)
+    // Legacy preview functions (for backward compatibility)
     function setupImagePreview(inputId, previewId, placeholderId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);

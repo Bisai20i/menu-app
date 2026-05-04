@@ -21,6 +21,17 @@ class MenuCategoryController extends BaseCrudController
         ];
     }
 
+    protected function messages(): array
+    {
+        return [
+            'name.required' => 'Category name is required.',
+            'name.max' => 'Category name must not exceed 255 characters.',
+            'image.image' => 'Please upload a valid image file (JPEG, PNG, GIF, or WebP format).',
+            'image.max' => 'The image size must be less than 2 MB. Please upload a smaller image.',
+            'sort_order.integer' => 'Sort order must be a whole number.',
+        ];
+    }
+
     protected function fields($item = null): array
     {
         return [

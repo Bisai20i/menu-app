@@ -30,4 +30,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
             return back()->with('error', 'The uploaded file is too large. Please upload images with size less than 5 MB.');
         });
+        
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
+            if ($request->isMethod('POST') || $request->isMethod('PUT')) {
+                // Check if this is a file upload with validation error
+                $errors = $e->validator->errors()->toArray();
+                foreach ($errors as $field => $messages) {
+                    if (str_contains($field, 'image') || str_contains($field, 'file')) {
+                        // Already formatted with friendly messages from controller
+                        break;
+                    }
+                }
+            }
+            return back()->withErrors($e->errors())->withInput();
+        });
     })->create();

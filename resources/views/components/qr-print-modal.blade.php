@@ -308,7 +308,7 @@ wifiQrUrl : 'https://...', // (optional) URL of WiFi QR image
             // 3. Toggle WiFi section
             if (opts.wifiQrUrl) {
                 if (wifiImg) wifiImg.src = opts.wifiQrUrl;
-                if (wifiSec) wifiSec.style.display = '';
+                if (wifiSec) wifiSec.style.display = 'block';
                 if (footerEl) footerEl.style.display = 'none';
             } else {
                 if (wifiSec) wifiSec.style.display = 'none';

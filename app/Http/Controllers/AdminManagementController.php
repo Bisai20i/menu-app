@@ -73,9 +73,9 @@ class AdminManagementController extends Controller
             'google_place_id'    => 'nullable|string|max:100',
             'primary_color'   => 'required|string|max:7',
             'payment_qr_image' => 'nullable|image|max:2048',
-            'payment_qr'      => 'nullable|string|max:200000',
+            'payment_qr'      => 'nullable|string|max:5120',
             'restaurant_wifi_qr_image' => 'nullable|image|max:2048',
-            'restaurant_wifi_qr'       => 'nullable|string|max:200000',
+            'restaurant_wifi_qr'       => 'nullable|string|max:5120',
         ]);
 
         // Update Admin

@@ -22,6 +22,14 @@ abstract class BaseCrudController extends Controller
     abstract protected function fields($item = null): array;
 
     /**
+     * Define custom validation messages (optional)
+     */
+    protected function messages(): array
+    {
+        return [];
+    }
+
+    /**
      * Define relations needed for Create/Edit forms (e.g., Categories, Roles)
      */
     protected function relations(): array
@@ -54,7 +62,10 @@ abstract class BaseCrudController extends Controller
     {
         // return $request->all();
 
-        $validated = $request->validate($this->rules());
+        $messages = $this->messages();
+        $validated = $messages 
+            ? $request->validate($this->rules(), $messages)
+            : $request->validate($this->rules());
 
         $data = $this->handleFileUploads($request, $validated);
         $data = $this->handleJsonFields($request, $data);
@@ -85,8 +96,10 @@ abstract class BaseCrudController extends Controller
     {
         $item      = $this->model::findOrFail($id);
         $this->authorizeOwnership($item);
-        $validated = $request->validate($this->rules($id));
-
+        $messages = $this->messages();
+        $validated = $messages 
+            ? $request->validate($this->rules($id), $messages)
+            : $request->validate($this->rules($id));
         $data = $this->handleFileUploads($request, $validated, $item);
         $data = $this->handleJsonFields($request, $data);
         $data = $this->handleArrayFields($request, $data);
@@ -137,11 +150,24 @@ abstract class BaseCrudController extends Controller
     {
         foreach ($this->fields() as $name => $meta) {
             if ($meta['type'] === 'image' && $request->hasFile($name)) {
-                // Delete old image if updating
-                if ($item && $item->$name) {
-                    Storage::disk('public')->delete($item->$name);
+                try {
+                    // Delete old image if updating
+                    if ($item && $item->$name) {
+                        Storage::disk('public')->delete($item->$name);
+                    }
+                    
+                    $file = $request->file($name);
+                    if (!$file->isValid()) {
+                        throw new \Exception('The file upload failed. Please try again.');
+                    }
+                    
+                    $data[$name] = $file->store($this->imageDirectory, 'public');
+                } catch (\Exception $e) {
+                    // Store error in session to display in form
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        $name => 'Failed to upload image. Please ensure the file is a valid image and try again.'
+                    ]);
                 }
-                $data[$name] = $request->file($name)->store($this->imageDirectory, 'public');
             }
         }
         return $data;

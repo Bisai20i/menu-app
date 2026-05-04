@@ -21,14 +21,32 @@
         </div>
 
         @if ($errors->any())
-            <div class="alert alert-danger mb-2">
-                <p class="fw-bold">Error while saving the record!</p>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex">
+                    <div>
+                        <i class="bx bx-error-circle me-2" style="font-size: 20px;"></i>
+                    </div>
+                    <div>
+                        <p class="fw-bold mb-2">Validation Error!</p>
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+            <script>
+                // Scroll to first error field
+                document.addEventListener('DOMContentLoaded', function() {
+                    const firstErrorField = document.querySelector('.is-invalid');
+                    if (firstErrorField) {
+                        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstErrorField.focus();
+                    }
+                });
+            </script>
         @endif
 
         <div class="card border-0 shadow-sm">
@@ -68,9 +86,17 @@
                                         }
                                     }">
                                         <input type="file" name="{{ $name }}"
-                                            {{ isset($item) ? '' : $mets['required'] ?? 'required' }}
+                                            {{ isset($item) ? '' : ($meta['required'] ?? false ? 'required' : '') }}
+                                            accept="image/*"
                                             class="form-control shadow-none @error($name) is-invalid @enderror"
                                             @change="preview" :value="imageUrl">
+
+                                        <!-- Validation Error Message -->
+                                        @error($name)
+                                            <div class="invalid-feedback d-block mt-2">
+                                                <i class="bx bx-exclamation-circle me-1"></i>{{ $message }}
+                                            </div>
+                                        @enderror
 
                                         <!-- Image Preview Area -->
                                         <div class="mt-3">

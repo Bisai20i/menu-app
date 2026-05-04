@@ -27,8 +27,10 @@ class MenuImageController extends Controller
             'files.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
             'external_url' => 'nullable|url'
         ], [
-            'files.*.max' => 'Each image or PDF must be less than 5 MB.',
-            'files.*.mimes' => 'Only JPEG, PNG, JPG, GIF, and PDF files are allowed.'
+            'files.*.max' => 'Each file must be less than 5 MB. Please upload a smaller file.',
+            'files.*.mimes' => 'Only JPEG, PNG, JPG, GIF, and PDF files are allowed. Please check the file format.',
+            'files.*.file' => 'Each file must be a valid file. Please try uploading again.',
+            'external_url.url' => 'Please enter a valid URL format (e.g., https://example.com/image.jpg).',
         ]);
 
         $adminId = Auth::guard('admin')->id();
@@ -37,18 +39,22 @@ class MenuImageController extends Controller
         // Handle File Uploads
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
-                $path = $file->store('menu-gallery', 'public');
-                $type = strtolower($file->getClientOriginalExtension()) === 'pdf' ? 'pdf' : 'image';
+                try {
+                    $path = $file->store('menu-gallery', 'public');
+                    $type = strtolower($file->getClientOriginalExtension()) === 'pdf' ? 'pdf' : 'image';
 
-                MenuImage::create([
-                    'media_path' => $path,
-                    'media_type' => $type,
-                    'media_source' => 'local',
-                    'admin_id' => $adminId,
-                    'is_active' => true,
-                    'sort_order' => 0
-                ]);
-                $mediaAdded = true;
+                    MenuImage::create([
+                        'media_path' => $path,
+                        'media_type' => $type,
+                        'media_source' => 'local',
+                        'admin_id' => $adminId,
+                        'is_active' => true,
+                        'sort_order' => 0
+                    ]);
+                    $mediaAdded = true;
+                } catch (\Exception $e) {
+                    return back()->with('error', 'Failed to upload file: ' . $file->getClientOriginalName() . '. Please try again.');
+                }
             }
         }
 
@@ -73,7 +79,7 @@ class MenuImageController extends Controller
             return back()->with('success', 'Media added successfully!');
         }
 
-        return back()->with('error', 'No files or external URL provided.');
+        return back()->with('error', 'Please upload at least one file or provide an external URL.');
     }
 
     /**
